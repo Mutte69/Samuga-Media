@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samuga Media | Live Maldives News</title>
+  <meta name="description" content="Samuga Media is an English-first, AI-powered Maldives news feed with live updates around the clock." />
+  <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="utility">
+      <div class="wrap utility-inner">
+        <p id="todayLine">Samuga Media • AI Newsroom Live</p>
+        <nav aria-label="Social links">
+          <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram</a>
+          <a href="#latest">Latest</a>
+          <a href="#archive">Archive</a>
+          <button class="lang-toggle active" type="button" data-lang="en">EN</button>
+          <button class="lang-toggle" type="button" data-lang="dv">ދވ</button>
+        </nav>
+      </div>
+    </div>
+
+    <div class="wrap brand-row">
+      <a class="brand" href="index.html" aria-label="Samuga Media home">
+        <img class="brand-logo" src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media" />
+      </a>
+
+      <button class="menu-button" type="button" id="menuButton" aria-controls="primaryNav" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <nav class="primary-nav" id="primaryNav" aria-label="Primary navigation">
+      <div class="wrap nav-scroll">
+        <button class="nav-filter active" type="button" data-category="all">All</button>
+        <button class="nav-filter" type="button" data-category="Breaking">Breaking</button>
+        <button class="nav-filter" type="button" data-category="Politics">Politics</button>
+        <button class="nav-filter" type="button" data-category="Business">Business</button>
+        <button class="nav-filter" type="button" data-category="Sport">Sport</button>
+        <button class="nav-filter" type="button" data-category="World">World</button>
+        <button class="nav-filter" type="button" data-category="Community">Community</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="ticker-shell" aria-label="Breaking news">
+      <div class="wrap ticker-inner">
+        <strong>LIVE</strong>
+        <div class="ticker"><div id="tickerTrack"></div></div>
+      </div>
+    </section>
+
+    <section class="wrap hero-grid">
+      <article class="lead-story" id="leadStory">
+        <div class="lead-image loading-block">
+          <div class="ai-orb" aria-hidden="true">
+            <span class="ai-ring ring-one"></span>
+            <span class="ai-ring ring-two"></span>
+            <span class="ai-ring ring-three"></span>
+            <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI" />
+            <span class="ai-pulse"></span>
+          </div>
+        </div>
+        <div class="lead-copy">
+          <span class="eyebrow">Samuga AI Feed</span>
+          <h1>24/7 Maldives News, Published by Samuga AI</h1>
+          <p>Bot-generated Maldives updates will appear here as soon as they are published.</p>
+        </div>
+      </article>
+
+      <aside class="status-panel" aria-label="Bot status">
+        <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI logo" />
+        <div>
+          <span class="status-dot"></span>
+          <strong>Samuga AI is live</strong>
+          <p>Built to publish without social platform limits: article feed, archive, and direct story pages.</p>
+        </div>
+        <dl>
+          <div><dt>Stories</dt><dd id="storyCount">0</dd></div>
+          <div><dt>Last post</dt><dd id="lastPost">Loading</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="wrap feed-layout" id="latest">
+      <div>
+        <div class="section-head">
+          <div><span class="eyebrow">Latest</span><h2>Latest Stories</h2></div>
+          <label class="search-box"><span>Search</span><input id="searchInput" type="search" placeholder="Search stories" /></label>
+        </div>
+        <div class="story-grid" id="storyGrid" aria-live="polite"></div>
+      </div>
+
+      <aside class="rail" id="archive">
+        <section class="panel"><h2>Popular</h2><ol class="popular-list" id="popularList"></ol></section>
+        <section class="panel submit-panel"><h2>Send a Tip</h2><p>Have a Maldives story for Samuga AI to watch?</p><a href="mailto:news@samugamedia.com">news@samugamedia.com</a></section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><div><strong>Samuga Media</strong><p>English-first live news, powered by Samuga AI.</p></div><a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram channel</a></div></footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
