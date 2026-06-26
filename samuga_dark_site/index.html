@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Samuga Media | Live Maldives News</title>
-  <meta name="description" content="Samuga Media is an AI-assisted Maldives news platform with live updates, breaking stories and archive pages." />
+  <meta name="description" content="Samuga Media is an AI-assisted Maldives news platform with live updates, breaking stories and community reporting." />
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,7 +12,7 @@
   <header class="site-header">
     <div class="utility">
       <div class="wrap utility-inner">
-        <nav aria-label="Social links">
+        <nav aria-label="Quick links">
           <button class="lang-toggle active" type="button" data-lang="en">EN</button>
           <button class="lang-toggle" type="button" data-lang="dv">ދވ</button>
           <a href="#latest">Latest</a>
@@ -71,12 +71,24 @@
               <div class="stat-card"><dt>Status</dt><dd>Live</dd></div>
             </dl>
           </div>
+
           <div class="lead-image">
             <div class="ai-orb" aria-hidden="true">
-              <span class="ai-ring ring-one"></span><span class="ai-ring ring-two"></span><span class="ai-ring ring-three"></span><span class="ai-pulse"></span>
+              <span class="ai-ring ring-one"></span>
+              <span class="ai-ring ring-two"></span>
+              <span class="ai-ring ring-three"></span>
+              <span class="ai-pulse"></span>
               <img src="assets/SamugaNewsBot_Profile.png" alt="" />
             </div>
           </div>
+
+          <aside class="sponsor-slot" aria-label="Sponsored banners">
+            <div class="sponsor-label">Sponsored</div>
+            <a class="sponsor-frame" id="sponsorLink" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+              <img id="sponsorImage" src="assets/sponsor_samuga_media.png" alt="Samuga Media promotion" />
+            </a>
+            <div class="sponsor-dots" id="sponsorDots" aria-hidden="true"></div>
+          </aside>
         </article>
       </div>
     </section>
