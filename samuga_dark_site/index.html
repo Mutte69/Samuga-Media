@@ -3,23 +3,1078 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Samuga Media | Live Maldives News</title>
-  <meta name="description" content="Samuga Media is an English-first, AI-powered Maldives news feed with live updates around the clock." />
+  <meta name="description" content="Samuga Media is an English-first, bot-powered Maldives news feed with live updates around the clock." />
+
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
-  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    :root {
+      --bg: #020509;
+      --bg-soft: #050b12;
+      --card: #07101b;
+      --card-2: #0a1422;
+      --line: rgba(40, 184, 255, 0.14);
+      --line-soft: rgba(255,255,255,.08);
+      --text: #f7fbff;
+      --muted: #9aa8ba;
+      --blue: #28b8ff;
+      --blue-2: #00b3ff;
+      --deep-blue: #061529;
+      --red: #ff3b30;
+      --green: #14e27d;
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 5%, rgba(40,184,255,.08), transparent 30%),
+        radial-gradient(circle at 20% 20%, rgba(0,179,255,.04), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans Thaana", "MV Typewriter", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    body.lang-dv {
+      direction: rtl;
+    }
+
+    body.lang-dv .story-card,
+    body.lang-dv .lead-copy,
+    body.lang-dv .article-body,
+    body.lang-dv .status-panel {
+      text-align: right;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin-inline: auto;
+    }
+
+    /* HEADER */
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(2, 5, 9, 0.92);
+      border-bottom: 1px solid var(--line-soft);
+      backdrop-filter: blur(18px);
+    }
+
+    .utility {
+      background: rgba(2,5,9,.86);
+      color: #fff;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .utility-inner,
+    .brand-row,
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .utility p {
+      margin: 8px 0;
+      color: #dce9f5;
+    }
+
+    .utility nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .utility a {
+      color: #dce9f5;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .utility a:hover {
+      color: var(--blue);
+    }
+
+    .lang-toggle {
+      border: 1px solid rgba(40, 184, 255, 0.5);
+      border-radius: 8px;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      min-width: 38px;
+      padding: 5px 10px;
+      transition: .2s;
+    }
+
+    .lang-toggle.active {
+      background: var(--blue);
+      color: #001018;
+      border-color: var(--blue);
+      box-shadow: 0 0 22px rgba(40,184,255,.35);
+    }
+
+    .brand-row {
+      padding: 18px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: min(360px, 64vw);
+      height: auto;
+      max-height: 92px;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 0 12px rgba(40, 184, 255, 0.35))
+        drop-shadow(0 0 28px rgba(40, 184, 255, 0.15));
+    }
+
+    .menu-button {
+      display: none;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      place-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .menu-button span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 99px;
+    }
+
+    .primary-nav {
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .nav-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 12px 0;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .nav-scroll::-webkit-scrollbar-thumb {
+      background: var(--blue);
+      border-radius: 99px;
+    }
+
+    .nav-filter {
+      flex: 0 0 auto;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 10px 16px;
+      font-weight: 800;
+      white-space: nowrap;
+      transition: .2s ease;
+    }
+
+    .nav-filter.active,
+    .nav-filter:hover {
+      border-color: rgba(40,184,255,.65);
+      background: rgba(40,184,255,.12);
+      color: #fff;
+      box-shadow: 0 0 22px rgba(40,184,255,.12);
+    }
+
+    /* TICKER */
+
+    .ticker-shell {
+      background: #000;
+      color: #fff;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .ticker-inner {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      min-height: 50px;
+    }
+
+    .ticker-inner strong {
+      border-radius: 8px;
+      background: var(--red);
+      padding: 5px 10px;
+      font-size: 13px;
+      box-shadow: 0 0 24px rgba(255,59,48,.3);
+    }
+
+    .ticker {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    #tickerTrack {
+      display: inline-flex;
+      gap: 34px;
+      min-width: 100%;
+      animation: ticker 38s linear infinite;
+    }
+
+    #tickerTrack span::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-inline-end: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 16px var(--blue);
+    }
+
+    @keyframes ticker {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* HERO */
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 22px;
+      padding: 26px 0;
+    }
+
+    .lead-story,
+    .status-panel,
+    .panel,
+    .story-card {
+      background: linear-gradient(180deg, rgba(10,20,34,.95), rgba(5,10,18,.98));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .lead-story {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(360px, 1.15fr);
+      overflow: hidden;
+      min-height: 430px;
+    }
+
+    .lead-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      padding: clamp(26px, 5vw, 50px);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(40,184,255,.08), transparent 30%),
+        linear-gradient(135deg, rgba(2,5,9,.95), rgba(8,16,28,.9));
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(40px, 6vw, 76px);
+      line-height: 1.02;
+      letter-spacing: -2.4px;
+    }
+
+    .lead-copy p,
+    .status-panel p,
+    .submit-panel p {
+      color: var(--muted);
+    }
+
+    .lead-copy .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #d8e8f7;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    .mini-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(40,184,255,.12);
+      border: 1px solid rgba(40,184,255,.38);
+      color: var(--blue);
+      box-shadow: 0 0 26px rgba(40,184,255,.2);
+    }
+
+    /* AI ORB PANEL */
+
+    .lead-image {
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(40, 184, 255, 0.22), transparent 24%),
+        radial-gradient(circle at 50% 50%, rgba(0, 179, 255, 0.14), transparent 42%),
+        linear-gradient(135deg, #02070d 0%, #061529 45%, #02070d 100%);
+      min-height: 430px;
+    }
+
+    .lead-image::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        linear-gradient(90deg, transparent 49.8%, rgba(40, 184, 255, 0.08) 50%, transparent 50.2%),
+        linear-gradient(0deg, transparent 49.8%, rgba(40, 184, 255, 0.08) 50%, transparent 50.2%);
+      animation: samuga-grid-spin 28s linear infinite;
+      opacity: 0.55;
+    }
+
+    .lead-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(40, 184, 255, 0.08) 39%, transparent 41%),
+        radial-gradient(circle at 50% 50%, transparent 0 58%, rgba(40, 184, 255, 0.06) 59%, transparent 61%);
+      pointer-events: none;
+    }
+
+    .samuga-ai-orb {
+      position: relative;
+      width: min(82%, 520px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      isolation: isolate;
+      filter:
+        drop-shadow(0 0 22px rgba(40, 184, 255, 0.55))
+        drop-shadow(0 0 70px rgba(0, 179, 255, 0.28));
+    }
+
+    .samuga-ai-orb img {
+      position: relative;
+      z-index: 10;
+      width: 72%;
+      height: 72%;
+      object-fit: contain;
+      border-radius: 50%;
+      animation:
+        samuga-core-float 4.8s ease-in-out infinite,
+        samuga-core-glow 2.8s ease-in-out infinite;
+      filter:
+        drop-shadow(0 0 16px rgba(40, 184, 255, 0.95))
+        drop-shadow(0 0 42px rgba(40, 184, 255, 0.45));
+    }
+
+    .orb-glow {
+      position: absolute;
+      inset: 18%;
+      z-index: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(40, 184, 255, 0.48), transparent 62%);
+      filter: blur(18px);
+      animation: samuga-pulse 2.6s ease-in-out infinite;
+    }
+
+    .orbit {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(40, 184, 255, 0.45);
+      box-shadow:
+        inset 0 0 24px rgba(40, 184, 255, 0.18),
+        0 0 28px rgba(40, 184, 255, 0.14);
+    }
+
+    .orbit-one {
+      inset: 4%;
+      border-top-color: rgba(255, 255, 255, 0.72);
+      border-right-color: rgba(40, 184, 255, 0.15);
+      animation: samuga-orbit 16s linear infinite;
+    }
+
+    .orbit-two {
+      inset: 15%;
+      border-style: dashed;
+      border-color: rgba(40, 184, 255, 0.38);
+      animation: samuga-orbit-reverse 10s linear infinite;
+    }
+
+    .orbit-three {
+      inset: 27%;
+      border-width: 2px;
+      border-color: rgba(0, 179, 255, 0.7);
+      box-shadow:
+        0 0 16px rgba(0, 179, 255, 0.6),
+        inset 0 0 18px rgba(0, 179, 255, 0.25);
+      animation: samuga-breathe 3.4s ease-in-out infinite;
+    }
+
+    .scan-line {
+      position: absolute;
+      z-index: 4;
+      width: 145%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(40, 184, 255, 0.15),
+        rgba(40, 184, 255, 0.95),
+        rgba(255, 255, 255, 0.9),
+        rgba(40, 184, 255, 0.95),
+        rgba(40, 184, 255, 0.15),
+        transparent
+      );
+      box-shadow: 0 0 16px rgba(40, 184, 255, 0.95);
+      transform-origin: center;
+      opacity: 0.8;
+    }
+
+    .scan-one {
+      animation: samuga-scan 4s linear infinite;
+    }
+
+    .scan-two {
+      transform: rotate(90deg);
+      animation: samuga-scan-two 5.5s linear infinite;
+      opacity: 0.45;
+    }
+
+    .compass-line {
+      position: absolute;
+      z-index: 3;
+      width: 2px;
+      height: 46%;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(40, 184, 255, 0.18),
+        rgba(40, 184, 255, 0.9),
+        transparent
+      );
+      transform-origin: bottom center;
+      opacity: 0.8;
+    }
+
+    .line-n {
+      top: 4%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .line-e {
+      top: 27%;
+      right: 27%;
+      transform: rotate(90deg);
+    }
+
+    .line-s {
+      bottom: 4%;
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg);
+    }
+
+    .line-w {
+      top: 27%;
+      left: 27%;
+      transform: rotate(-90deg);
+    }
+
+    .data-dot {
+      position: absolute;
+      z-index: 8;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #28b8ff;
+      box-shadow:
+        0 0 10px rgba(40, 184, 255, 1),
+        0 0 22px rgba(40, 184, 255, 0.8);
+      animation: samuga-dot-pulse 2s ease-in-out infinite;
+    }
+
+    .dot-one {
+      top: 10%;
+      left: 50%;
+    }
+
+    .dot-two {
+      top: 50%;
+      right: 10%;
+      animation-delay: 0.4s;
+    }
+
+    .dot-three {
+      bottom: 10%;
+      left: 50%;
+      animation-delay: 0.8s;
+    }
+
+    .dot-four {
+      top: 50%;
+      left: 10%;
+      animation-delay: 1.2s;
+    }
+
+    /* STATUS CARD */
+
+    .status-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .status-panel .small-orb {
+      display: grid;
+      place-items: center;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(40,184,255,.2), transparent 58%);
+      border: 1px solid rgba(40,184,255,.18);
+      box-shadow: 0 0 46px rgba(40,184,255,.12);
+    }
+
+    .status-panel img {
+      width: 72px;
+      border-radius: 50%;
+      animation: samuga-small-orb 4s ease-in-out infinite;
+      filter:
+        drop-shadow(0 0 16px rgba(40, 184, 255, 0.9))
+        drop-shadow(0 0 42px rgba(40, 184, 255, 0.38));
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-inline-end: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(20, 226, 125, 0.14), 0 0 18px rgba(20,226,125,.7);
+    }
+
+    .status-panel dl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: auto 0 0;
+    }
+
+    .status-panel dl div {
+      border-radius: 16px;
+      background: rgba(40,184,255,.08);
+      border: 1px solid rgba(40,184,255,.12);
+      padding: 14px;
+    }
+
+    .status-panel dt {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-panel dd {
+      margin: 4px 0 0;
+      color: var(--blue);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .status-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: #dff6ff;
+      border: 1px solid rgba(40,184,255,.38);
+      background: rgba(40,184,255,.08);
+      width: fit-content;
+      box-shadow: 0 0 28px rgba(40,184,255,.1);
+      font-weight: 800;
+    }
+
+    /* FEED */
+
+    .feed-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 22px;
+      padding-bottom: 44px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(26px, 4vw, 42px);
+    }
+
+    .search-box {
+      display: grid;
+      gap: 6px;
+      min-width: min(320px, 100%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: rgba(40,184,255,.65);
+      box-shadow: 0 0 24px rgba(40,184,255,.12);
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .story-card {
+      overflow: hidden;
+      transition: .2s ease;
+    }
+
+    .story-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(40,184,255,.42);
+    }
+
+    .story-card-image {
+      aspect-ratio: 16 / 9;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(40,184,255,.24), transparent 32%),
+        linear-gradient(135deg, #061529, #020509);
+    }
+
+    .story-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .story-card-body {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .story-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      background: rgba(40,184,255,.12);
+      border: 1px solid rgba(40,184,255,.22);
+      color: var(--blue);
+      padding: 3px 8px;
+      font-weight: 900;
+    }
+
+    .tag.breaking {
+      color: #ff837d;
+      background: rgba(255,59,48,.12);
+      border-color: rgba(255,59,48,.32);
+    }
+
+    .story-card h3 {
+      font-size: 21px;
+      line-height: 1.25;
+    }
+
+    .story-card p {
+      color: var(--muted);
+    }
+
+    .read-more {
+      color: var(--blue);
+      font-weight: 900;
+      margin-top: 4px;
+    }
+
+    .rail {
+      display: grid;
+      align-content: start;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin-bottom: 12px;
+    }
+
+    .popular-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding-inline-start: 22px;
+    }
+
+    .popular-list a {
+      font-weight: 800;
+      color: #eaf8ff;
+    }
+
+    .submit-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .submit-panel a {
+      color: var(--blue);
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      border: 1px dashed rgba(40,184,255,.25);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      padding: 26px;
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+
+    .footer {
+      background: #000;
+      color: #fff;
+      padding: 28px 0;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .footer p {
+      color: rgba(255, 255, 255, 0.62);
+      margin-top: 6px;
+    }
+
+    .footer a {
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    /* ANIMATIONS */
+
+    @keyframes samuga-grid-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes samuga-orbit {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes samuga-orbit-reverse {
+      to {
+        transform: rotate(-360deg);
+      }
+    }
+
+    @keyframes samuga-core-float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-10px) scale(1.035);
+      }
+    }
+
+    @keyframes samuga-core-glow {
+      0%, 100% {
+        filter:
+          drop-shadow(0 0 14px rgba(40, 184, 255, 0.85))
+          drop-shadow(0 0 36px rgba(40, 184, 255, 0.35));
+      }
+      50% {
+        filter:
+          drop-shadow(0 0 26px rgba(40, 184, 255, 1))
+          drop-shadow(0 0 70px rgba(40, 184, 255, 0.65));
+      }
+    }
+
+    @keyframes samuga-pulse {
+      0%, 100% {
+        opacity: 0.45;
+        transform: scale(0.9);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.14);
+      }
+    }
+
+    @keyframes samuga-breathe {
+      0%, 100% {
+        opacity: 0.55;
+        transform: scale(0.96);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes samuga-scan {
+      0% {
+        transform: rotate(0deg);
+        opacity: 0.15;
+      }
+      30% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: rotate(360deg);
+        opacity: 0.15;
+      }
+    }
+
+    @keyframes samuga-scan-two {
+      0% {
+        transform: rotate(90deg);
+        opacity: 0.08;
+      }
+      40% {
+        opacity: 0.55;
+      }
+      100% {
+        transform: rotate(450deg);
+        opacity: 0.08;
+      }
+    }
+
+    @keyframes samuga-dot-pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.55;
+      }
+      50% {
+        transform: scale(1.55);
+        opacity: 1;
+      }
+    }
+
+    @keyframes samuga-small-orb {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-4px) scale(1.04);
+      }
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .feed-layout,
+      .lead-story {
+        grid-template-columns: 1fr;
+      }
+
+      .lead-image {
+        min-height: 340px;
+      }
+
+      .samuga-ai-orb {
+        width: min(76%, 360px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .menu-button {
+        display: grid;
+      }
+
+      .primary-nav {
+        display: none;
+      }
+
+      .primary-nav.open {
+        display: block;
+      }
+
+      .story-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .wrap {
+        width: min(100% - 22px, 1180px);
+      }
+
+      .utility-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0;
+        padding-bottom: 8px;
+      }
+
+      .utility nav {
+        flex-wrap: wrap;
+      }
+
+      .brand-logo {
+        width: min(260px, 72vw);
+        max-height: 70px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .lead-copy {
+        padding: 26px;
+      }
+
+      .lead-image {
+        min-height: 280px;
+      }
+
+      .samuga-ai-orb {
+        width: min(84%, 280px);
+      }
+
+      .scan-line {
+        width: 130%;
+      }
+
+      .data-dot {
+        width: 7px;
+        height: 7px;
+      }
+
+      .status-panel dl,
+      .footer-inner {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .ticker-inner {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .ticker-inner strong {
+        display: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <header class="site-header">
     <div class="utility">
       <div class="wrap utility-inner">
-        <p id="todayLine">Samuga Media • AI Newsroom Live</p>
         <nav aria-label="Social links">
-          <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram</a>
-          <a href="#latest">Latest</a>
+          <button class="lang-toggle active" type="button" data-lang="dv">ދވ</button>
+          <button class="lang-toggle" type="button" data-lang="en">EN</button>
           <a href="#archive">Archive</a>
-          <button class="lang-toggle active" type="button" data-lang="en">EN</button>
-          <button class="lang-toggle" type="button" data-lang="dv">ދވ</button>
+          <a href="#latest">Latest</a>
+          <a href="https://t.me/samugacommunity" target="_blank">Telegram</a>
         </nav>
+
+        <p id="todayLine">Samuga Media</p>
       </div>
     </div>
 
@@ -29,7 +1084,9 @@
       </a>
 
       <button class="menu-button" type="button" id="menuButton" aria-controls="primaryNav" aria-expanded="false">
-        <span></span><span></span><span></span>
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
     </div>
 
@@ -50,60 +1107,368 @@
     <section class="ticker-shell" aria-label="Breaking news">
       <div class="wrap ticker-inner">
         <strong>LIVE</strong>
-        <div class="ticker"><div id="tickerTrack"></div></div>
+
+        <div class="ticker">
+          <div id="tickerTrack"></div>
+        </div>
+
+        <strong>LIVE</strong>
       </div>
     </section>
 
     <section class="wrap hero-grid">
-      <article class="lead-story" id="leadStory">
-        <div class="lead-image loading-block">
-          <div class="ai-orb" aria-hidden="true">
-            <span class="ai-ring ring-one"></span>
-            <span class="ai-ring ring-two"></span>
-            <span class="ai-ring ring-three"></span>
-            <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI" />
-            <span class="ai-pulse"></span>
-          </div>
-        </div>
-        <div class="lead-copy">
-          <span class="eyebrow">Samuga AI Feed</span>
-          <h1>24/7 Maldives News, Published by Samuga AI</h1>
-          <p>Bot-generated Maldives updates will appear here as soon as they are published.</p>
-        </div>
-      </article>
-
       <aside class="status-panel" aria-label="Bot status">
-        <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI logo" />
+        <div class="small-orb">
+          <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI logo" />
+        </div>
+
         <div>
           <span class="status-dot"></span>
           <strong>Samuga AI is live</strong>
           <p>Built to publish without social platform limits: article feed, archive, and direct story pages.</p>
         </div>
+
+        <a class="status-button" href="#latest">
+          System Status ⟶
+        </a>
+
         <dl>
-          <div><dt>Stories</dt><dd id="storyCount">0</dd></div>
-          <div><dt>Last post</dt><dd id="lastPost">Loading</dd></div>
+          <div>
+            <dt>Stories</dt>
+            <dd id="storyCount">0</dd>
+          </div>
+          <div>
+            <dt>Last post</dt>
+            <dd id="lastPost">Loading</dd>
+          </div>
         </dl>
       </aside>
+
+      <article class="lead-story" id="leadStory">
+        <div class="lead-copy">
+          <span class="eyebrow">Breaking • Samuga Media</span>
+          <h1>Samuga AI newsroom is now monitoring Maldives news live</h1>
+          <p>Bot-generated Maldives updates will appear here as soon as they are published.</p>
+
+          <div class="mini-row">
+            <span class="mini-icon">↗</span>
+            <span>Live updates around the clock</span>
+          </div>
+        </div>
+
+        <div class="lead-image">
+          <div class="samuga-ai-orb" aria-hidden="true">
+            <div class="orb-glow"></div>
+
+            <span class="scan-line scan-one"></span>
+            <span class="scan-line scan-two"></span>
+
+            <span class="orbit orbit-one"></span>
+            <span class="orbit orbit-two"></span>
+            <span class="orbit orbit-three"></span>
+
+            <span class="compass-line line-n"></span>
+            <span class="compass-line line-e"></span>
+            <span class="compass-line line-s"></span>
+            <span class="compass-line line-w"></span>
+
+            <span class="data-dot dot-one"></span>
+            <span class="data-dot dot-two"></span>
+            <span class="data-dot dot-three"></span>
+            <span class="data-dot dot-four"></span>
+
+            <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI" />
+          </div>
+        </div>
+      </article>
     </section>
 
     <section class="wrap feed-layout" id="latest">
       <div>
         <div class="section-head">
-          <div><span class="eyebrow">Latest</span><h2>Latest Stories</h2></div>
-          <label class="search-box"><span>Search</span><input id="searchInput" type="search" placeholder="Search stories" /></label>
+          <div>
+            <span class="eyebrow">Latest</span>
+            <h2>Latest Stories</h2>
+          </div>
+
+          <label class="search-box">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Search stories" />
+          </label>
         </div>
+
         <div class="story-grid" id="storyGrid" aria-live="polite"></div>
       </div>
 
       <aside class="rail" id="archive">
-        <section class="panel"><h2>Popular</h2><ol class="popular-list" id="popularList"></ol></section>
-        <section class="panel submit-panel"><h2>Send a Tip</h2><p>Have a Maldives story for Samuga AI to watch?</p><a href="mailto:news@samugamedia.com">news@samugamedia.com</a></section>
+        <section class="panel">
+          <h2>Popular</h2>
+          <ol class="popular-list" id="popularList"></ol>
+        </section>
+
+        <section class="panel submit-panel">
+          <h2>Send a Tip</h2>
+          <p>Have a Maldives story for Samuga AI to watch?</p>
+          <a href="mailto:news@samugamedia.com">news@samugamedia.com</a>
+        </section>
       </aside>
     </section>
   </main>
 
-  <footer class="footer"><div class="wrap footer-inner"><div><strong>Samuga Media</strong><p>English-first live news, powered by Samuga AI.</p></div><a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram channel</a></div></footer>
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <div>
+        <strong>Samuga Media</strong>
+        <p>English-first live news, powered by Samuga AI.</p>
+      </div>
 
-  <script src="script.js"></script>
+      <a href="https://t.me/samugacommunity" target="_blank">Telegram channel</a>
+    </div>
+  </footer>
+
+  <script>
+    /*
+      WHEN BOT API IS READY:
+      change this to your Railway bot URL.
+
+      Example:
+      const BOT_API_BASE = "https://samuga-news-bot.up.railway.app";
+    */
+
+    const BOT_API_BASE = "";
+
+    const fallbackStories = [
+      {
+        title: "Samuga AI newsroom is now monitoring Maldives news live",
+        summary: "The system tracks local updates, breaking incidents, politics, economy and public-interest stories from multiple sources.",
+        category: "Breaking",
+        source: "Samuga Media",
+        time: "Live",
+        url: "#"
+      },
+      {
+        title: "AI-assisted publishing helps Samuga reduce social media posting limits",
+        summary: "Stories can be published through the website while Telegram and social platforms continue operating with controlled posting.",
+        category: "Community",
+        source: "Samuga Media",
+        time: "Today",
+        url: "#"
+      },
+      {
+        title: "Politics, economy and public-interest stories will receive higher priority",
+        summary: "The newsroom system is designed to prioritize issues that affect Maldivians directly.",
+        category: "Politics",
+        source: "Samuga AI",
+        time: "Today",
+        url: "#"
+      },
+      {
+        title: "Weather, prayer times and alerts will be part of Samuga daily updates",
+        summary: "The bot can generate weather cards and public alerts for Telegram and the Samuga website.",
+        category: "Community",
+        source: "Samuga AI",
+        time: "Today",
+        url: "#"
+      }
+    ];
+
+    let allStories = [];
+    let currentCategory = "all";
+
+    const storyGrid = document.getElementById("storyGrid");
+    const popularList = document.getElementById("popularList");
+    const tickerTrack = document.getElementById("tickerTrack");
+    const storyCount = document.getElementById("storyCount");
+    const lastPost = document.getElementById("lastPost");
+    const todayLine = document.getElementById("todayLine");
+    const searchInput = document.getElementById("searchInput");
+    const menuButton = document.getElementById("menuButton");
+    const primaryNav = document.getElementById("primaryNav");
+
+    function setDate() {
+      const date = new Date();
+      todayLine.textContent = date.toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    async function loadStories() {
+      try {
+        if (!BOT_API_BASE) throw new Error("No API connected yet");
+
+        const response = await fetch(`${BOT_API_BASE}/api/stories`);
+        if (!response.ok) throw new Error("API error");
+
+        allStories = await response.json();
+      } catch (error) {
+        allStories = fallbackStories;
+      }
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderLead();
+      renderTicker();
+      renderStories();
+      renderPopular();
+
+      storyCount.textContent = allStories.length;
+      lastPost.textContent = allStories[0]?.time || "Now";
+    }
+
+    function renderLead() {
+      const lead = allStories[0];
+      if (!lead) return;
+
+      const leadStory = document.getElementById("leadStory");
+      const title = escapeHTML(lead.title);
+      const summary = escapeHTML(lead.summary || "");
+      const category = escapeHTML(lead.category || "Breaking");
+
+      leadStory.querySelector(".eyebrow").textContent = `${category} • ${lead.source || "Samuga Media"}`;
+      leadStory.querySelector("h1").textContent = lead.title;
+      leadStory.querySelector("p").textContent = lead.summary || "Latest story from Samuga Media.";
+    }
+
+    function renderTicker() {
+      const items = allStories.length ? allStories : fallbackStories;
+
+      const tickerText = items
+        .slice(0, 6)
+        .map(story => `<span><b>LIVE:</b> ${escapeHTML(story.title)}</span>`)
+        .join("");
+
+      tickerTrack.innerHTML = tickerText + tickerText;
+    }
+
+    function renderStories() {
+      const query = (searchInput.value || "").toLowerCase().trim();
+
+      const filtered = allStories.filter(story => {
+        const categoryMatch =
+          currentCategory === "all" ||
+          normalize(story.category) === normalize(currentCategory);
+
+        const searchMatch =
+          !query ||
+          normalize(story.title).includes(query) ||
+          normalize(story.summary).includes(query) ||
+          normalize(story.source).includes(query);
+
+        return categoryMatch && searchMatch;
+      });
+
+      storyGrid.innerHTML = "";
+
+      if (!filtered.length) {
+        storyGrid.innerHTML = `
+          <div class="empty-state">
+            No stories found for this filter yet.
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(story => {
+        const card = document.createElement("article");
+        card.className = "story-card";
+
+        const cat = story.category || "Community";
+        const isBreaking = normalize(cat) === "breaking";
+
+        card.innerHTML = `
+          <div class="story-card-image"></div>
+
+          <div class="story-card-body">
+            <div class="story-meta">
+              <span class="tag ${isBreaking ? "breaking" : ""}">${escapeHTML(cat)}</span>
+              <span>${escapeHTML(story.source || "Samuga Media")}</span>
+              <span>${escapeHTML(story.time || "Now")}</span>
+            </div>
+
+            <h3>${escapeHTML(story.title)}</h3>
+            <p>${escapeHTML(story.summary || "")}</p>
+            <a class="read-more" href="${story.url || "#"}" target="_blank">Read more →</a>
+          </div>
+        `;
+
+        storyGrid.appendChild(card);
+      });
+    }
+
+    function renderPopular() {
+      popularList.innerHTML = "";
+
+      allStories.slice(0, 5).forEach(story => {
+        const item = document.createElement("li");
+
+        item.innerHTML = `
+          <a href="${story.url || "#"}" target="_blank">
+            ${escapeHTML(story.title)}
+          </a>
+        `;
+
+        popularList.appendChild(item);
+      });
+    }
+
+    document.querySelectorAll(".nav-filter").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-filter").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        currentCategory = button.dataset.category;
+        renderStories();
+
+        button.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest"
+        });
+      });
+    });
+
+    document.querySelectorAll(".lang-toggle").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".lang-toggle").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        if (button.dataset.lang === "dv") {
+          document.body.classList.add("lang-dv");
+        } else {
+          document.body.classList.remove("lang-dv");
+        }
+      });
+    });
+
+    searchInput.addEventListener("input", renderStories);
+
+    if (menuButton) {
+      menuButton.addEventListener("click", () => {
+        const open = primaryNav.classList.toggle("open");
+        menuButton.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    }
+
+    function normalize(value) {
+      return String(value || "").toLowerCase().trim();
+    }
+
+    function escapeHTML(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    setDate();
+    loadStories();
+  </script>
 </body>
 </html>
