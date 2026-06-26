@@ -3,21 +3,751 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Samuga Media | Live Maldives News</title>
-  <meta name="description" content="Samuga Media is an AI-assisted Maldives news platform with live updates, breaking stories and community reporting." />
+  <meta name="description" content="Samuga Media is an AI-assisted Maldives news platform with live updates, breaking stories and Samuga AI chat." />
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
-  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    :root{
+      --ink:#f5f8ff;
+      --muted:#9aa8b8;
+      --line:rgba(255,255,255,.09);
+      --paper:#020305;
+      --card:#0b1017;
+      --card2:#101824;
+      --blue:#28b8ff;
+      --cyan:#11d4ff;
+      --red:#ff3b30;
+      --green:#14e88a;
+      --shadow:0 18px 50px rgba(0,0,0,.55);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 20% -10%,rgba(40,184,255,.13),transparent 28%),
+        radial-gradient(circle at 85% 5%,rgba(17,212,255,.08),transparent 30%),
+        var(--paper);
+      color:var(--ink);
+      font-family:Arial,"Noto Sans Thaana","MV Typewriter",sans-serif;
+      line-height:1.55;
+      overflow-x:hidden;
+    }
+
+    body.lang-dv{direction:rtl}
+    body.lang-dv .story-card,
+    body.lang-dv .lead-copy,
+    body.lang-dv .popular-list{text-align:right;direction:rtl}
+    body.lang-dv .utility-inner,
+    body.lang-dv .brand-row,
+    body.lang-dv .ticker-inner,
+    body.lang-dv .footer-inner{direction:ltr}
+
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%}
+    button,input,textarea{font:inherit}
+    .wrap{width:min(1180px,calc(100% - 32px));margin-inline:auto}
+
+    .site-header{
+      position:relative;
+      z-index:20;
+      background:rgba(2,3,5,.94);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(16px);
+    }
+
+    .utility{
+      background:#03070c;
+      color:#d7efff;
+      font-size:13px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .utility-inner,.brand-row,.footer-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .utility p{margin:8px 0}
+    .utility nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .utility a{color:#c8d8e8;font-weight:700}
+    .utility a:hover{color:var(--blue)}
+
+    .lang-toggle{
+      border:1px solid rgba(40,184,255,.34);
+      border-radius:8px;
+      background:transparent;
+      color:#fff;
+      cursor:pointer;
+      min-width:40px;
+      padding:5px 9px;
+    }
+
+    .lang-toggle.active{
+      background:var(--blue);
+      color:#00111c;
+      border-color:var(--blue);
+    }
+
+    .brand-row{padding:18px 0}
+    .brand img{
+      width:min(330px,62vw);
+      height:auto;
+      max-height:82px;
+      object-fit:contain;
+      filter:drop-shadow(0 10px 22px rgba(40,184,255,.22));
+    }
+
+    .menu-button{
+      display:none;
+      width:44px;
+      height:44px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#08101a;
+      place-items:center;
+      gap:4px;
+      cursor:pointer;
+    }
+
+    .menu-button span{display:block;width:18px;height:2px;background:var(--ink)}
+
+    .primary-nav{
+      border-top:1px solid var(--line);
+      background:rgba(4,8,14,.74);
+    }
+
+    .nav-scroll{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:10px 0;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .nav-scroll::-webkit-scrollbar{height:4px}
+    .nav-scroll::-webkit-scrollbar-thumb{background:var(--blue);border-radius:99px}
+
+    .nav-filter{
+      flex:0 0 auto;
+      border:1px solid transparent;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
+      cursor:pointer;
+      padding:9px 14px;
+      white-space:nowrap;
+      font-weight:800;
+    }
+
+    .nav-filter.active,.nav-filter:hover{
+      border-color:rgba(40,184,255,.42);
+      background:rgba(40,184,255,.14);
+      color:#e9f8ff;
+    }
+
+    .ticker-shell{
+      background:#000;
+      color:#fff;
+      border-bottom:1px solid var(--line);
+    }
+
+    .ticker-inner{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:14px;
+      align-items:center;
+      min-height:46px;
+    }
+
+    .ticker-inner strong{
+      border-radius:6px;
+      background:var(--red);
+      padding:4px 8px;
+      font-size:13px;
+    }
+
+    .ticker{overflow:hidden;white-space:nowrap}
+    #tickerTrack{
+      display:inline-flex;
+      gap:34px;
+      min-width:max-content;
+      animation:ticker 38s linear infinite;
+    }
+
+    #tickerTrack span::before{
+      content:"";
+      display:inline-block;
+      width:7px;
+      height:7px;
+      margin-inline-end:10px;
+      border-radius:50%;
+      background:var(--cyan);
+      box-shadow:0 0 14px var(--cyan);
+    }
+
+    .ask-ai-top{
+      border:1px solid rgba(40,184,255,.38);
+      border-radius:999px;
+      background:rgba(40,184,255,.09);
+      color:#e9f8ff;
+      padding:7px 12px;
+      cursor:pointer;
+      font-weight:900;
+    }
+
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:22px;
+      padding:26px 0;
+      align-items:stretch;
+    }
+
+    .lead-story,.sponsor-panel,.panel,.story-card{
+      background:linear-gradient(180deg,var(--card),#070b11);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .lead-story{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(280px,42%);
+      overflow:hidden;
+      min-height:420px;
+    }
+
+    .lead-copy{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:14px;
+      padding:clamp(26px,5vw,54px);
+      min-width:0;
+    }
+
+    .eyebrow{
+      color:var(--blue);
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+    }
+
+    h1,h2,h3,p{margin:0}
+    h1{
+      font-size:clamp(38px,5.2vw,68px);
+      line-height:1.02;
+      letter-spacing:-2px;
+      max-width:720px;
+    }
+
+    .lead-copy p{
+      color:var(--muted);
+      font-size:18px;
+      max-width:620px;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:1px solid rgba(40,184,255,.35);
+      background:rgba(40,184,255,.08);
+      color:#dff6ff;
+      font-weight:900;
+      padding:11px 16px;
+      cursor:pointer;
+    }
+
+    .pill.primary{
+      background:var(--blue);
+      color:#00111c;
+      border-color:var(--blue);
+    }
+
+    .lead-image{
+      position:relative;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 45%,rgba(40,184,255,.34),transparent 34%),
+        radial-gradient(circle at 50% 50%,rgba(4,87,200,.26),transparent 48%),
+        linear-gradient(145deg,#06172f 0%,#0b315d 44%,#06101f 100%);
+      min-height:320px;
+    }
+
+    .lead-image::before,.lead-image::after{
+      content:"";
+      position:absolute;
+      inset:9%;
+      border-radius:50%;
+      pointer-events:none;
+    }
+
+    .lead-image::before{
+      border:1px solid rgba(40,184,255,.28);
+      box-shadow:inset 0 0 48px rgba(40,184,255,.2),0 0 70px rgba(40,184,255,.2);
+      animation:halo-breathe 4.8s ease-in-out infinite;
+    }
+
+    .lead-image::after{
+      background:
+        linear-gradient(90deg,transparent 49%,rgba(40,184,255,.18) 50%,transparent 51%),
+        linear-gradient(0deg,transparent 49%,rgba(40,184,255,.18) 50%,transparent 51%);
+      opacity:.7;
+      animation:grid-spin 18s linear infinite;
+    }
+
+    .ai-orb{
+      position:relative;
+      display:grid;
+      place-items:center;
+      width:min(68%,320px);
+      aspect-ratio:1;
+      border-radius:50%;
+      isolation:isolate;
+    }
+
+    .ai-orb img{
+      position:relative;
+      z-index:3;
+      width:72%;
+      height:72%;
+      border-radius:50%;
+      object-fit:contain;
+      filter:drop-shadow(0 0 18px rgba(40,184,255,.8)) drop-shadow(0 0 48px rgba(40,184,255,.42));
+      animation:core-float 4.2s ease-in-out infinite;
+    }
+
+    .ai-ring,.ai-pulse{position:absolute;inset:0;border-radius:50%}
+    .ai-ring{border:1px solid rgba(40,184,255,.46);box-shadow:0 0 28px rgba(40,184,255,.2)}
+    .ring-one{inset:6%;border-style:dashed;animation:orbit 12s linear infinite}
+    .ring-two{inset:15%;border-color:rgba(255,255,255,.3);animation:orbit-reverse 9s linear infinite}
+    .ring-three{inset:26%;border-width:2px;animation:halo-breathe 3.2s ease-in-out infinite}
+    .ai-pulse{inset:30%;z-index:1;background:radial-gradient(circle,rgba(40,184,255,.36),transparent 62%);filter:blur(12px);animation:pulse-core 2.8s ease-in-out infinite}
+
+    @keyframes orbit{to{transform:rotate(360deg)}}
+    @keyframes orbit-reverse{to{transform:rotate(-360deg)}}
+    @keyframes core-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.03)}}
+    @keyframes pulse-core{0%,100%{opacity:.54;transform:scale(.94)}50%{opacity:1;transform:scale(1.12)}}
+    @keyframes halo-breathe{0%,100%{opacity:.58;transform:scale(.98)}50%{opacity:1;transform:scale(1.03)}}
+    @keyframes grid-spin{to{transform:rotate(360deg)}}
+
+    .sponsor-panel{
+      overflow:hidden;
+      padding:14px;
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+
+    .sponsor-panel h2{
+      font-size:16px;
+      color:var(--blue);
+      letter-spacing:.3px;
+      text-transform:uppercase;
+    }
+
+    .sponsor-frame{
+      border:1px solid rgba(40,184,255,.18);
+      border-radius:16px;
+      overflow:hidden;
+      background:#02070d;
+      aspect-ratio:16/9;
+    }
+
+    .sponsor-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.96;
+    }
+
+    .sponsor-caption{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .feed-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 320px;
+      gap:22px;
+      padding-bottom:44px;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:16px;
+    }
+
+    .section-head h2{
+      font-size:clamp(32px,4vw,56px);
+      line-height:1;
+    }
+
+    .search-box{
+      display:grid;
+      gap:6px;
+      min-width:min(380px,100%);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .search-box input{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 15px;
+      color:var(--ink);
+      background:#070c12;
+      outline:none;
+    }
+
+    .search-box input:focus{
+      border-color:rgba(40,184,255,.55);
+      box-shadow:0 0 0 4px rgba(40,184,255,.08);
+    }
+
+    .story-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .story-card{
+      padding:22px;
+      min-height:260px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+      transition:.2s;
+    }
+
+    .story-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(40,184,255,.45);
+      background:var(--card2);
+    }
+
+    .story-topline{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .tag{
+      width:fit-content;
+      border-radius:999px;
+      background:rgba(40,184,255,.13);
+      color:var(--blue);
+      padding:5px 12px;
+      font-weight:900;
+      font-size:13px;
+    }
+
+    .tag.breaking{
+      background:rgba(255,59,48,.16);
+      color:#ff7d76;
+    }
+
+    .story-card h3{
+      font-size:clamp(22px,2.5vw,31px);
+      line-height:1.22;
+      letter-spacing:-.5px;
+      overflow-wrap:anywhere;
+    }
+
+    .story-card p{
+      color:var(--muted);
+      font-size:18px;
+      display:-webkit-box;
+      -webkit-line-clamp:3;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .read-more{
+      color:var(--blue);
+      font-weight:900;
+      width:fit-content;
+    }
+
+    .rail{
+      display:grid;
+      align-content:start;
+      gap:16px;
+      position:sticky;
+      top:18px;
+    }
+
+    .panel{
+      padding:22px;
+      overflow:hidden;
+    }
+
+    .panel h2{margin-bottom:12px;font-size:30px}
+    .panel p,.panel li{color:var(--muted)}
+    .popular-list{display:grid;gap:13px;margin:0;padding-inline-start:24px}
+    .popular-list a{font-weight:900;overflow-wrap:anywhere}
+    .popular-list a:hover{color:var(--blue)}
+    .submit-panel{display:grid;gap:12px}
+    .submit-panel a{color:var(--blue);font-weight:900;word-break:break-word}
+
+    .empty-state{
+      grid-column:1/-1;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius:16px;
+      background:#070b11;
+      padding:30px;
+      color:var(--muted);
+    }
+
+    .empty-state strong{
+      display:block;
+      color:var(--ink);
+      font-size:24px;
+      margin-bottom:6px;
+    }
+
+    .footer{
+      background:#03070c;
+      color:#fff;
+      padding:28px 0;
+      border-top:1px solid var(--line);
+    }
+
+    .footer p{color:rgba(255,255,255,.66);margin-top:6px}
+    .footer a{color:var(--blue)}
+
+    /* Chat widget */
+    .chat-launch{
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      z-index:100;
+      border:1px solid rgba(40,184,255,.5);
+      background:linear-gradient(135deg,#081522,#0b3557);
+      color:white;
+      border-radius:999px;
+      padding:14px 18px;
+      box-shadow:0 18px 55px rgba(0,0,0,.55),0 0 34px rgba(40,184,255,.2);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+    }
+
+    .chat-launch-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 5px rgba(20,232,138,.12),0 0 18px rgba(20,232,138,.8);
+    }
+
+    .chat-panel{
+      position:fixed;
+      right:22px;
+      bottom:86px;
+      z-index:100;
+      width:min(410px,calc(100vw - 28px));
+      height:min(620px,calc(100vh - 120px));
+      background:linear-gradient(180deg,#08101a,#03070c);
+      border:1px solid rgba(40,184,255,.28);
+      border-radius:22px;
+      box-shadow:0 30px 90px rgba(0,0,0,.66),0 0 46px rgba(40,184,255,.12);
+      display:none;
+      overflow:hidden;
+    }
+
+    .chat-panel.open{display:grid;grid-template-rows:auto 1fr auto}
+
+    .chat-head{
+      padding:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--line);
+      background:rgba(40,184,255,.06);
+    }
+
+    .chat-brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .chat-brand img{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      filter:drop-shadow(0 0 16px rgba(40,184,255,.5));
+    }
+
+    .chat-brand strong{display:block;font-size:17px}
+    .chat-brand span{display:block;color:var(--muted);font-size:12px}
+    .chat-close{
+      border:1px solid var(--line);
+      background:#060b12;
+      color:white;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      cursor:pointer;
+    }
+
+    .chat-messages{
+      padding:16px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .msg{
+      max-width:88%;
+      padding:12px 13px;
+      border-radius:16px;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      font-size:14px;
+    }
+
+    .msg.bot{
+      align-self:flex-start;
+      background:#0b1420;
+      border:1px solid rgba(255,255,255,.08);
+      color:#e9f3ff;
+    }
+
+    .msg.user{
+      align-self:flex-end;
+      background:linear-gradient(135deg,var(--blue),#0b8bd8);
+      color:#00111c;
+      font-weight:800;
+    }
+
+    .quick-prompts{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:2px;
+    }
+
+    .quick-prompts button{
+      border:1px solid rgba(40,184,255,.28);
+      background:rgba(40,184,255,.08);
+      color:#dff6ff;
+      border-radius:999px;
+      padding:7px 10px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .chat-form{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      padding:14px;
+      border-top:1px solid var(--line);
+      background:#04080d;
+    }
+
+    .chat-form textarea{
+      resize:none;
+      min-height:44px;
+      max-height:110px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background:#080e16;
+      color:#fff;
+      outline:none;
+      padding:11px 12px;
+    }
+
+    .chat-form textarea:focus{border-color:rgba(40,184,255,.55)}
+    .chat-send{
+      border:0;
+      border-radius:14px;
+      background:var(--blue);
+      color:#00111c;
+      padding:0 16px;
+      cursor:pointer;
+      font-weight:900;
+    }
+
+    .chat-send:disabled{opacity:.55;cursor:not-allowed}
+    .typing{opacity:.72;font-style:italic}
+
+    @media(max-width:1000px){
+      .hero-grid,.feed-layout{grid-template-columns:1fr}
+      .sponsor-panel{order:2}
+      .lead-story{grid-template-columns:1fr}
+      .rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media(max-width:900px){
+      .menu-button{display:grid}
+      .primary-nav{display:none}
+      .primary-nav.open{display:block}
+      .story-grid{grid-template-columns:1fr}
+      .section-head{align-items:stretch;flex-direction:column}
+    }
+
+    @media(max-width:560px){
+      .wrap{width:min(100% - 22px,1180px)}
+      .utility-inner{align-items:flex-start;flex-direction:column;gap:0;padding-bottom:8px}
+      .utility nav{flex-wrap:wrap}
+      .brand img{width:min(260px,70vw);max-height:70px}
+      h1{font-size:38px;letter-spacing:-1px}
+      .rail{grid-template-columns:1fr}
+      .footer-inner{flex-direction:column;align-items:flex-start}
+      .chat-launch{right:14px;bottom:14px}
+      .chat-panel{right:14px;bottom:78px}
+    }
+  </style>
 </head>
+
 <body>
   <header class="site-header">
     <div class="utility">
       <div class="wrap utility-inner">
-        <nav aria-label="Quick links">
+        <nav aria-label="Top links">
           <button class="lang-toggle active" type="button" data-lang="en">EN</button>
           <button class="lang-toggle" type="button" data-lang="dv">ދވ</button>
           <a href="#latest">Latest</a>
           <a href="#archive">Archive</a>
           <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram</a>
+          <button class="ask-ai-top" type="button" data-open-chat>Ask Samuga AI</button>
         </nav>
         <p id="todayLine">Samuga Media</p>
       </div>
@@ -25,8 +755,9 @@
 
     <div class="wrap brand-row">
       <a class="brand" href="index.html" aria-label="Samuga Media home">
-        <img class="brand-logo" src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media" />
+        <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media" />
       </a>
+
       <button class="menu-button" type="button" id="menuButton" aria-controls="primaryNav" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -47,60 +778,61 @@
   </header>
 
   <main>
-    <section class="ticker-shell" aria-label="Live news ticker">
+    <section class="ticker-shell" aria-label="Breaking news">
       <div class="wrap ticker-inner">
         <strong>LIVE</strong>
-        <div class="ticker"><div id="tickerTrack"><span>Samuga AI newsroom is monitoring Maldives news live</span></div></div>
+        <div class="ticker"><div id="tickerTrack"></div></div>
+        <button class="ask-ai-top" type="button" data-open-chat>Chat</button>
       </div>
     </section>
 
-    <section class="hero-section">
-      <div class="wrap hero-grid">
-        <article class="lead-story" id="leadStory">
-          <div class="lead-copy">
-            <span class="eyebrow">Samuga AI Feed</span>
-            <h1 class="hero-title">Live Maldives news, powered by Samuga AI</h1>
-            <p>Clean live updates from Samuga Media’s automated newsroom system.</p>
-            <div class="hero-actions">
-              <a class="pill primary" href="#latest">View latest stories</a>
-              <a class="pill" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join community</a>
-            </div>
-            <dl class="stats-row">
-              <div class="stat-card"><dt>Stories</dt><dd id="storyCount">0</dd></div>
-              <div class="stat-card"><dt>Last post</dt><dd id="lastPost">Waiting</dd></div>
-              <div class="stat-card"><dt>Status</dt><dd>Live</dd></div>
-            </dl>
+    <section class="wrap hero-grid">
+      <article class="lead-story" id="leadStory">
+        <div class="lead-copy">
+          <span class="eyebrow">Samuga AI Feed</span>
+          <h1 class="hero-title">Live Maldives news, powered by Samuga AI</h1>
+          <p>Ask Samuga AI about the latest Maldives news, updates, public stories and archive.</p>
+          <div class="hero-actions">
+            <a class="pill primary" href="#latest">View latest stories</a>
+            <button class="pill" type="button" data-open-chat>Chat with Samuga AI</button>
           </div>
+        </div>
 
-          <div class="lead-image">
-            <div class="ai-orb" aria-hidden="true">
-              <span class="ai-ring ring-one"></span>
-              <span class="ai-ring ring-two"></span>
-              <span class="ai-ring ring-three"></span>
-              <span class="ai-pulse"></span>
-              <img src="assets/SamugaNewsBot_Profile.png" alt="" />
-            </div>
+        <div class="lead-image">
+          <div class="ai-orb" aria-hidden="true">
+            <span class="ai-ring ring-one"></span>
+            <span class="ai-ring ring-two"></span>
+            <span class="ai-ring ring-three"></span>
+            <img src="assets/SamugaNewsBot_Profile.png" alt="">
+            <span class="ai-pulse"></span>
           </div>
+        </div>
+      </article>
 
-          <aside class="sponsor-slot" aria-label="Sponsored banners">
-            <div class="sponsor-label">Sponsored</div>
-            <a class="sponsor-frame" id="sponsorLink" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
-              <img id="sponsorImage" src="assets/sponsor_samuga_media.png" alt="Samuga Media promotion" />
-            </a>
-            <div class="sponsor-dots" id="sponsorDots" aria-hidden="true"></div>
-          </aside>
-        </article>
-      </div>
+      <aside class="sponsor-panel" aria-label="Sponsor banner">
+        <h2>Promote with Samuga</h2>
+        <a class="sponsor-frame" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+          <img id="sponsorImage" src="assets/samuga-promo-banner.jpg" alt="Samuga Media sponsor banner">
+        </a>
+        <p class="sponsor-caption" id="sponsorCaption">Promote your business through TikTok reels or articles.</p>
+      </aside>
     </section>
 
     <section class="wrap feed-layout" id="latest">
       <div class="feed-main">
         <div class="section-head">
-          <div><span class="eyebrow">Latest</span><h2 id="latestTitle">Latest Stories</h2></div>
-          <label class="search-box"><span>Search</span><input id="searchInput" type="search" placeholder="Search stories" /></label>
+          <div>
+            <span class="eyebrow">Latest</span>
+            <h2 id="latestTitle">Latest Stories</h2>
+          </div>
+          <label class="search-box">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Search stories">
+          </label>
         </div>
+
         <div class="story-grid" id="storyGrid" aria-live="polite">
-          <div class="empty-state"><strong>Loading stories</strong>Connecting to Samuga News Bot API...</div>
+          <div class="empty-state"><strong>Loading stories</strong> Connecting to Samuga News Bot API...</div>
         </div>
       </div>
 
@@ -109,11 +841,12 @@
           <h2 id="popularTitle">Popular</h2>
           <ol class="popular-list" id="popularList"><li>No popular stories yet.</li></ol>
         </section>
+
         <section class="panel submit-panel">
           <h2 id="tipTitle">Send a Tip</h2>
           <p id="tipText">Have a Maldives story for Samuga AI to watch?</p>
           <a href="mailto:news@samugamedia.com">news@samugamedia.com</a>
-          <a class="community-link" href="https://t.me/samugacommunity" target="_blank" rel="noopener" id="communityLink">Join Samuga Community →</a>
+          <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join Samuga Community →</a>
         </section>
       </aside>
     </section>
@@ -121,11 +854,388 @@
 
   <footer class="footer">
     <div class="wrap footer-inner">
-      <div><strong>Samuga Media</strong><p id="footerText">Live news, powered by Samuga AI.</p></div>
+      <div>
+        <strong>Samuga Media</strong>
+        <p id="footerText">Live news, powered by Samuga AI.</p>
+      </div>
       <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram channel</a>
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <button class="chat-launch" type="button" id="chatLaunch" aria-controls="chatPanel" aria-expanded="false">
+    <span class="chat-launch-dot"></span>
+    Chat with Samuga AI
+  </button>
+
+  <section class="chat-panel" id="chatPanel" aria-label="Samuga AI chat">
+    <header class="chat-head">
+      <div class="chat-brand">
+        <img src="assets/SamugaNewsBot_Profile.png" alt="">
+        <div>
+          <strong>Samuga AI</strong>
+          <span>Online • Ask about latest news</span>
+        </div>
+      </div>
+      <button class="chat-close" type="button" id="chatClose" aria-label="Close chat">×</button>
+    </header>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">Hi bro 👋 I’m Samuga AI. Ask me about latest Maldives news, breaking updates, politics, business, weather, or any story from Samuga.</div>
+      <div class="quick-prompts">
+        <button type="button" data-prompt="What are the latest Maldives news?">Latest news</button>
+        <button type="button" data-prompt="Summarize today's biggest stories">Today’s briefing</button>
+        <button type="button" data-prompt="What is breaking now?">Breaking</button>
+        <button type="button" data-prompt="Show me politics news">Politics</button>
+      </div>
+    </div>
+
+    <form class="chat-form" id="chatForm">
+      <textarea id="chatInput" placeholder="Ask about Maldives news..." rows="1"></textarea>
+      <button class="chat-send" id="chatSend" type="submit">Send</button>
+    </form>
+  </section>
+
+  <script>
+    const BOT_API_BASE = "https://samuga-news-bot-production.up.railway.app";
+
+    const FALLBACK_STORIES = [
+      {
+        title:"Samuga AI newsroom is monitoring Maldives news live",
+        summary:"The system tracks local updates, breaking incidents, politics, economy and public-interest stories from multiple sources.",
+        category:"BREAKING",
+        source:"Samuga Media",
+        time:"Live",
+        url:"#",
+        lang:"en"
+      }
+    ];
+
+    const SPONSORS = [
+      {
+        image:"assets/samuga-promo-banner.jpg",
+        caption:"Promote your business through TikTok reels or articles."
+      },
+      {
+        image:"assets/etronic-banner.jpg",
+        caption:"Sponsored banner slot for local businesses."
+      },
+      {
+        image:"assets/berry-travels-banner.jpg",
+        caption:"Speedboat transfer, sandbank trips and private hire."
+      }
+    ];
+
+    let stories = [];
+    let activeCategory = "all";
+    let activeLang = "en";
+    let sponsorIndex = 0;
+
+    const qs = (s)=>document.querySelector(s);
+    const qsa = (s)=>document.querySelectorAll(s);
+
+    const storyGrid = qs("#storyGrid");
+    const popularList = qs("#popularList");
+    const tickerTrack = qs("#tickerTrack");
+    const searchInput = qs("#searchInput");
+    const todayLine = qs("#todayLine");
+    const menuButton = qs("#menuButton");
+    const primaryNav = qs("#primaryNav");
+    const chatPanel = qs("#chatPanel");
+    const chatLaunch = qs("#chatLaunch");
+    const chatClose = qs("#chatClose");
+    const chatMessages = qs("#chatMessages");
+    const chatForm = qs("#chatForm");
+    const chatInput = qs("#chatInput");
+    const chatSend = qs("#chatSend");
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    async function init(){
+      setTodayLine();
+      setupNav();
+      setupLang();
+      setupChat();
+      rotateSponsors();
+      await loadStories();
+    }
+
+    function setTodayLine(){
+      todayLine.textContent = new Date().toLocaleDateString("en-GB",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+    }
+
+    function setupNav(){
+      menuButton?.addEventListener("click",()=>{
+        const open = primaryNav.classList.toggle("open");
+        menuButton.setAttribute("aria-expanded",String(open));
+      });
+
+      qsa(".nav-filter").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          qsa(".nav-filter").forEach(b=>b.classList.remove("active"));
+          btn.classList.add("active");
+          activeCategory = btn.dataset.category || "all";
+          renderAll();
+        });
+      });
+
+      searchInput?.addEventListener("input",renderStories);
+    }
+
+    function setupLang(){
+      qsa(".lang-toggle").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          qsa(".lang-toggle").forEach(b=>b.classList.remove("active"));
+          btn.classList.add("active");
+          activeLang = btn.dataset.lang || "en";
+          document.body.classList.toggle("lang-dv",activeLang==="dv");
+          renderHeroIntro();
+          renderAll();
+        });
+      });
+    }
+
+    async function loadStories(){
+      try{
+        const res = await fetch(`${BOT_API_BASE}/api/stories`,{cache:"no-store"});
+        if(!res.ok) throw new Error("API error");
+        const data = await res.json();
+        stories = Array.isArray(data) ? data.map(cleanStory).filter(Boolean) : [];
+        if(!stories.length) stories = FALLBACK_STORIES.map(cleanStory).filter(Boolean);
+      }catch(e){
+        console.error(e);
+        stories = FALLBACK_STORIES.map(cleanStory).filter(Boolean);
+      }
+      renderAll();
+    }
+
+    function cleanStory(s){
+      if(!s || !s.title) return null;
+      const title = String(s.title || "").trim();
+      const summary = String(s.summary || "").trim();
+      const source = String(s.source || "Samuga Media").trim();
+      const lang = detectLang(s);
+      return {
+        title,
+        summary,
+        source,
+        time:s.time || s.posted_at || "Recent",
+        url:s.url || s.link || "#",
+        lang,
+        category:normalizeCategory(s.category || s.cat || "LOCAL",title,summary,source)
+      };
+    }
+
+    function detectLang(s){
+      const declared = String(s.lang || s.language || "").toLowerCase();
+      const text = `${s.title || ""} ${s.summary || ""}`;
+      if(declared==="dv" || declared==="dhivehi") return "dv";
+      if(/[\u0780-\u07BF]/.test(text)) return "dv";
+      return "en";
+    }
+
+    function normalizeCategory(value,title="",summary="",source=""){
+      const raw = String(value || "").toUpperCase().trim();
+      const text = `${title} ${summary} ${source}`.toLowerCase();
+
+      if(raw==="BREAKING" || raw==="DISASTER" || text.match(/breaking|murder|killed|dead|dies|death|stabbed|shot|accident|crash|fire|capsize|sinking|missing|drug|arrested|emergency/)) return "BREAKING";
+      if(raw==="POLITICAL" || raw==="POLITICS" || text.match(/president|parliament|majlis|minister|government|election|court|law|policy|cabinet|opposition|mdp|pnc/)) return "POLITICAL";
+      if(raw==="BUSINESS" || raw==="ECONOMY" || text.match(/economy|business|finance|budget|debt|mvr|dollar|bank|tax|price|market|port|project/)) return "BUSINESS";
+      if(raw==="SPORT" || raw==="SPORTS" || raw==="FOOTBALL" || text.match(/football|sports|match|fifa|world cup|tournament/)) return "SPORTS";
+      if(raw==="WORLD" || text.match(/war|iran|israel|palestine|ukraine|china|global|venezuela|india/)) return "WORLD";
+      if(raw==="LIFESTYLE" || raw==="TOURISM" || raw==="WEATHER" || text.match(/tourism|resort|travel|weather|rain|storm|health|education|culture/)) return "LIFESTYLE";
+      return "LOCAL";
+    }
+
+    function renderAll(){
+      renderHeroIntro();
+      renderStories();
+      renderTicker();
+      renderPopular();
+    }
+
+    function renderHeroIntro(){
+      const eyebrow = qs("#leadStory .eyebrow");
+      const title = qs("#leadStory .hero-title");
+      const summary = qs("#leadStory .lead-copy p");
+
+      if(activeLang === "dv"){
+        eyebrow.textContent = "ސަމުގާ އޭއައި ފީޑް";
+        title.textContent = "ސަމުގާ އޭއައިއާ އެކު ލައިވް ޚަބަރު";
+        summary.textContent = "އެންމެ ފަހުގެ ދިވެހި ޚަބަރާއި އަޕްޑޭޓްތައް ސަމުގާ އޭއައިއަށް އަހާ.";
+        chatInput.placeholder = "ޚަބަރުތަކާ ބެހޭގޮތުން އަހާ...";
+      }else{
+        eyebrow.textContent = "Samuga AI Feed";
+        title.textContent = "Live Maldives news, powered by Samuga AI";
+        summary.textContent = "Ask Samuga AI about the latest Maldives news, updates, public stories and archive.";
+        chatInput.placeholder = "Ask about Maldives news...";
+      }
+    }
+
+    function filteredStories(){
+      const q = (searchInput?.value || "").toLowerCase().trim();
+      return stories.filter(s=>{
+        const langOk = s.lang === activeLang;
+        const catOk = activeCategory === "all" || s.category === normalizeCategory(activeCategory);
+        const qOk = !q || `${s.title} ${s.summary} ${s.source}`.toLowerCase().includes(q);
+        return langOk && catOk && qOk;
+      });
+    }
+
+    function renderStories(){
+      const filtered = filteredStories();
+      if(!filtered.length){
+        storyGrid.innerHTML = `<div class="empty-state"><strong>${activeLang==="dv" ? "ޚަބަރެއް ނުފެނުނު" : "No stories found"}</strong>${activeLang==="dv" ? "އެހެން ކެޓަގަރީއެއް ނުވަތަ ސަރޗް ތަޖުރިބާ ކޮށްލާ." : "Try another category or search term."}</div>`;
+        return;
+      }
+      storyGrid.innerHTML = filtered.map(cardHTML).join("");
+    }
+
+    function cardHTML(s){
+      const breaking = s.category === "BREAKING";
+      return `
+        <article class="story-card story-${s.lang}" dir="${s.lang==="dv" ? "rtl" : "ltr"}">
+          <div class="story-topline">
+            <span>${escapeHTML(s.source)}</span>
+            <span>${escapeHTML(s.time)}</span>
+          </div>
+          <span class="tag ${breaking ? "breaking" : ""}">${escapeHTML(displayCategory(s.category))}</span>
+          <h3><a href="${escapeAttr(s.url)}" target="_blank" rel="noopener">${escapeHTML(s.title)}</a></h3>
+          <p>${escapeHTML(s.summary)}</p>
+          <a class="read-more" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">${activeLang==="dv" ? "ތަފްސީލް ކިޔާ →" : "Read more →"}</a>
+        </article>
+      `;
+    }
+
+    function renderTicker(){
+      if(!tickerTrack) return;
+      const items = stories.filter(s=>s.lang===activeLang).slice(0,8).map(s=>`<span>${escapeHTML(s.title)}</span>`).join("");
+      tickerTrack.innerHTML = items + items;
+    }
+
+    function renderPopular(){
+      const popular = stories.filter(s=>s.lang===activeLang).slice(0,5);
+      if(!popular.length){
+        popularList.innerHTML = `<li>${activeLang==="dv" ? "ޕޮޕިއުލަރ ޚަބަރެއް އަދި ނެތް." : "No popular stories yet."}</li>`;
+        return;
+      }
+      popularList.innerHTML = popular.map(s=>`<li dir="${s.lang==="dv" ? "rtl" : "ltr"}"><a href="${escapeAttr(s.url)}" target="_blank" rel="noopener">${escapeHTML(s.title)}</a></li>`).join("");
+    }
+
+    function displayCategory(value){
+      const en = {BREAKING:"Breaking",LOCAL:"Local",POLITICAL:"Politics",BUSINESS:"Business",SPORTS:"Sports",WORLD:"World",LIFESTYLE:"Lifestyle"};
+      const dv = {BREAKING:"ބްރޭކިންގ",LOCAL:"ލޯކަލް",POLITICAL:"ސިޔާސީ",BUSINESS:"އިޤްތިޞާދީ",SPORTS:"ކުޅިވަރު",WORLD:"ދުނިޔެ",LIFESTYLE:"ލައިފްސްޓައިލް"};
+      return activeLang==="dv" ? (dv[value] || value) : (en[value] || value);
+    }
+
+    function rotateSponsors(){
+      const img = qs("#sponsorImage");
+      const caption = qs("#sponsorCaption");
+      if(!img || !caption) return;
+
+      function setSponsor(){
+        const item = SPONSORS[sponsorIndex % SPONSORS.length];
+        img.src = item.image;
+        caption.textContent = item.caption;
+        sponsorIndex++;
+      }
+
+      setSponsor();
+      setInterval(setSponsor,7000);
+    }
+
+    function setupChat(){
+      qsa("[data-open-chat]").forEach(btn=>btn.addEventListener("click",openChat));
+      chatLaunch?.addEventListener("click",toggleChat);
+      chatClose?.addEventListener("click",closeChat);
+
+      qsa("[data-prompt]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          openChat();
+          chatInput.value = btn.dataset.prompt;
+          chatInput.focus();
+        });
+      });
+
+      chatForm?.addEventListener("submit",sendChatMessage);
+      chatInput?.addEventListener("keydown",(e)=>{
+        if(e.key === "Enter" && !e.shiftKey){
+          e.preventDefault();
+          chatForm.requestSubmit();
+        }
+      });
+    }
+
+    function openChat(){
+      chatPanel.classList.add("open");
+      chatLaunch.setAttribute("aria-expanded","true");
+      setTimeout(()=>chatInput?.focus(),80);
+    }
+
+    function closeChat(){
+      chatPanel.classList.remove("open");
+      chatLaunch.setAttribute("aria-expanded","false");
+    }
+
+    function toggleChat(){
+      chatPanel.classList.contains("open") ? closeChat() : openChat();
+    }
+
+    async function sendChatMessage(e){
+      e.preventDefault();
+      const message = chatInput.value.trim();
+      if(!message) return;
+
+      addMessage(message,"user");
+      chatInput.value = "";
+      chatSend.disabled = true;
+
+      const typing = addMessage(activeLang==="dv" ? "ސަމުގާ އޭއައި ޖަވާބު ހޯދަނީ..." : "Samuga AI is thinking...","bot typing");
+
+      try{
+        const res = await fetch(`${BOT_API_BASE}/api/chat`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({message, lang:activeLang})
+        });
+
+        const data = await res.json().catch(()=>({}));
+        typing.remove();
+
+        if(!res.ok){
+          addMessage(data.reply || data.error || "Samuga AI is busy right now. Please try again.", "bot");
+        }else{
+          addMessage(data.reply || "I could not find a clear answer right now.", "bot");
+        }
+      }catch(err){
+        typing.remove();
+        addMessage("Connection issue bro. Please try again in a moment.", "bot");
+      }finally{
+        chatSend.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    function addMessage(text,type){
+      const div = document.createElement("div");
+      div.className = `msg ${type}`;
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return div;
+    }
+
+    function escapeHTML(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function escapeAttr(str){
+      return escapeHTML(str).replaceAll("`","&#096;");
+    }
+  </script>
 </body>
 </html>
