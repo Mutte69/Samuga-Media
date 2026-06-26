@@ -916,12 +916,12 @@
         caption:"Promote your business through TikTok reels or articles."
       },
       {
-        image:"assets/etronic-banner.jpg",
-        caption:"Sponsored banner slot for local businesses."
+        image:"assets/sponsor_etronic.png",
+        caption:"Etronic Maldives sponsor banner."
       },
       {
-        image:"assets/berry-travels-banner.jpg",
-        caption:"Speedboat transfer, sandbank trips and private hire."
+        image:"assets/sponsor_berry_travels.png",
+        caption:"Berry Travels sponsor banner."
       }
     ];
 
@@ -1135,9 +1135,15 @@
       function setSponsor(){
         const item = SPONSORS[sponsorIndex % SPONSORS.length];
         img.src = item.image;
+        img.alt = item.caption;
         caption.textContent = item.caption;
         sponsorIndex++;
       }
+
+      img.onerror = function(){
+        console.warn("Sponsor image missing:", img.src);
+        if (sponsorIndex < SPONSORS.length + 3) setSponsor();
+      };
 
       setSponsor();
       setInterval(setSponsor,7000);
