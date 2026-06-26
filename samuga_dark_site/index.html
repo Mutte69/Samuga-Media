@@ -74,7 +74,6 @@
 
     .site-header {
       position: relative;
-      top: 0;
       z-index: 30;
       background: rgba(2, 5, 9, 0.92);
       border-bottom: 1px solid var(--line);
@@ -285,6 +284,7 @@
       flex-direction: column;
       gap: 18px;
       min-height: 420px;
+      min-width: 0;
     }
 
     .small-orb {
@@ -354,6 +354,7 @@
       background: rgba(40,184,255,.08);
       border: 1px solid rgba(40,184,255,.12);
       padding: 14px;
+      min-width: 0;
     }
 
     .status-panel dt {
@@ -364,8 +365,9 @@
     .status-panel dd {
       margin: 4px 0 0;
       color: var(--blue);
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
+      word-break: break-word;
     }
 
     .lead-story {
@@ -373,6 +375,7 @@
       min-height: 420px;
       display: grid;
       grid-template-columns: minmax(0, .92fr) minmax(300px, 1.08fr);
+      min-width: 0;
     }
 
     .lead-copy {
@@ -382,6 +385,7 @@
       justify-content: center;
       gap: 14px;
       overflow: hidden;
+      min-width: 0;
     }
 
     .eyebrow {
@@ -400,16 +404,18 @@
     }
 
     h1 {
-      font-size: clamp(36px, 4.6vw, 62px);
-      line-height: 1.03;
+      font-size: clamp(34px, 4.2vw, 58px);
+      line-height: 1.04;
       letter-spacing: -1.8px;
       max-width: 620px;
+      overflow-wrap: anywhere;
     }
 
     .lead-copy p {
       color: var(--muted);
       max-width: 520px;
       font-size: 17px;
+      overflow-wrap: anywhere;
     }
 
     .mini-row {
@@ -433,7 +439,7 @@
       box-shadow: 0 0 26px rgba(40,184,255,.2);
     }
 
-    /* SMALLER CLEAN AI ORB */
+    /* AI ORB */
 
     .lead-image {
       position: relative;
@@ -645,13 +651,18 @@
       animation-delay: 1.2s;
     }
 
-    /* LATEST EMPTY FEED */
+    /* FEED */
 
     .feed-layout {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 320px;
       gap: 22px;
       padding-bottom: 44px;
+      align-items: start;
+    }
+
+    .feed-main {
+      min-width: 0;
     }
 
     .section-head {
@@ -663,7 +674,8 @@
     }
 
     .section-head h2 {
-      font-size: clamp(26px, 4vw, 42px);
+      font-size: clamp(32px, 4vw, 52px);
+      line-height: 1;
     }
 
     .search-box {
@@ -692,7 +704,76 @@
     .story-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .story-card {
+      overflow: hidden;
+      min-width: 0;
+      padding: 18px 20px;
+      box-shadow: none;
+      transition: .2s ease;
+    }
+
+    .story-card:hover {
+      border-color: rgba(40,184,255,.42);
+      transform: translateY(-1px);
+    }
+
+    .story-card-body {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .story-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag {
+      color: #001018;
+      background: var(--blue);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .tag.breaking {
+      background: var(--red);
+      color: white;
+    }
+
+    .story-card h3 {
+      font-size: clamp(19px, 2.2vw, 25px);
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .story-card p {
+      color: #d6e2ef;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .read-more {
+      width: fit-content;
+      color: var(--blue);
+      font-weight: 900;
+      margin-top: 2px;
     }
 
     .empty-state {
@@ -713,14 +794,19 @@
       display: grid;
       align-content: start;
       gap: 16px;
+      min-width: 0;
+      position: static;
     }
 
     .panel {
       padding: 20px;
+      overflow: hidden;
+      min-width: 0;
     }
 
     .panel h2 {
       margin-bottom: 12px;
+      font-size: 26px;
     }
 
     .panel p,
@@ -735,6 +821,17 @@
       padding-inline-start: 22px;
     }
 
+    .popular-list a {
+      display: block;
+      overflow-wrap: anywhere;
+      color: #dce9f5;
+      transition: .2s ease;
+    }
+
+    .popular-list a:hover {
+      color: var(--blue);
+    }
+
     .submit-panel {
       display: grid;
       gap: 12px;
@@ -744,6 +841,19 @@
       color: var(--blue);
       font-weight: 900;
       word-break: break-word;
+    }
+
+    .community-link {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(40,184,255,.38);
+      background: rgba(40,184,255,.08);
+      color: #dff6ff !important;
+      box-shadow: 0 0 24px rgba(40,184,255,.08);
     }
 
     .footer {
@@ -902,6 +1012,10 @@
       .samuga-ai-orb {
         width: min(62%, 280px);
       }
+
+      .rail {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 900px) {
@@ -949,7 +1063,7 @@
       }
 
       h1 {
-        font-size: 38px;
+        font-size: 34px;
         letter-spacing: -1.2px;
       }
 
@@ -997,7 +1111,7 @@
           <button class="lang-toggle" type="button" data-lang="en">EN</button>
           <a href="#archive">Archive</a>
           <a href="#latest">Latest</a>
-          <a href="https://t.me/samugacommunity" target="_blank">Telegram</a>
+          <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram</a>
         </nav>
 
         <p id="todayLine">Samuga Media</p>
@@ -1106,7 +1220,7 @@
     </section>
 
     <section class="wrap feed-layout" id="latest">
-      <div>
+      <div class="feed-main">
         <div class="section-head">
           <div>
             <span class="eyebrow">Latest</span>
@@ -1130,13 +1244,18 @@
       <aside class="rail" id="archive">
         <section class="panel">
           <h2>Popular</h2>
-          <p>No popular stories yet.</p>
+          <ol class="popular-list" id="popularList">
+            <li>No popular stories yet.</li>
+          </ol>
         </section>
 
         <section class="panel submit-panel">
           <h2>Send a Tip</h2>
           <p>Have a Maldives story for Samuga AI to watch?</p>
           <a href="mailto:news@samugamedia.com">news@samugamedia.com</a>
+          <a class="community-link" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+            Join Samuga Community →
+          </a>
         </section>
       </aside>
     </section>
@@ -1149,22 +1268,15 @@
         <p>English-first live news, powered by Samuga AI.</p>
       </div>
 
-      <a href="https://t.me/samugacommunity" target="_blank">Telegram channel</a>
+      <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram channel</a>
     </div>
   </footer>
 
   <script>
-    /*
-      LATER, WHEN YOUR BOT API IS READY:
-      change this to your Railway bot URL.
-
-      Example:
-      const BOT_API_BASE = "https://samuga-news-bot-production.up.railway.app";
-    */
-
     const BOT_API_BASE = "https://samuga-news-bot-production.up.railway.app";
 
     const storyGrid = document.getElementById("storyGrid");
+    const popularList = document.getElementById("popularList");
     const storyCount = document.getElementById("storyCount");
     const lastPost = document.getElementById("lastPost");
     const todayLine = document.getElementById("todayLine");
@@ -1186,18 +1298,24 @@
     }
 
     async function loadStories() {
-      if (!BOT_API_BASE) {
-        renderEmpty();
-        return;
-      }
-
       try {
-        const response = await fetch(`${BOT_API_BASE}/api/stories`);
+        const response = await fetch(`${BOT_API_BASE}/api/stories`, {
+          cache: "no-store"
+        });
+
         if (!response.ok) throw new Error("API error");
 
-        allStories = await response.json();
+        const data = await response.json();
+        allStories = Array.isArray(data) ? data : [];
+
         renderStories();
+        renderPopular();
+        renderLead();
+
+        storyCount.textContent = allStories.length;
+        lastPost.textContent = allStories[0]?.time || "Waiting";
       } catch (error) {
+        console.error("Story load failed:", error);
         renderEmpty();
       }
     }
@@ -1222,7 +1340,12 @@
       storyGrid.innerHTML = "";
 
       if (!filtered.length) {
-        renderEmpty();
+        storyGrid.innerHTML = `
+          <div class="empty-state">
+            <strong>No stories found</strong>
+            Try another category or search term.
+          </div>
+        `;
         return;
       }
 
@@ -1232,26 +1355,63 @@
 
         const cat = story.category || "Community";
         const isBreaking = normalize(cat) === "breaking";
+        const source = story.source || "Samuga Media";
+        const time = story.time || "Recent";
+        const title = story.title || "Untitled story";
+        const summary = story.summary || "";
+        const url = story.url || "#";
 
         card.innerHTML = `
           <div class="story-card-body">
             <div class="story-meta">
               <span class="tag ${isBreaking ? "breaking" : ""}">${escapeHTML(cat)}</span>
-              <span>${escapeHTML(story.source || "Samuga Media")}</span>
-              <span>${escapeHTML(story.time || "Now")}</span>
+              <span>${escapeHTML(source)}</span>
+              <span>${escapeHTML(time)}</span>
             </div>
 
-            <h3>${escapeHTML(story.title)}</h3>
-            <p>${escapeHTML(story.summary || "")}</p>
-            <a class="read-more" href="${story.url || "#"}" target="_blank">Read more →</a>
+            <h3>${escapeHTML(title)}</h3>
+            <p>${escapeHTML(summary)}</p>
+            <a class="read-more" href="${escapeAttr(url)}" target="_blank" rel="noopener">Read more →</a>
           </div>
         `;
 
         storyGrid.appendChild(card);
       });
+    }
 
-      storyCount.textContent = allStories.length;
-      lastPost.textContent = allStories[0]?.time || "Now";
+    function renderPopular() {
+      if (!popularList) return;
+
+      const popular = allStories.slice(0, 5);
+
+      if (!popular.length) {
+        popularList.innerHTML = `<li>No popular stories yet.</li>`;
+        return;
+      }
+
+      popularList.innerHTML = popular.map(story => {
+        const title = story.title || "Untitled story";
+        const url = story.url || "#";
+
+        return `
+          <li>
+            <a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHTML(title)}</a>
+          </li>
+        `;
+      }).join("");
+    }
+
+    function renderLead() {
+      const lead = allStories[0];
+      if (!lead) return;
+
+      const eyebrow = document.querySelector("#leadStory .eyebrow");
+      const title = document.querySelector("#leadStory h1");
+      const summary = document.querySelector("#leadStory p");
+
+      if (eyebrow) eyebrow.textContent = `${lead.category || "Latest"} • ${lead.source || "Samuga Media"}`;
+      if (title) title.textContent = lead.title || "24/7 Maldives news, monitored by Samuga AI";
+      if (summary) summary.textContent = lead.summary || "Latest Samuga Media update.";
     }
 
     function renderEmpty() {
@@ -1261,6 +1421,10 @@
           Connect the Samuga News Bot API and published stories will appear here automatically.
         </div>
       `;
+
+      if (popularList) {
+        popularList.innerHTML = `<li>No popular stories yet.</li>`;
+      }
 
       storyCount.textContent = "0";
       lastPost.textContent = "Waiting";
@@ -1273,9 +1437,7 @@
 
         currentCategory = button.dataset.category;
 
-        if (allStories.length) {
-          renderStories();
-        }
+        renderStories();
 
         button.scrollIntoView({
           behavior: "smooth",
@@ -1298,9 +1460,7 @@
       });
     });
 
-    searchInput.addEventListener("input", () => {
-      if (allStories.length) renderStories();
-    });
+    searchInput.addEventListener("input", renderStories);
 
     if (menuButton) {
       menuButton.addEventListener("click", () => {
@@ -1310,7 +1470,13 @@
     }
 
     function normalize(value) {
-      return String(value || "").toLowerCase().trim();
+      const v = String(value || "").toLowerCase().trim();
+
+      if (v === "sport") return "sports";
+      if (v === "sports") return "sport";
+      if (v === "local") return "all";
+
+      return v;
     }
 
     function escapeHTML(str) {
@@ -1320,6 +1486,10 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHTML(str).replaceAll("`", "&#096;");
     }
 
     setDate();
