@@ -50,18 +50,34 @@ function cardHTML(s){
     </div>
   </article>`;
 }
-function renderTicker(){
-  const items = stories.slice(0,6).map(s=>`<span>${escapeHTML(s.title)}</span>`).join("");
-  tickerTrack.innerHTML = items + items;
+function renderLead() {
+  const text = UI_TEXT[currentLanguage];
+
+  const eyebrow = document.querySelector("#leadStory .eyebrow");
+  const title = document.querySelector("#leadStory .hero-title");
+  const summary = document.querySelector("#leadStory .hero-copy p");
+
+  if (currentLanguage === "dv") {
+    if (eyebrow) eyebrow.textContent = "ސަމުގާ އޭއައި ފީޑް";
+    if (title) {
+      title.textContent = "ސަމުގާ އޭއައިއިން ހިންގާ ލައިވް ޚަބަރު";
+      title.dir = "rtl";
+    }
+    if (summary) {
+      summary.textContent = "ދިވެހި ޚަބަރުތައް އަދާހަމައިން ސަމުގާ މީޑިއާ ފީޑްގައި ފެނޭނެ.";
+      summary.dir = "rtl";
+    }
+    if (liveText) liveText.textContent = text.liveDefault;
+  } else {
+    if (eyebrow) eyebrow.textContent = "Samuga AI Feed";
+    if (title) {
+      title.textContent = "Live Maldives news, powered by Samuga AI";
+      title.dir = "ltr";
+    }
+    if (summary) {
+      summary.textContent = "Clean live updates from Samuga Media’s automated newsroom system.";
+      summary.dir = "ltr";
+    }
+    if (liveText) liveText.textContent = text.liveDefault;
+  }
 }
-function renderLead(){
-  const lead = stories[0]; if(!lead) return;
-  qs("#leadStory .eyebrow").textContent = `${lead.category || 'Latest'} • ${lead.source || 'Samuga Media'}`;
-  qs("#leadStory h1").textContent = lead.title;
-  qs("#leadStory p").textContent = lead.summary || "Latest Samuga Media update.";
-}
-function renderPopular(){
-  popularList.innerHTML = stories.slice(0,5).map(s=>`<li><a href="${s.url || '#'}">${escapeHTML(s.title)}</a></li>`).join("");
-}
-function normalize(v){ return String(v || "").toLowerCase().replace("sport","sports"); }
-function escapeHTML(str){ return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
