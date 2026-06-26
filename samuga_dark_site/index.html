@@ -387,6 +387,47 @@
       font-size:14px;
     }
 
+    .side-sponsor{
+      display:grid;
+      gap:12px;
+    }
+
+    .side-sponsor .sponsor-frame{
+      aspect-ratio:16/9;
+      border-color:rgba(40,184,255,.24);
+    }
+
+    .side-sponsor-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .side-sponsor-title h2{
+      margin:0;
+      font-size:22px;
+    }
+
+    .ad-label{
+      color:var(--muted);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      padding:3px 8px;
+      white-space:nowrap;
+    }
+
+    .side-sponsor p{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:10px;
+    }
+
     .feed-layout{
       display:grid;
       grid-template-columns:minmax(0,1fr) 320px;
@@ -809,10 +850,10 @@
         </div>
       </article>
 
-      <aside class="sponsor-panel" aria-label="Sponsor banner">
+      <aside class="sponsor-panel" aria-label="Samuga promotion banner">
         <h2>Promote with Samuga</h2>
         <a class="sponsor-frame" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
-          <img id="sponsorImage" src="assets/samuga-promo-banner.jpg" alt="Samuga Media sponsor banner">
+          <img id="sponsorImage" src="assets/samuga-promo-banner.jpg" alt="Promote your business with Samuga Media">
         </a>
         <p class="sponsor-caption" id="sponsorCaption">Promote your business through TikTok reels or articles.</p>
       </aside>
@@ -847,6 +888,28 @@
           <p id="tipText">Have a Maldives story for Samuga AI to watch?</p>
           <a href="mailto:news@samugamedia.com">news@samugamedia.com</a>
           <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join Samuga Community →</a>
+        </section>
+
+        <section class="panel side-sponsor" aria-label="Etronic sponsor banner">
+          <div class="side-sponsor-title">
+            <h2>Sponsor</h2>
+            <span class="ad-label">Ad</span>
+          </div>
+          <a class="sponsor-frame" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+            <img src="assets/sponsor_etronic.png" alt="Etronic Maldives sponsor banner">
+          </a>
+          <p>Etronic Maldives sponsor banner.</p>
+        </section>
+
+        <section class="panel side-sponsor" aria-label="Berry Travels sponsor banner">
+          <div class="side-sponsor-title">
+            <h2>Sponsor</h2>
+            <span class="ad-label">Ad</span>
+          </div>
+          <a class="sponsor-frame" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+            <img src="assets/sponsor_berry_travels.png" alt="Berry Travels sponsor banner">
+          </a>
+          <p>Berry Travels sponsor banner.</p>
         </section>
       </aside>
     </section>
@@ -914,14 +977,6 @@
       {
         image:"assets/samuga-promo-banner.jpg",
         caption:"Promote your business through TikTok reels or articles."
-      },
-      {
-        image:"assets/sponsor_etronic.png",
-        caption:"Etronic Maldives sponsor banner."
-      },
-      {
-        image:"assets/sponsor_berry_travels.png",
-        caption:"Berry Travels sponsor banner."
       }
     ];
 
@@ -1132,21 +1187,10 @@
       const caption = qs("#sponsorCaption");
       if(!img || !caption) return;
 
-      function setSponsor(){
-        const item = SPONSORS[sponsorIndex % SPONSORS.length];
-        img.src = item.image;
-        img.alt = item.caption;
-        caption.textContent = item.caption;
-        sponsorIndex++;
-      }
-
-      img.onerror = function(){
-        console.warn("Sponsor image missing:", img.src);
-        if (sponsorIndex < SPONSORS.length + 3) setSponsor();
-      };
-
-      setSponsor();
-      setInterval(setSponsor,7000);
+      const item = SPONSORS[0];
+      img.src = item.image;
+      img.alt = item.caption;
+      caption.textContent = item.caption;
     }
 
     function setupChat(){
