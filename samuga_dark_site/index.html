@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Samuga Media | Live Maldives News</title>
-  <meta name="description" content="Samuga Media is an English-first, bot-powered Maldives news feed with live updates around the clock." />
+  <meta name="description" content="Samuga Media is an AI-assisted Maldives news platform with live updates, breaking stories and archive pages." />
 
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
 
@@ -15,16 +15,15 @@
       --bg-soft: #050b12;
       --card: #07101b;
       --card-2: #0a1422;
-      --line: rgba(40, 184, 255, 0.14);
-      --line-soft: rgba(255,255,255,.08);
+      --line: rgba(255,255,255,.08);
+      --blue-line: rgba(40,184,255,.18);
       --text: #f7fbff;
       --muted: #9aa8ba;
       --blue: #28b8ff;
       --blue-2: #00b3ff;
-      --deep-blue: #061529;
       --red: #ff3b30;
       --green: #14e27d;
-      --shadow: 0 24px 90px rgba(0,0,0,.55);
+      --shadow: 0 24px 90px rgba(0,0,0,.45);
     }
 
     * {
@@ -38,8 +37,8 @@
     body {
       margin: 0;
       background:
-        radial-gradient(circle at 80% 5%, rgba(40,184,255,.08), transparent 30%),
-        radial-gradient(circle at 20% 20%, rgba(0,179,255,.04), transparent 32%),
+        radial-gradient(circle at 78% 0%, rgba(40,184,255,.08), transparent 28%),
+        radial-gradient(circle at 10% 8%, rgba(40,184,255,.035), transparent 28%),
         var(--bg);
       color: var(--text);
       font-family: Arial, "Noto Sans Thaana", "MV Typewriter", sans-serif;
@@ -49,13 +48,6 @@
 
     body.lang-dv {
       direction: rtl;
-    }
-
-    body.lang-dv .story-card,
-    body.lang-dv .lead-copy,
-    body.lang-dv .article-body,
-    body.lang-dv .status-panel {
-      text-align: right;
     }
 
     a {
@@ -83,58 +75,57 @@
     .site-header {
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 30;
       background: rgba(2, 5, 9, 0.92);
-      border-bottom: 1px solid var(--line-soft);
+      border-bottom: 1px solid var(--line);
       backdrop-filter: blur(18px);
     }
 
     .utility {
-      background: rgba(2,5,9,.86);
-      color: #fff;
+      border-bottom: 1px solid var(--line);
       font-size: 13px;
-      border-bottom: 1px solid var(--line-soft);
     }
 
-    .utility-inner,
-    .brand-row,
-    .footer-inner {
+    .utility-inner {
+      min-height: 46px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
     }
 
-    .utility p {
-      margin: 8px 0;
-      color: #dce9f5;
-    }
-
     .utility nav {
       display: flex;
       align-items: center;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
     .utility a {
       color: #dce9f5;
       font-weight: 700;
-      transition: .2s;
+      transition: .2s ease;
     }
 
     .utility a:hover {
       color: var(--blue);
     }
 
+    #todayLine {
+      margin: 0;
+      color: #dce9f5;
+      font-weight: 700;
+    }
+
     .lang-toggle {
-      border: 1px solid rgba(40, 184, 255, 0.5);
+      border: 1px solid rgba(40, 184, 255, 0.55);
       border-radius: 8px;
       background: transparent;
       color: #fff;
       cursor: pointer;
-      min-width: 38px;
-      padding: 5px 10px;
-      transition: .2s;
+      min-width: 42px;
+      padding: 6px 10px;
+      transition: .2s ease;
     }
 
     .lang-toggle.active {
@@ -145,30 +136,28 @@
     }
 
     .brand-row {
-      padding: 18px 0;
-    }
-
-    .brand {
-      display: inline-flex;
+      min-height: 118px;
+      display: flex;
       align-items: center;
-      min-width: 0;
+      justify-content: space-between;
+      gap: 20px;
     }
 
     .brand-logo {
-      width: min(360px, 64vw);
+      width: min(340px, 66vw);
       height: auto;
-      max-height: 92px;
+      max-height: 82px;
       object-fit: contain;
       filter:
         drop-shadow(0 0 12px rgba(40, 184, 255, 0.35))
-        drop-shadow(0 0 28px rgba(40, 184, 255, 0.15));
+        drop-shadow(0 0 28px rgba(40, 184, 255, 0.12));
     }
 
     .menu-button {
       display: none;
       width: 44px;
       height: 44px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--blue-line);
       border-radius: 10px;
       background: rgba(255,255,255,.03);
       place-items: center;
@@ -185,14 +174,14 @@
     }
 
     .primary-nav {
-      border-top: 1px solid var(--line-soft);
+      border-top: 1px solid var(--line);
     }
 
     .nav-scroll {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       overflow-x: auto;
-      padding: 12px 0;
+      padding: 13px 0;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
     }
@@ -213,7 +202,7 @@
       background: transparent;
       color: var(--muted);
       cursor: pointer;
-      padding: 10px 16px;
+      padding: 10px 17px;
       font-weight: 800;
       white-space: nowrap;
       transition: .2s ease;
@@ -227,389 +216,95 @@
       box-shadow: 0 0 22px rgba(40,184,255,.12);
     }
 
-    /* TICKER */
+    /* LIVE BAR */
 
-    .ticker-shell {
+    .live-shell {
       background: #000;
-      color: #fff;
-      border-bottom: 1px solid var(--line-soft);
+      border-bottom: 1px solid var(--line);
     }
 
-    .ticker-inner {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 14px;
+    .live-inner {
+      min-height: 48px;
+      display: flex;
       align-items: center;
-      min-height: 50px;
-    }
-
-    .ticker-inner strong {
-      border-radius: 8px;
-      background: var(--red);
-      padding: 5px 10px;
-      font-size: 13px;
-      box-shadow: 0 0 24px rgba(255,59,48,.3);
-    }
-
-    .ticker {
+      gap: 12px;
       overflow: hidden;
-      white-space: nowrap;
     }
 
-    #tickerTrack {
-      display: inline-flex;
-      gap: 34px;
-      min-width: 100%;
-      animation: ticker 38s linear infinite;
-    }
-
-    #tickerTrack span::before {
-      content: "";
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      margin-inline-end: 10px;
-      border-radius: 50%;
+    .live-dot {
+      width: 9px;
+      height: 9px;
       background: var(--blue);
-      box-shadow: 0 0 16px var(--blue);
+      border-radius: 50%;
+      box-shadow: 0 0 18px var(--blue);
+      flex: 0 0 auto;
     }
 
-    @keyframes ticker {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-50%);
-      }
+    .live-text {
+      color: #eaf8ff;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .live-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: white;
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-weight: 900;
+      box-shadow: 0 0 20px rgba(255,59,48,.32);
     }
 
     /* HERO */
 
     .hero-grid {
       display: grid;
-      grid-template-columns: 340px minmax(0, 1fr);
+      grid-template-columns: 310px minmax(0, 1fr);
       gap: 22px;
-      padding: 26px 0;
+      padding: 32px 0 36px;
+      align-items: stretch;
     }
 
-    .lead-story,
     .status-panel,
+    .lead-story,
     .panel,
+    .empty-state,
     .story-card {
-      background: linear-gradient(180deg, rgba(10,20,34,.95), rgba(5,10,18,.98));
-      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(10,20,34,.92), rgba(4,8,14,.98));
+      border: 1px solid var(--blue-line);
       border-radius: 22px;
       box-shadow: var(--shadow);
     }
 
-    .lead-story {
-      display: grid;
-      grid-template-columns: minmax(0, .85fr) minmax(360px, 1.15fr);
-      overflow: hidden;
-      min-height: 430px;
-    }
-
-    .lead-copy {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 16px;
-      padding: clamp(26px, 5vw, 50px);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(40,184,255,.08), transparent 30%),
-        linear-gradient(135deg, rgba(2,5,9,.95), rgba(8,16,28,.9));
-    }
-
-    .eyebrow {
-      color: var(--blue);
-      font-size: 13px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: .6px;
-    }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin: 0;
-    }
-
-    h1 {
-      font-size: clamp(40px, 6vw, 76px);
-      line-height: 1.02;
-      letter-spacing: -2.4px;
-    }
-
-    .lead-copy p,
-    .status-panel p,
-    .submit-panel p {
-      color: var(--muted);
-    }
-
-    .lead-copy .mini-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #d8e8f7;
-      margin-top: 8px;
-      font-weight: 700;
-    }
-
-    .mini-icon {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(40,184,255,.12);
-      border: 1px solid rgba(40,184,255,.38);
-      color: var(--blue);
-      box-shadow: 0 0 26px rgba(40,184,255,.2);
-    }
-
-    /* AI ORB PANEL */
-
-    .lead-image {
-      position: relative;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(40, 184, 255, 0.22), transparent 24%),
-        radial-gradient(circle at 50% 50%, rgba(0, 179, 255, 0.14), transparent 42%),
-        linear-gradient(135deg, #02070d 0%, #061529 45%, #02070d 100%);
-      min-height: 430px;
-    }
-
-    .lead-image::before {
-      content: "";
-      position: absolute;
-      inset: -30%;
-      background:
-        linear-gradient(90deg, transparent 49.8%, rgba(40, 184, 255, 0.08) 50%, transparent 50.2%),
-        linear-gradient(0deg, transparent 49.8%, rgba(40, 184, 255, 0.08) 50%, transparent 50.2%);
-      animation: samuga-grid-spin 28s linear infinite;
-      opacity: 0.55;
-    }
-
-    .lead-image::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(40, 184, 255, 0.08) 39%, transparent 41%),
-        radial-gradient(circle at 50% 50%, transparent 0 58%, rgba(40, 184, 255, 0.06) 59%, transparent 61%);
-      pointer-events: none;
-    }
-
-    .samuga-ai-orb {
-      position: relative;
-      width: min(82%, 520px);
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      isolation: isolate;
-      filter:
-        drop-shadow(0 0 22px rgba(40, 184, 255, 0.55))
-        drop-shadow(0 0 70px rgba(0, 179, 255, 0.28));
-    }
-
-    .samuga-ai-orb img {
-      position: relative;
-      z-index: 10;
-      width: 72%;
-      height: 72%;
-      object-fit: contain;
-      border-radius: 50%;
-      animation:
-        samuga-core-float 4.8s ease-in-out infinite,
-        samuga-core-glow 2.8s ease-in-out infinite;
-      filter:
-        drop-shadow(0 0 16px rgba(40, 184, 255, 0.95))
-        drop-shadow(0 0 42px rgba(40, 184, 255, 0.45));
-    }
-
-    .orb-glow {
-      position: absolute;
-      inset: 18%;
-      z-index: 1;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle, rgba(40, 184, 255, 0.48), transparent 62%);
-      filter: blur(18px);
-      animation: samuga-pulse 2.6s ease-in-out infinite;
-    }
-
-    .orbit {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(40, 184, 255, 0.45);
-      box-shadow:
-        inset 0 0 24px rgba(40, 184, 255, 0.18),
-        0 0 28px rgba(40, 184, 255, 0.14);
-    }
-
-    .orbit-one {
-      inset: 4%;
-      border-top-color: rgba(255, 255, 255, 0.72);
-      border-right-color: rgba(40, 184, 255, 0.15);
-      animation: samuga-orbit 16s linear infinite;
-    }
-
-    .orbit-two {
-      inset: 15%;
-      border-style: dashed;
-      border-color: rgba(40, 184, 255, 0.38);
-      animation: samuga-orbit-reverse 10s linear infinite;
-    }
-
-    .orbit-three {
-      inset: 27%;
-      border-width: 2px;
-      border-color: rgba(0, 179, 255, 0.7);
-      box-shadow:
-        0 0 16px rgba(0, 179, 255, 0.6),
-        inset 0 0 18px rgba(0, 179, 255, 0.25);
-      animation: samuga-breathe 3.4s ease-in-out infinite;
-    }
-
-    .scan-line {
-      position: absolute;
-      z-index: 4;
-      width: 145%;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(40, 184, 255, 0.15),
-        rgba(40, 184, 255, 0.95),
-        rgba(255, 255, 255, 0.9),
-        rgba(40, 184, 255, 0.95),
-        rgba(40, 184, 255, 0.15),
-        transparent
-      );
-      box-shadow: 0 0 16px rgba(40, 184, 255, 0.95);
-      transform-origin: center;
-      opacity: 0.8;
-    }
-
-    .scan-one {
-      animation: samuga-scan 4s linear infinite;
-    }
-
-    .scan-two {
-      transform: rotate(90deg);
-      animation: samuga-scan-two 5.5s linear infinite;
-      opacity: 0.45;
-    }
-
-    .compass-line {
-      position: absolute;
-      z-index: 3;
-      width: 2px;
-      height: 46%;
-      background: linear-gradient(
-        to bottom,
-        transparent,
-        rgba(40, 184, 255, 0.18),
-        rgba(40, 184, 255, 0.9),
-        transparent
-      );
-      transform-origin: bottom center;
-      opacity: 0.8;
-    }
-
-    .line-n {
-      top: 4%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .line-e {
-      top: 27%;
-      right: 27%;
-      transform: rotate(90deg);
-    }
-
-    .line-s {
-      bottom: 4%;
-      left: 50%;
-      transform: translateX(-50%) rotate(180deg);
-    }
-
-    .line-w {
-      top: 27%;
-      left: 27%;
-      transform: rotate(-90deg);
-    }
-
-    .data-dot {
-      position: absolute;
-      z-index: 8;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #28b8ff;
-      box-shadow:
-        0 0 10px rgba(40, 184, 255, 1),
-        0 0 22px rgba(40, 184, 255, 0.8);
-      animation: samuga-dot-pulse 2s ease-in-out infinite;
-    }
-
-    .dot-one {
-      top: 10%;
-      left: 50%;
-    }
-
-    .dot-two {
-      top: 50%;
-      right: 10%;
-      animation-delay: 0.4s;
-    }
-
-    .dot-three {
-      bottom: 10%;
-      left: 50%;
-      animation-delay: 0.8s;
-    }
-
-    .dot-four {
-      top: 50%;
-      left: 10%;
-      animation-delay: 1.2s;
-    }
-
-    /* STATUS CARD */
-
     .status-panel {
+      padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 18px;
-      padding: 22px;
-      overflow: hidden;
+      min-height: 420px;
     }
 
-    .status-panel .small-orb {
-      display: grid;
-      place-items: center;
+    .small-orb {
       width: 96px;
       height: 96px;
       border-radius: 50%;
-      background:
-        radial-gradient(circle, rgba(40,184,255,.2), transparent 58%);
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle, rgba(40,184,255,.18), transparent 62%);
       border: 1px solid rgba(40,184,255,.18);
       box-shadow: 0 0 46px rgba(40,184,255,.12);
     }
 
-    .status-panel img {
+    .small-orb img {
       width: 72px;
       border-radius: 50%;
-      animation: samuga-small-orb 4s ease-in-out infinite;
+      animation: small-orb-float 4s ease-in-out infinite;
       filter:
-        drop-shadow(0 0 16px rgba(40, 184, 255, 0.9))
-        drop-shadow(0 0 42px rgba(40, 184, 255, 0.38));
+        drop-shadow(0 0 14px rgba(40, 184, 255, 0.9))
+        drop-shadow(0 0 36px rgba(40, 184, 255, 0.35));
     }
 
     .status-dot {
@@ -619,14 +314,39 @@
       margin-inline-end: 8px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 0 5px rgba(20, 226, 125, 0.14), 0 0 18px rgba(20,226,125,.7);
+      box-shadow:
+        0 0 0 5px rgba(20, 226, 125, 0.14),
+        0 0 18px rgba(20,226,125,.7);
+    }
+
+    .status-panel strong {
+      font-size: 20px;
+    }
+
+    .status-panel p {
+      color: var(--muted);
+      margin: 8px 0 0;
+    }
+
+    .status-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: #dff6ff;
+      border: 1px solid rgba(40,184,255,.38);
+      background: rgba(40,184,255,.08);
+      width: fit-content;
+      box-shadow: 0 0 28px rgba(40,184,255,.1);
+      font-weight: 800;
     }
 
     .status-panel dl {
+      margin-top: auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin: auto 0 0;
     }
 
     .status-panel dl div {
@@ -648,22 +368,284 @@
       font-weight: 900;
     }
 
-    .status-button {
-      display: inline-flex;
-      align-items: center;
+    .lead-story {
+      overflow: hidden;
+      min-height: 420px;
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(300px, 1.08fr);
+    }
+
+    .lead-copy {
+      padding: clamp(26px, 4vw, 46px);
+      display: flex;
+      flex-direction: column;
       justify-content: center;
-      gap: 10px;
-      padding: 12px 18px;
-      border-radius: 999px;
-      color: #dff6ff;
-      border: 1px solid rgba(40,184,255,.38);
-      background: rgba(40,184,255,.08);
-      width: fit-content;
-      box-shadow: 0 0 28px rgba(40,184,255,.1);
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(36px, 4.6vw, 62px);
+      line-height: 1.03;
+      letter-spacing: -1.8px;
+      max-width: 620px;
+    }
+
+    .lead-copy p {
+      color: var(--muted);
+      max-width: 520px;
+      font-size: 17px;
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #d8e8f7;
+      margin-top: 10px;
       font-weight: 800;
     }
 
-    /* FEED */
+    .mini-icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(40,184,255,.12);
+      border: 1px solid rgba(40,184,255,.38);
+      color: var(--blue);
+      box-shadow: 0 0 26px rgba(40,184,255,.2);
+    }
+
+    /* SMALLER CLEAN AI ORB */
+
+    .lead-image {
+      position: relative;
+      min-height: 420px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(40, 184, 255, 0.20), transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(0, 179, 255, 0.10), transparent 48%),
+        linear-gradient(135deg, #02070d 0%, #061529 48%, #02070d 100%);
+    }
+
+    .lead-image::before {
+      content: "";
+      position: absolute;
+      inset: -25%;
+      background:
+        linear-gradient(90deg, transparent 49.8%, rgba(40, 184, 255, 0.05) 50%, transparent 50.2%),
+        linear-gradient(0deg, transparent 49.8%, rgba(40, 184, 255, 0.05) 50%, transparent 50.2%);
+      animation: grid-spin 34s linear infinite;
+      opacity: .5;
+    }
+
+    .lead-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 0 37%, rgba(40, 184, 255, 0.07) 38%, transparent 40%),
+        radial-gradient(circle at 50% 50%, transparent 0 58%, rgba(40, 184, 255, 0.05) 59%, transparent 61%);
+      pointer-events: none;
+    }
+
+    .samuga-ai-orb {
+      position: relative;
+      width: min(64%, 320px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      isolation: isolate;
+      filter:
+        drop-shadow(0 0 18px rgba(40, 184, 255, 0.45))
+        drop-shadow(0 0 50px rgba(0, 179, 255, 0.20));
+    }
+
+    .samuga-ai-orb img {
+      position: relative;
+      z-index: 10;
+      width: 70%;
+      height: 70%;
+      object-fit: contain;
+      border-radius: 50%;
+      animation:
+        core-float 5s ease-in-out infinite,
+        core-glow 3s ease-in-out infinite;
+      filter:
+        drop-shadow(0 0 14px rgba(40, 184, 255, 0.9))
+        drop-shadow(0 0 34px rgba(40, 184, 255, 0.34));
+    }
+
+    .orb-glow {
+      position: absolute;
+      inset: 19%;
+      z-index: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(40, 184, 255, 0.42), transparent 64%);
+      filter: blur(16px);
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+
+    .orbit {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(40, 184, 255, 0.38);
+      box-shadow:
+        inset 0 0 20px rgba(40, 184, 255, 0.15),
+        0 0 24px rgba(40, 184, 255, 0.10);
+    }
+
+    .orbit-one {
+      inset: 4%;
+      border-top-color: rgba(255, 255, 255, 0.62);
+      border-right-color: rgba(40, 184, 255, 0.12);
+      animation: orbit 18s linear infinite;
+    }
+
+    .orbit-two {
+      inset: 16%;
+      border-style: dashed;
+      border-color: rgba(40, 184, 255, 0.32);
+      animation: orbit-reverse 12s linear infinite;
+    }
+
+    .orbit-three {
+      inset: 29%;
+      border-width: 2px;
+      border-color: rgba(0, 179, 255, 0.6);
+      box-shadow:
+        0 0 14px rgba(0, 179, 255, 0.45),
+        inset 0 0 16px rgba(0, 179, 255, 0.20);
+      animation: breathe 3.6s ease-in-out infinite;
+    }
+
+    .scan-line {
+      position: absolute;
+      z-index: 4;
+      width: 128%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(40, 184, 255, 0.14),
+        rgba(40, 184, 255, 0.9),
+        rgba(255, 255, 255, 0.72),
+        rgba(40, 184, 255, 0.9),
+        rgba(40, 184, 255, 0.14),
+        transparent
+      );
+      box-shadow: 0 0 14px rgba(40, 184, 255, 0.8);
+      transform-origin: center;
+      opacity: .7;
+    }
+
+    .scan-one {
+      animation: scan 5s linear infinite;
+    }
+
+    .scan-two {
+      transform: rotate(90deg);
+      animation: scan-two 6.5s linear infinite;
+      opacity: .34;
+    }
+
+    .compass-line {
+      position: absolute;
+      z-index: 3;
+      width: 1px;
+      height: 42%;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(40, 184, 255, 0.15),
+        rgba(40, 184, 255, 0.75),
+        transparent
+      );
+      transform-origin: bottom center;
+      opacity: .7;
+    }
+
+    .line-n {
+      top: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .line-e {
+      top: 29%;
+      right: 29%;
+      transform: rotate(90deg);
+    }
+
+    .line-s {
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg);
+    }
+
+    .line-w {
+      top: 29%;
+      left: 29%;
+      transform: rotate(-90deg);
+    }
+
+    .data-dot {
+      position: absolute;
+      z-index: 8;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow:
+        0 0 8px rgba(40, 184, 255, 1),
+        0 0 18px rgba(40, 184, 255, 0.65);
+      animation: dot-pulse 2.2s ease-in-out infinite;
+    }
+
+    .dot-one {
+      top: 10%;
+      left: 50%;
+    }
+
+    .dot-two {
+      top: 50%;
+      right: 10%;
+      animation-delay: .4s;
+    }
+
+    .dot-three {
+      bottom: 10%;
+      left: 50%;
+      animation-delay: .8s;
+    }
+
+    .dot-four {
+      top: 50%;
+      left: 10%;
+      animation-delay: 1.2s;
+    }
+
+    /* LATEST EMPTY FEED */
 
     .feed-layout {
       display: grid;
@@ -694,7 +676,7 @@
 
     .search-box input {
       width: 100%;
-      border: 1px solid var(--line);
+      border: 1px solid var(--blue-line);
       border-radius: 14px;
       padding: 12px 13px;
       color: var(--text);
@@ -709,75 +691,22 @@
 
     .story-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 16px;
     }
 
-    .story-card {
-      overflow: hidden;
-      transition: .2s ease;
-    }
-
-    .story-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(40,184,255,.42);
-    }
-
-    .story-card-image {
-      aspect-ratio: 16 / 9;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(40,184,255,.24), transparent 32%),
-        linear-gradient(135deg, #061529, #020509);
-    }
-
-    .story-card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .story-card-body {
-      display: grid;
-      gap: 10px;
-      padding: 16px;
-    }
-
-    .story-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .empty-state {
+      padding: 34px;
       color: var(--muted);
-      font-size: 12px;
+      text-align: center;
+      border-style: dashed;
     }
 
-    .tag {
-      border-radius: 999px;
-      background: rgba(40,184,255,.12);
-      border: 1px solid rgba(40,184,255,.22);
-      color: var(--blue);
-      padding: 3px 8px;
-      font-weight: 900;
-    }
-
-    .tag.breaking {
-      color: #ff837d;
-      background: rgba(255,59,48,.12);
-      border-color: rgba(255,59,48,.32);
-    }
-
-    .story-card h3 {
-      font-size: 21px;
-      line-height: 1.25;
-    }
-
-    .story-card p {
-      color: var(--muted);
-    }
-
-    .read-more {
-      color: var(--blue);
-      font-weight: 900;
-      margin-top: 4px;
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 22px;
+      margin-bottom: 8px;
     }
 
     .rail {
@@ -787,11 +716,16 @@
     }
 
     .panel {
-      padding: 18px;
+      padding: 20px;
     }
 
     .panel h2 {
       margin-bottom: 12px;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--muted);
     }
 
     .popular-list {
@@ -799,11 +733,6 @@
       gap: 12px;
       margin: 0;
       padding-inline-start: 22px;
-    }
-
-    .popular-list a {
-      font-weight: 800;
-      color: #eaf8ff;
     }
 
     .submit-panel {
@@ -817,22 +746,18 @@
       word-break: break-word;
     }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      border: 1px dashed rgba(40,184,255,.25);
-      border-radius: 18px;
-      background: rgba(255,255,255,.03);
-      padding: 26px;
-      color: var(--muted);
-    }
-
-    /* FOOTER */
-
     .footer {
       background: #000;
       color: #fff;
       padding: 28px 0;
-      border-top: 1px solid var(--line-soft);
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
     }
 
     .footer p {
@@ -847,108 +772,108 @@
 
     /* ANIMATIONS */
 
-    @keyframes samuga-grid-spin {
+    @keyframes grid-spin {
       to {
         transform: rotate(360deg);
       }
     }
 
-    @keyframes samuga-orbit {
+    @keyframes orbit {
       to {
         transform: rotate(360deg);
       }
     }
 
-    @keyframes samuga-orbit-reverse {
+    @keyframes orbit-reverse {
       to {
         transform: rotate(-360deg);
       }
     }
 
-    @keyframes samuga-core-float {
+    @keyframes core-float {
       0%, 100% {
         transform: translateY(0) scale(1);
       }
       50% {
-        transform: translateY(-10px) scale(1.035);
+        transform: translateY(-8px) scale(1.03);
       }
     }
 
-    @keyframes samuga-core-glow {
+    @keyframes core-glow {
       0%, 100% {
         filter:
-          drop-shadow(0 0 14px rgba(40, 184, 255, 0.85))
-          drop-shadow(0 0 36px rgba(40, 184, 255, 0.35));
+          drop-shadow(0 0 12px rgba(40, 184, 255, 0.8))
+          drop-shadow(0 0 30px rgba(40, 184, 255, 0.3));
       }
       50% {
         filter:
-          drop-shadow(0 0 26px rgba(40, 184, 255, 1))
-          drop-shadow(0 0 70px rgba(40, 184, 255, 0.65));
+          drop-shadow(0 0 22px rgba(40, 184, 255, 1))
+          drop-shadow(0 0 58px rgba(40, 184, 255, 0.56));
       }
     }
 
-    @keyframes samuga-pulse {
+    @keyframes pulse {
       0%, 100% {
-        opacity: 0.45;
-        transform: scale(0.9);
+        opacity: .42;
+        transform: scale(.92);
       }
       50% {
         opacity: 1;
-        transform: scale(1.14);
+        transform: scale(1.10);
       }
     }
 
-    @keyframes samuga-breathe {
+    @keyframes breathe {
       0%, 100% {
-        opacity: 0.55;
-        transform: scale(0.96);
+        opacity: .55;
+        transform: scale(.96);
       }
       50% {
         opacity: 1;
-        transform: scale(1.05);
+        transform: scale(1.04);
       }
     }
 
-    @keyframes samuga-scan {
+    @keyframes scan {
       0% {
         transform: rotate(0deg);
-        opacity: 0.15;
+        opacity: .12;
       }
-      30% {
-        opacity: 0.8;
+      35% {
+        opacity: .75;
       }
       100% {
         transform: rotate(360deg);
-        opacity: 0.15;
+        opacity: .12;
       }
     }
 
-    @keyframes samuga-scan-two {
+    @keyframes scan-two {
       0% {
         transform: rotate(90deg);
-        opacity: 0.08;
+        opacity: .08;
       }
       40% {
-        opacity: 0.55;
+        opacity: .45;
       }
       100% {
         transform: rotate(450deg);
-        opacity: 0.08;
+        opacity: .08;
       }
     }
 
-    @keyframes samuga-dot-pulse {
+    @keyframes dot-pulse {
       0%, 100% {
         transform: scale(1);
-        opacity: 0.55;
+        opacity: .55;
       }
       50% {
-        transform: scale(1.55);
+        transform: scale(1.45);
         opacity: 1;
       }
     }
 
-    @keyframes samuga-small-orb {
+    @keyframes small-orb-float {
       0%, 100% {
         transform: translateY(0) scale(1);
       }
@@ -966,12 +891,16 @@
         grid-template-columns: 1fr;
       }
 
+      .status-panel {
+        min-height: auto;
+      }
+
       .lead-image {
-        min-height: 340px;
+        min-height: 320px;
       }
 
       .samuga-ai-orb {
-        width: min(76%, 360px);
+        width: min(62%, 280px);
       }
     }
 
@@ -988,10 +917,6 @@
         display: block;
       }
 
-      .story-grid {
-        grid-template-columns: 1fr;
-      }
-
       .section-head {
         align-items: stretch;
         flex-direction: column;
@@ -1005,13 +930,17 @@
 
       .utility-inner {
         align-items: flex-start;
-        flex-direction: column;
-        gap: 0;
-        padding-bottom: 8px;
+        flex-direction: column-reverse;
+        gap: 8px;
+        padding: 8px 0;
       }
 
       .utility nav {
-        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .brand-row {
+        min-height: 100px;
       }
 
       .brand-logo {
@@ -1020,28 +949,29 @@
       }
 
       h1 {
-        font-size: 42px;
+        font-size: 38px;
+        letter-spacing: -1.2px;
       }
 
       .lead-copy {
-        padding: 26px;
+        padding: 24px;
       }
 
       .lead-image {
-        min-height: 280px;
+        min-height: 260px;
       }
 
       .samuga-ai-orb {
-        width: min(84%, 280px);
+        width: min(78%, 240px);
       }
 
       .scan-line {
-        width: 130%;
+        width: 120%;
       }
 
       .data-dot {
-        width: 7px;
-        height: 7px;
+        width: 6px;
+        height: 6px;
       }
 
       .status-panel dl,
@@ -1051,11 +981,7 @@
         align-items: flex-start;
       }
 
-      .ticker-inner {
-        grid-template-columns: auto minmax(0, 1fr);
-      }
-
-      .ticker-inner strong {
+      .live-badge {
         display: none;
       }
     }
@@ -1104,15 +1030,11 @@
   </header>
 
   <main>
-    <section class="ticker-shell" aria-label="Breaking news">
-      <div class="wrap ticker-inner">
-        <strong>LIVE</strong>
-
-        <div class="ticker">
-          <div id="tickerTrack"></div>
-        </div>
-
-        <strong>LIVE</strong>
+    <section class="live-shell" aria-label="Live status">
+      <div class="wrap live-inner">
+        <span class="live-dot"></span>
+        <span class="live-text">Samuga AI newsroom is monitoring Maldives news live</span>
+        <span class="live-badge">LIVE</span>
       </div>
     </section>
 
@@ -1129,7 +1051,7 @@
         </div>
 
         <a class="status-button" href="#latest">
-          System Status ⟶
+          System Status →
         </a>
 
         <dl>
@@ -1139,16 +1061,16 @@
           </div>
           <div>
             <dt>Last post</dt>
-            <dd id="lastPost">Loading</dd>
+            <dd id="lastPost">Waiting</dd>
           </div>
         </dl>
       </aside>
 
       <article class="lead-story" id="leadStory">
         <div class="lead-copy">
-          <span class="eyebrow">Breaking • Samuga Media</span>
-          <h1>Samuga AI newsroom is now monitoring Maldives news live</h1>
-          <p>Bot-generated Maldives updates will appear here as soon as they are published.</p>
+          <span class="eyebrow">Samuga AI Feed</span>
+          <h1>24/7 Maldives news, monitored by Samuga AI</h1>
+          <p>Live stories will appear here once the Samuga News Bot API is connected.</p>
 
           <div class="mini-row">
             <span class="mini-icon">↗</span>
@@ -1197,13 +1119,18 @@
           </label>
         </div>
 
-        <div class="story-grid" id="storyGrid" aria-live="polite"></div>
+        <div class="story-grid" id="storyGrid" aria-live="polite">
+          <div class="empty-state">
+            <strong>No stories published yet</strong>
+            Connect the Samuga News Bot API and published stories will appear here automatically.
+          </div>
+        </div>
       </div>
 
       <aside class="rail" id="archive">
         <section class="panel">
           <h2>Popular</h2>
-          <ol class="popular-list" id="popularList"></ol>
+          <p>No popular stories yet.</p>
         </section>
 
         <section class="panel submit-panel">
@@ -1228,7 +1155,7 @@
 
   <script>
     /*
-      WHEN BOT API IS READY:
+      LATER, WHEN YOUR BOT API IS READY:
       change this to your Railway bot URL.
 
       Example:
@@ -1237,53 +1164,16 @@
 
     const BOT_API_BASE = "";
 
-    const fallbackStories = [
-      {
-        title: "Samuga AI newsroom is now monitoring Maldives news live",
-        summary: "The system tracks local updates, breaking incidents, politics, economy and public-interest stories from multiple sources.",
-        category: "Breaking",
-        source: "Samuga Media",
-        time: "Live",
-        url: "#"
-      },
-      {
-        title: "AI-assisted publishing helps Samuga reduce social media posting limits",
-        summary: "Stories can be published through the website while Telegram and social platforms continue operating with controlled posting.",
-        category: "Community",
-        source: "Samuga Media",
-        time: "Today",
-        url: "#"
-      },
-      {
-        title: "Politics, economy and public-interest stories will receive higher priority",
-        summary: "The newsroom system is designed to prioritize issues that affect Maldivians directly.",
-        category: "Politics",
-        source: "Samuga AI",
-        time: "Today",
-        url: "#"
-      },
-      {
-        title: "Weather, prayer times and alerts will be part of Samuga daily updates",
-        summary: "The bot can generate weather cards and public alerts for Telegram and the Samuga website.",
-        category: "Community",
-        source: "Samuga AI",
-        time: "Today",
-        url: "#"
-      }
-    ];
-
-    let allStories = [];
-    let currentCategory = "all";
-
     const storyGrid = document.getElementById("storyGrid");
-    const popularList = document.getElementById("popularList");
-    const tickerTrack = document.getElementById("tickerTrack");
     const storyCount = document.getElementById("storyCount");
     const lastPost = document.getElementById("lastPost");
     const todayLine = document.getElementById("todayLine");
     const searchInput = document.getElementById("searchInput");
     const menuButton = document.getElementById("menuButton");
     const primaryNav = document.getElementById("primaryNav");
+
+    let allStories = [];
+    let currentCategory = "all";
 
     function setDate() {
       const date = new Date();
@@ -1296,53 +1186,20 @@
     }
 
     async function loadStories() {
-      try {
-        if (!BOT_API_BASE) throw new Error("No API connected yet");
+      if (!BOT_API_BASE) {
+        renderEmpty();
+        return;
+      }
 
+      try {
         const response = await fetch(`${BOT_API_BASE}/api/stories`);
         if (!response.ok) throw new Error("API error");
 
         allStories = await response.json();
+        renderStories();
       } catch (error) {
-        allStories = fallbackStories;
+        renderEmpty();
       }
-
-      renderAll();
-    }
-
-    function renderAll() {
-      renderLead();
-      renderTicker();
-      renderStories();
-      renderPopular();
-
-      storyCount.textContent = allStories.length;
-      lastPost.textContent = allStories[0]?.time || "Now";
-    }
-
-    function renderLead() {
-      const lead = allStories[0];
-      if (!lead) return;
-
-      const leadStory = document.getElementById("leadStory");
-      const title = escapeHTML(lead.title);
-      const summary = escapeHTML(lead.summary || "");
-      const category = escapeHTML(lead.category || "Breaking");
-
-      leadStory.querySelector(".eyebrow").textContent = `${category} • ${lead.source || "Samuga Media"}`;
-      leadStory.querySelector("h1").textContent = lead.title;
-      leadStory.querySelector("p").textContent = lead.summary || "Latest story from Samuga Media.";
-    }
-
-    function renderTicker() {
-      const items = allStories.length ? allStories : fallbackStories;
-
-      const tickerText = items
-        .slice(0, 6)
-        .map(story => `<span><b>LIVE:</b> ${escapeHTML(story.title)}</span>`)
-        .join("");
-
-      tickerTrack.innerHTML = tickerText + tickerText;
     }
 
     function renderStories() {
@@ -1365,11 +1222,7 @@
       storyGrid.innerHTML = "";
 
       if (!filtered.length) {
-        storyGrid.innerHTML = `
-          <div class="empty-state">
-            No stories found for this filter yet.
-          </div>
-        `;
+        renderEmpty();
         return;
       }
 
@@ -1381,8 +1234,6 @@
         const isBreaking = normalize(cat) === "breaking";
 
         card.innerHTML = `
-          <div class="story-card-image"></div>
-
           <div class="story-card-body">
             <div class="story-meta">
               <span class="tag ${isBreaking ? "breaking" : ""}">${escapeHTML(cat)}</span>
@@ -1398,22 +1249,21 @@
 
         storyGrid.appendChild(card);
       });
+
+      storyCount.textContent = allStories.length;
+      lastPost.textContent = allStories[0]?.time || "Now";
     }
 
-    function renderPopular() {
-      popularList.innerHTML = "";
+    function renderEmpty() {
+      storyGrid.innerHTML = `
+        <div class="empty-state">
+          <strong>No stories published yet</strong>
+          Connect the Samuga News Bot API and published stories will appear here automatically.
+        </div>
+      `;
 
-      allStories.slice(0, 5).forEach(story => {
-        const item = document.createElement("li");
-
-        item.innerHTML = `
-          <a href="${story.url || "#"}" target="_blank">
-            ${escapeHTML(story.title)}
-          </a>
-        `;
-
-        popularList.appendChild(item);
-      });
+      storyCount.textContent = "0";
+      lastPost.textContent = "Waiting";
     }
 
     document.querySelectorAll(".nav-filter").forEach(button => {
@@ -1422,7 +1272,10 @@
         button.classList.add("active");
 
         currentCategory = button.dataset.category;
-        renderStories();
+
+        if (allStories.length) {
+          renderStories();
+        }
 
         button.scrollIntoView({
           behavior: "smooth",
@@ -1445,7 +1298,9 @@
       });
     });
 
-    searchInput.addEventListener("input", renderStories);
+    searchInput.addEventListener("input", () => {
+      if (allStories.length) renderStories();
+    });
 
     if (menuButton) {
       menuButton.addEventListener("click", () => {
