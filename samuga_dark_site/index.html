@@ -354,10 +354,11 @@
 
     .sponsor-panel{
       overflow:hidden;
-      padding:14px;
+      padding:16px;
       display:grid;
       gap:12px;
       align-content:start;
+      min-height:420px;
     }
 
     .sponsor-panel h2{
@@ -368,24 +369,41 @@
     }
 
     .sponsor-frame{
-      border:1px solid rgba(40,184,255,.18);
+      border:1px solid rgba(40,184,255,.22);
       border-radius:16px;
       overflow:hidden;
       background:#02070d;
       aspect-ratio:16/9;
+      position:relative;
     }
 
     .sponsor-frame img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit:contain;
       opacity:.96;
+      background:#02070d;
     }
 
     .sponsor-caption{
       color:var(--muted);
       font-size:14px;
     }
+
+    .hero-sponsor-card{display:grid;gap:12px}
+    .sponsor-frame.hero-sponsor-frame{min-height:190px}
+    .sponsor-frame.hero-sponsor-frame img{transition:opacity .35s ease,transform .35s ease}
+    .sponsor-frame.hero-sponsor-frame.is-changing img{opacity:.15;transform:translateX(10px) scale(.985)}
+
+    .sponsor-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px}
+    .sponsor-dots{display:flex;align-items:center;gap:6px}
+    .sponsor-dot{width:7px;height:7px;border:0;padding:0;border-radius:99px;background:rgba(255,255,255,.24);cursor:pointer}
+    .sponsor-dot.active{width:22px;background:var(--blue);box-shadow:0 0 14px rgba(40,184,255,.55)}
+    .sponsor-arrows{display:flex;gap:8px}
+    .sponsor-arrow{width:34px;height:34px;border-radius:999px;border:1px solid rgba(40,184,255,.28);background:rgba(40,184,255,.08);color:#e9f8ff;cursor:pointer;font-weight:900}
+    .sponsor-arrow:hover{border-color:rgba(40,184,255,.58);background:rgba(40,184,255,.16)}
+    .sponsor-fallback{position:absolute;inset:0;display:none;place-items:center;padding:18px;text-align:center;color:var(--muted);background:radial-gradient(circle at 50% 30%,rgba(40,184,255,.12),transparent 40%),#02070d;font-weight:900}
+    .sponsor-frame.broken .sponsor-fallback{display:grid}
 
     .side-sponsor{
       display:grid;
@@ -395,6 +413,11 @@
     .side-sponsor .sponsor-frame{
       aspect-ratio:16/9;
       border-color:rgba(40,184,255,.24);
+      min-height:0;
+    }
+
+    .side-sponsor .sponsor-frame img{
+      object-fit:contain;
     }
 
     .side-sponsor-title{
@@ -850,12 +873,25 @@
         </div>
       </article>
 
-      <aside class="sponsor-panel" aria-label="Samuga promotion banner">
+      <aside class="sponsor-panel" aria-label="Sponsor banner carousel">
         <h2>Promote with Samuga</h2>
-        <a class="sponsor-frame" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
-          <img id="sponsorImage" src="assets/samuga-promo-banner.jpg" alt="Promote your business with Samuga Media">
-        </a>
-        <p class="sponsor-caption" id="sponsorCaption">Promote your business through TikTok reels or articles.</p>
+
+        <div class="hero-sponsor-card">
+          <a class="sponsor-frame hero-sponsor-frame" id="heroSponsorLink" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+            <img id="sponsorImage" src="assets/samuga-promo-banner.jpg" alt="Promote your business with Samuga Media">
+            <span class="sponsor-fallback" id="sponsorFallback">Sponsor banner loading</span>
+          </a>
+
+          <p class="sponsor-caption" id="sponsorCaption">Promote your business through TikTok reels or articles.</p>
+
+          <div class="sponsor-controls" aria-label="Sponsor controls">
+            <div class="sponsor-dots" id="sponsorDots"></div>
+            <div class="sponsor-arrows">
+              <button class="sponsor-arrow" type="button" id="sponsorPrev" aria-label="Previous sponsor">‹</button>
+              <button class="sponsor-arrow" type="button" id="sponsorNext" aria-label="Next sponsor">›</button>
+            </div>
+          </div>
+        </div>
       </aside>
     </section>
 
@@ -973,10 +1009,39 @@
       }
     ];
 
+    /*
+      Add more hero/top sponsors here later.
+      Just add one more object:
+      {
+        name:"Sponsor Name",
+        images:["assets/new_sponsor.png", "assets/new_sponsor.jpg"],
+        caption:"Short sponsor caption.",
+        link:"https://t.me/samugacommunity"
+      }
+    */
     const SPONSORS = [
       {
-        image:"assets/samuga-promo-banner.jpg",
-        caption:"Promote your business through TikTok reels or articles."
+        name:"Samuga Media",
+        images:[
+          "assets/samuga-promo-banner.jpg",
+          "assets/samuga-promo-banner.png",
+          "assets/sponsor_samuga_media.png",
+          "assets/sponsor_samuga_media.jpg"
+        ],
+        caption:"Promote your business through TikTok reels or articles.",
+        link:"https://t.me/samugacommunity"
+      },
+      {
+        name:"Etronic Maldives",
+        images:["assets/sponsor_etronic.png"],
+        caption:"Etronic Maldives sponsor banner.",
+        link:"https://t.me/samugacommunity"
+      },
+      {
+        name:"Berry Travels",
+        images:["assets/sponsor_berry_travels.png"],
+        caption:"Berry Travels sponsor banner.",
+        link:"https://t.me/samugacommunity"
       }
     ];
 
@@ -1185,12 +1250,95 @@
     function rotateSponsors(){
       const img = qs("#sponsorImage");
       const caption = qs("#sponsorCaption");
-      if(!img || !caption) return;
+      const frame = qs(".hero-sponsor-frame");
+      const link = qs("#heroSponsorLink");
+      const fallback = qs("#sponsorFallback");
+      const dotsWrap = qs("#sponsorDots");
+      const prev = qs("#sponsorPrev");
+      const next = qs("#sponsorNext");
 
-      const item = SPONSORS[0];
-      img.src = item.image;
-      img.alt = item.caption;
-      caption.textContent = item.caption;
+      if(!img || !caption || !SPONSORS.length) return;
+
+      let current = 0;
+      let imageTry = 0;
+      let timer = null;
+
+      function withCacheBust(path){
+        const sep = path.includes("?") ? "&" : "?";
+        return `${path}${sep}v=20260626`;
+      }
+
+      function buildDots(){
+        if(!dotsWrap) return;
+        dotsWrap.innerHTML = SPONSORS.map((_,i)=>`
+          <button class="sponsor-dot ${i===current ? "active" : ""}" type="button" aria-label="Show sponsor ${i+1}" data-sponsor-dot="${i}"></button>
+        `).join("");
+
+        qsa("[data-sponsor-dot]").forEach(dot=>{
+          dot.addEventListener("click",()=>{
+            showSponsor(Number(dot.dataset.sponsorDot || 0), true);
+          });
+        });
+      }
+
+      function setBrokenState(isBroken){
+        frame?.classList.toggle("broken", isBroken);
+        if(fallback){
+          const item = SPONSORS[current];
+          fallback.textContent = isBroken
+            ? `${item.name} banner not found. Check file name in assets.`
+            : "Sponsor banner loading";
+        }
+      }
+
+      function showSponsor(index, manual=false){
+        current = (index + SPONSORS.length) % SPONSORS.length;
+        imageTry = 0;
+
+        const item = SPONSORS[current];
+        frame?.classList.add("is-changing");
+        setBrokenState(false);
+
+        setTimeout(()=>{
+          caption.textContent = item.caption;
+          img.alt = item.caption;
+          if(link) link.href = item.link || "https://t.me/samugacommunity";
+          img.src = withCacheBust(item.images[imageTry]);
+          buildDots();
+          frame?.classList.remove("is-changing");
+        }, 160);
+
+        if(manual) restartTimer();
+      }
+
+      img.onload = function(){ setBrokenState(false); };
+
+      img.onerror = function(){
+        const item = SPONSORS[current];
+        imageTry++;
+
+        if(item.images && imageTry < item.images.length){
+          img.src = withCacheBust(item.images[imageTry]);
+          return;
+        }
+
+        console.warn("Sponsor image missing:", item.name, item.images);
+        setBrokenState(true);
+      };
+
+      function nextSponsor(manual=false){ showSponsor(current + 1, manual); }
+      function prevSponsor(manual=false){ showSponsor(current - 1, manual); }
+
+      function restartTimer(){
+        if(timer) clearInterval(timer);
+        timer = setInterval(()=>nextSponsor(false), 5000);
+      }
+
+      next?.addEventListener("click",()=>nextSponsor(true));
+      prev?.addEventListener("click",()=>prevSponsor(true));
+
+      showSponsor(0);
+      restartTimer();
     }
 
     function setupChat(){
