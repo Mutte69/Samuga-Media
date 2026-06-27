@@ -28,6 +28,7 @@ let stories = [];
 let activeCategory = "all";
 let activeLang = "en";
 let sponsorIndex = 0;
+let dynamicBanner = null;
 
 const qs = (s) => document.querySelector(s);
 const qsa = (s) => document.querySelectorAll(s);
@@ -58,8 +59,25 @@ async function init(){
   setupCategoryFilters();
   setupLanguageToggle();
   setupSearch();
+  await loadBanner();
   setupSponsors();
   await loadStories();
+}
+
+async function loadBanner(){
+  try{
+    const res = await fetch(`${BOT_API_BASE}/api/banner`, {cache:"no-store"});
+    if(!res.ok) throw new Error("banner api error");
+    const data = await res.json();
+    if(data && data.active && data.image_url){
+      dynamicBanner = {image:data.image_url, alt:data.text || "Sponsored banner", url:data.link || "https://samugamedia.com"};
+    }else{
+      dynamicBanner = null;
+    }
+  }catch(e){
+    console.warn("Banner API unavailable", e);
+    dynamicBanner = null;
+  }
 }
 
 function setTodayLine(){
@@ -105,17 +123,22 @@ function setupSearch(){
   searchInput?.addEventListener("input", renderStories);
 }
 
+function activeSponsorPool(){
+  return dynamicBanner ? [{image:dynamicBanner.image, alt:dynamicBanner.alt, url:dynamicBanner.url}, ...SPONSORS] : SPONSORS.slice();
+}
+
 function setupSponsors(){
   if(!sponsorImage || !sponsorDots) return;
-  sponsorDots.innerHTML = SPONSORS.map((_,i)=>`<button class="sponsor-dot${i===0?" active":""}" type="button" aria-label="Show sponsor ${i+1}" data-index="${i}"></button>`).join("");
+  const pool = activeSponsorPool();
+  sponsorDots.innerHTML = pool.map((_,i)=>`<button class="sponsor-dot${i===0?" active":""}" type="button" aria-label="Show sponsor ${i+1}" data-index="${i}"></button>`).join("");
   qsa(".sponsor-dot").forEach((dot)=>dot.addEventListener("click",()=>showSponsor(Number(dot.dataset.index || 0))));
   showSponsor(0);
-  setInterval(()=>showSponsor((sponsorIndex + 1) % SPONSORS.length), 7000);
+  setInterval(()=>showSponsor((sponsorIndex + 1) % activeSponsorPool().length), 7000);
 }
 
 function showSponsor(index){
   sponsorIndex = index;
-  const sponsor = SPONSORS[sponsorIndex];
+  const sponsor = activeSponsorPool()[sponsorIndex];
   if(!sponsor || !sponsorImage) return;
   sponsorImage.style.opacity = "0";
   setTimeout(()=>{
@@ -193,7 +216,16 @@ function renderStories(){
     storyGrid.innerHTML = `<div class="empty-state"><strong>${activeLang === "dv" ? "ޚަބަރެއް ނުފެނުނު" : "No stories found"}</strong>${activeLang === "dv" ? "އެހެން ކެޓަގަރީއެއް ނުވަތަ ސަރޗް ތަޖުރިބާ ކޮށްލާ." : "Try another category or search term."}</div>`;
     return;
   }
-  storyGrid.innerHTML = filtered.map(cardHTML).join("");
+  const pool = activeSponsorPool();
+  const chunks = [];
+  filtered.forEach((story, idx)=>{
+    chunks.push(cardHTML(story));
+    if((idx + 1) % 4 === 0 && pool.length){
+      const sponsor = pool[Math.floor((idx + 1) / 4 - 1) % pool.length];
+      chunks.push(`<section class="inline-sponsor-card"><div class="inline-sponsor-top"><strong>Sponsor</strong><span class="ad-label">Ad</span></div><a class="inline-sponsor-frame" href="${escapeAttr(sponsor.url || "https://samugamedia.com")}" target="_blank" rel="noopener"><img src="${escapeAttr(sponsor.image)}" alt="${escapeAttr(sponsor.alt || "Sponsored banner")}"></a></section>`);
+    }
+  });
+  storyGrid.innerHTML = chunks.join("");
 }
 
 function cardHTML(s){

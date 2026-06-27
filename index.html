@@ -187,6 +187,40 @@
     .ad-label{color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:3px 8px;white-space:nowrap}
     .side-sponsor p{color:var(--muted);font-size:14px;margin-top:10px}
     .empty-state{grid-column:1/-1;border:1px dashed rgba(255,255,255,.18);border-radius:16px;background:#070b11;padding:30px;color:var(--muted)}
+    .inline-sponsor-card{
+      grid-column:1/-1;display:grid;gap:12px;padding:18px;
+      background:linear-gradient(180deg,#09121c,#060b12);
+      border:1px solid rgba(40,184,255,.22);border-radius:18px;
+      box-shadow:var(--shadow);position:relative;overflow:hidden
+    }
+    .inline-sponsor-card::before{
+      content:"";position:absolute;inset:0;
+      background:radial-gradient(circle at 85% 15%,rgba(40,184,255,.16),transparent 28%);
+      pointer-events:none
+    }
+    .inline-sponsor-top{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}
+    .inline-sponsor-label{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+      color:var(--blue)
+    }
+    .inline-sponsor-badge{
+      color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+      border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 9px;white-space:nowrap
+    }
+    .inline-sponsor-frame{
+      position:relative;z-index:1;display:block;border:1px solid rgba(40,184,255,.22);
+      border-radius:16px;overflow:hidden;background:#02070d;aspect-ratio:16/7
+    }
+    .inline-sponsor-frame img{width:100%;height:100%;object-fit:cover;background:#02070d}
+    .inline-sponsor-copy{position:relative;z-index:1;color:var(--muted);font-size:14px}
+    .inline-sponsor-cta{
+      position:relative;z-index:1;display:inline-flex;width:fit-content;align-items:center;justify-content:center;
+      border-radius:999px;border:1px solid rgba(40,184,255,.35);background:rgba(40,184,255,.08);
+      color:#dff6ff;font-weight:900;padding:10px 14px
+    }
+    .inline-sponsor-cta:hover{background:rgba(40,184,255,.15)}
+
     .empty-state strong{display:block;color:var(--ink);font-size:24px;margin-bottom:6px}
 
     /* ── FOOTER ── */
@@ -419,9 +453,9 @@
     }];
 
     const SPONSORS = [
-      {name:"Samuga Media",images:["assets/samuga-promo-banner.jpg","assets/samuga-promo-banner.png","assets/sponsor_samuga_media.png"],caption:"Promote your business through TikTok reels or articles.",link:"https://t.me/samugacommunity"},
-      {name:"Etronic Maldives",images:["assets/sponsor_etronic.png"],caption:"Etronic Maldives sponsor banner.",link:"https://t.me/samugacommunity"},
-      {name:"Berry Travels",images:["assets/sponsor_berry_travels.png"],caption:"Berry Travels sponsor banner.",link:"https://t.me/samugacommunity"}
+      {name:"Samuga Media",images:["assets/samuga-promo-banner.jpg","assets/samuga-promo-banner.png","assets/sponsor_samuga_media.png"],caption:"Promote your business through TikTok reels or articles.",link:"https://samugamedia.com"},
+      {name:"Etronic Maldives",images:["assets/sponsor_etronic.png"],caption:"Etronic Maldives sponsor banner.",link:"https://samugamedia.com"},
+      {name:"Berry Travels",images:["assets/sponsor_berry_travels.png"],caption:"Berry Travels sponsor banner.",link:"https://samugamedia.com"}
     ];
 
     // ── Hijri calendar (simple algorithmic conversion) ────────────────────────
@@ -457,6 +491,7 @@
 
     // ── State ────────────────────────────────────────────────────────────────
     let stories = [], activeCategory = "all", activeLang = "en";
+    let dynamicBanner = null;
 
     const qs  = s => document.querySelector(s);
     const qsa = s => document.querySelectorAll(s);
@@ -480,6 +515,7 @@
       setupNav();
       setupLang();
       setupChat();
+      await loadBanner();
       rotateSponsors();
       await loadStories();
     }
@@ -507,6 +543,32 @@
         renderHeroIntro();
         renderAll();
       }));
+    }
+
+
+    async function loadBanner(){
+      try{
+        const res = await fetch(`${BOT_API_BASE}/api/banner`, {cache:"no-store"});
+        if(!res.ok) throw new Error("banner api error");
+        const data = await res.json();
+        if(data && data.active && data.image_url){
+          dynamicBanner = {
+            name: "Sponsored",
+            images: [data.image_url],
+            caption: data.text || "Sponsored banner",
+            link: data.link || "https://samugamedia.com"
+          };
+        }else{
+          dynamicBanner = null;
+        }
+      }catch(e){
+        console.warn("Banner API unavailable, using static sponsors only.", e);
+        dynamicBanner = null;
+      }
+    }
+
+    function activeSponsorPool(){
+      return dynamicBanner ? [dynamicBanner, ...SPONSORS] : SPONSORS.slice();
     }
 
     async function loadStories(){
@@ -630,7 +692,35 @@
         storyGrid.innerHTML = `<div class="empty-state"><strong>${activeLang==="dv"?"ޚަބަރެއް ނުފެނުނު":"No stories found"}</strong>${activeLang==="dv"?"އެހެން ކެޓަގަރީއެއް ތަޖުރިބާ ކޮށްލާ.":"Try another category or search term."}</div>`;
         return;
       }
-      storyGrid.innerHTML = filtered.map(cardHTML).join("");
+      const pool = activeSponsorPool();
+      const chunks = [];
+      filtered.forEach((story, idx)=>{
+        chunks.push(cardHTML(story));
+        if((idx + 1) % 4 === 0 && pool.length){
+          const sponsor = pool[Math.floor((idx + 1) / 4 - 1) % pool.length];
+          chunks.push(inlineSponsorHTML(sponsor));
+        }
+      });
+      storyGrid.innerHTML = chunks.join("");
+    }
+
+    function inlineSponsorHTML(sponsor){
+      const cta = activeLang === "dv" ? "ބަލާލާ" : "View sponsor";
+      const label = activeLang === "dv" ? "ސްޕޮންސަރ" : "Sponsor";
+      const copy = sponsor.caption || (activeLang === "dv" ? "ސްޕޮންސަރ ބެނަރ" : "Sponsored banner");
+      const img = (sponsor.images && sponsor.images[0]) ? sponsor.images[0] : "assets/samuga-promo-banner.jpg";
+      return `
+        <section class="inline-sponsor-card" dir="ltr">
+          <div class="inline-sponsor-top">
+            <div class="inline-sponsor-label">${escHTML(label)} • ${escHTML(sponsor.name || "Samuga Media")}</div>
+            <span class="inline-sponsor-badge">Ad</span>
+          </div>
+          <a class="inline-sponsor-frame" href="${escAttr(sponsor.link || "https://samugamedia.com")}" target="_blank" rel="noopener">
+            <img src="${escAttr(img)}" alt="${escAttr(copy)}" loading="lazy">
+          </a>
+          <div class="inline-sponsor-copy">${escHTML(copy)}</div>
+          <a class="inline-sponsor-cta" href="${escAttr(sponsor.link || "https://samugamedia.com")}" target="_blank" rel="noopener">${escHTML(cta)}</a>
+        </section>`;
     }
 
     function renderTicker(){
@@ -679,9 +769,10 @@
       }
 
       function showSponsor(idx, manual=false){
-        current = (idx + SPONSORS.length) % SPONSORS.length;
+        const pool = activeSponsorPool();
+        current = (idx + pool.length) % pool.length;
         imageTry = 0;
-        const item = SPONSORS[current];
+        const item = pool[current];
         frame?.classList.add("is-changing");
         setBroken(false);
         setTimeout(()=>{
@@ -697,7 +788,7 @@
 
       img.onload  = () => setBroken(false);
       img.onerror = () => {
-        const item = SPONSORS[current];
+        const item = activeSponsorPool()[current];
         imageTry++;
         if(item.images && imageTry < item.images.length){ img.src = bust(item.images[imageTry]); return; }
         setBroken(true);
