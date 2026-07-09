@@ -1,75 +1,408 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Dynamic SEO — filled by JS -->
   <title>Samuga Media | Article</title>
-  <meta name="description" content="Read full Samuga Media article." />
-  <style>
-    :root{--ink:#f5f8ff;--muted:#9aa8b8;--line:rgba(255,255,255,.1);--paper:#020305;--card:#0b1017;--blue:#28b8ff;--cyan:#11d4ff;--shadow:0 18px 50px rgba(0,0,0,.55)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 20% -10%,rgba(40,184,255,.13),transparent 28%),radial-gradient(circle at 85% 5%,rgba(17,212,255,.08),transparent 30%),var(--paper);color:var(--ink);font-family:Arial,"Noto Sans Thaana","MV Typewriter",sans-serif;line-height:1.65}a{color:inherit;text-decoration:none}.wrap{width:min(980px,calc(100% - 32px));margin-inline:auto}.top{border-bottom:1px solid var(--line);background:rgba(2,3,5,.94);backdrop-filter:blur(16px)}.top-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0}.brand{display:flex;align-items:center;gap:12px;font-weight:900}.brand img{width:54px;height:54px;border-radius:50%;filter:drop-shadow(0 0 18px rgba(40,184,255,.4))}.nav{display:flex;gap:12px;flex-wrap:wrap}.btn{border:1px solid rgba(40,184,255,.35);border-radius:999px;padding:9px 14px;color:#dff6ff;background:rgba(40,184,255,.08);font-weight:900}.btn.primary{background:var(--blue);color:#00111c;border-color:var(--blue)}main{padding:34px 0 54px}.article-shell{background:linear-gradient(180deg,var(--card),#070b11);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}.hero{padding:clamp(26px,5vw,56px);border-bottom:1px solid var(--line);background:radial-gradient(circle at 80% 20%,rgba(40,184,255,.16),transparent 32%)}.article-banner{margin:24px clamp(26px,5vw,56px) 0;padding:18px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,#0b1017,#070b11)}.article-banner-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.article-banner-top strong{font-size:14px;letter-spacing:.5px;color:var(--blue);text-transform:uppercase}.article-banner-badge{color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:3px 8px}.article-banner-frame{display:block;border:1px solid rgba(40,184,255,.22);border-radius:16px;overflow:hidden;background:#02070d;aspect-ratio:16/7}.article-banner-frame img{width:100%;height:100%;object-fit:cover}.article-banner-copy{margin-top:12px;color:var(--muted)}.eyebrow{color:var(--blue);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.7px}.meta{margin-top:14px;color:var(--muted);font-weight:800;display:flex;gap:10px;flex-wrap:wrap}.title{font-size:clamp(36px,6vw,72px);line-height:1.04;letter-spacing:-2px;margin:14px 0 0}.excerpt{font-size:20px;color:var(--muted);max-width:780px;margin-top:18px}.body{padding:clamp(24px,5vw,56px);font-size:20px}.body p{margin:0 0 22px;color:#e9f3ff}.body p:first-child{font-size:23px;color:#fff}.cta{margin-top:28px;padding:22px;border:1px solid rgba(40,184,255,.22);border-radius:18px;background:rgba(40,184,255,.08);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.related{padding:0 clamp(24px,5vw,56px) clamp(26px,5vw,56px)}.related h2{font-size:28px;margin:0 0 14px}.related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.related-card{border:1px solid var(--line);border-radius:16px;background:#070c12;padding:18px}.related-card span{color:var(--blue);font-weight:900;font-size:12px;text-transform:uppercase}.related-card h3{font-size:20px;line-height:1.25;margin:8px 0 8px}.related-card p{color:var(--muted);margin:0}.loading,.error{padding:40px;color:var(--muted)}.footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted)}.dv{direction:rtl;text-align:right}@media(max-width:700px){.top-inner{align-items:flex-start;flex-direction:column}.related-grid{grid-template-columns:1fr}.body{font-size:18px}.body p:first-child{font-size:20px}.title{letter-spacing:-1px}}
-  </style>
+  <meta name="description" content="Read the latest Maldives news on Samuga Media." />
+  <meta property="og:type"        content="article" />
+  <meta property="og:site_name"   content="Samuga Media" />
+  <meta property="og:title"       content="Samuga Media | Article" id="ogTitle" />
+  <meta property="og:description" content="Read the latest Maldives news on Samuga Media." id="ogDesc" />
+  <meta property="og:image"       content="assets/SamugaNewsBot_Profile.png" id="ogImage" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Samuga Media" id="twTitle" />
+  <meta name="twitter:description" content="" id="twDesc" />
+  <meta name="twitter:image"      content="assets/SamugaNewsBot_Profile.png" id="twImage" />
+  <link rel="canonical" href="" id="canonicalLink" />
+  <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- JSON-LD NewsArticle — filled by JS -->
+  <script type="application/ld+json" id="jsonLd">{}</script>
 </head>
 <body>
-  <header class="top">
-    <div class="wrap top-inner">
-      <a class="brand" href="index.html"><img src="assets/SamugaNewsBot_Profile.png" alt=""><span>Samuga Media</span></a>
-      <nav class="nav"><a class="btn" href="index.html#latest">Latest</a><a class="btn primary" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join Community</a></nav>
-    </div>
-  </header>
-  <main class="wrap">
-    <article class="article-shell" id="article"><div class="loading">Loading Samuga article...</div></article>
-  </main>
-  <footer class="footer"><div class="wrap">Samuga Media • Live Maldives news powered by Samuga AI</div></footer>
-  <script>
-    const BOT_API_BASE = "https://samuga-news-bot-production.up.railway.app";
-    const articleEl = document.getElementById('article');
-    const params = new URLSearchParams(location.search);
-    const id = params.get('id');
-    const esc = s => String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-    async function loadBanner(){
-      try{
-        const res = await fetch(`${BOT_API_BASE}/api/banner`, {cache:'no-store'});
-        if(!res.ok) throw new Error('banner api error');
-        const data = await res.json();
-        if(data && data.active && data.image_url){
-          return data;
-        }
-      }catch(e){}
-      return null;
-    }
 
-    async function loadArticle(){
-      if(!id){ articleEl.innerHTML = '<div class="error">Article not found.</div>'; return; }
-      try{
-        const res = await fetch(`${BOT_API_BASE}/api/article?id=${encodeURIComponent(id)}`, {cache:'no-store'});
-        const data = await res.json();
-        if(!res.ok || data.error){ throw new Error(data.error || 'Article unavailable'); }
-        const banner = await loadBanner();
-        document.title = `${data.title} | Samuga Media`;
-        const isDv = data.lang === 'dv';
-        const paragraphs = (data.paragraphs && data.paragraphs.length ? data.paragraphs : String(data.body || '').split('\n\n')).filter(Boolean);
-        const related = (data.related || []).map(r => `<a class="related-card" href="${esc(r.url)}"><span>${esc(r.category)}</span><h3>${esc(r.title)}</h3><p>${esc(r.summary || r.time)}</p></a>`).join('');
-        articleEl.classList.toggle('dv', isDv);
-        articleEl.innerHTML = `
-          <header class="hero">
-            <span class="eyebrow">${esc(data.category)} • ${esc(data.source || 'Samuga Media')}</span>
-            <h1 class="title">${esc(data.title)}</h1>
-            <div class="meta"><span>${esc(data.time)}</span><span>Samuga Article</span></div>
-            ${data.excerpt ? `<p class="excerpt">${esc(data.excerpt)}</p>` : ''}
-          </header>
-          <section class="body">
-            ${paragraphs.map(p => `<p>${esc(p)}</p>`).join('')}
-            <div class="cta"><strong>Follow this story with Samuga Community</strong><a class="btn primary" href="${esc(data.community_url)}" target="_blank" rel="noopener">Join Telegram</a></div>
-          </section>
-          ${banner ? `<section class="article-banner"><div class="article-banner-top"><strong>Sponsored</strong><span class="article-banner-badge">Ad</span></div><a class="article-banner-frame" href="${esc(banner.link || 'https://samugamedia.com')}" target="_blank" rel="noopener"><img src="${esc(banner.image_url)}" alt="${esc(banner.text || 'Sponsored banner')}"></a>${banner.text ? `<p class="article-banner-copy">${esc(banner.text)}</p>` : ''}</section>` : ''}
-          ${related ? `<section class="related"><h2>Related stories</h2><div class="related-grid">${related}</div></section>` : ''}
-        `;
-      }catch(e){
-        articleEl.innerHTML = '<div class="error">Article unavailable right now. Please return to latest stories.</div>';
-      }
-    }
-    loadArticle();
-  </script>
+<!-- Reading progress bar -->
+<div class="reading-progress" aria-hidden="true">
+  <div class="reading-progress-bar" id="readingBar"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ HEADER ═══ -->
+<header class="article-header" role="banner">
+  <div class="wrap article-header-inner">
+    <a class="article-header-brand" href="index.html" aria-label="Samuga Media home">
+      <img src="assets/SamugaNewsBot_Profile.png" alt="" aria-hidden="true" />
+      Samuga Media
+    </a>
+    <nav class="article-header-nav" aria-label="Article navigation">
+      <a class="header-btn" href="index.html#latest">← Latest</a>
+      <a class="header-btn primary" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join Community</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════ ARTICLE SHELL ═ -->
+<main class="article-main" id="articleMain">
+
+  <!-- Cover image area — swapped in by JS -->
+  <div id="coverArea"></div>
+
+  <!-- Article container -->
+  <div class="article-container">
+
+    <!-- Skeleton while loading -->
+    <div class="article-skeleton" id="articleSkeleton" aria-label="Loading article">
+      <div class="skel-line w60" style="height:14px"></div>
+      <div class="skel-line tall" style="height:64px"></div>
+      <div class="skel-line w80" style="height:14px;margin-top:8px"></div>
+      <div class="skel-line" style="height:14px;margin-top:4px"></div>
+      <div class="skel-line w60" style="height:14px;margin-top:4px"></div>
+    </div>
+
+    <!-- Article content — populated by JS -->
+    <article id="articleContent" style="display:none" aria-label="Article"></article>
+
+    <!-- Error state -->
+    <div id="articleError" style="display:none" role="alert">
+      <div class="empty-state">
+        <strong>Article unavailable</strong>
+        <p>We could not load this story. <a href="index.html" style="color:var(--blue)">Return to latest stories →</a></p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════ FOOTER ═══ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga Media" />
+      <div>
+        <div class="footer-brand-name">Samuga Media</div>
+        <div class="footer-tagline">Live news, powered by Samuga AI.</div>
+      </div>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="index.html">Home</a>
+      <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Community</a>
+      <a href="https://t.me/Samuga_Media" target="_blank" rel="noopener">Send a Tip</a>
+    </nav>
+    <p class="footer-copy">© 2026 Samuga Media</p>
+  </div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   article.html — Samuga Media V2 article page script
+   Consumes Sprint A extended API fields:
+     cover_image, cover_caption, author{}, reading_time, featured,
+     breaking, seo{}, published_at, updated_at, related[]
+════════════════════════════════════════════════════════════════ */
+
+const BOT_API_BASE = "https://samuga-news-bot-production.up.railway.app";
+const FALLBACK_IMG = "assets/SamugaNewsBot_Profile.png";
+
+const esc = s => String(s || "")
+  .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+const $ = id => document.getElementById(id);
+
+/* ── Reading progress bar ── */
+window.addEventListener("scroll", () => {
+  const body = document.body, html = document.documentElement;
+  const total = Math.max(body.scrollHeight, html.scrollHeight) - window.innerHeight;
+  const pct = total > 0 ? Math.min(100, (window.scrollY / total) * 100) : 0;
+  const bar = $("readingBar");
+  if (bar) bar.style.width = pct + "%";
+}, { passive: true });
+
+/* ── Load article ── */
+async function loadArticle() {
+  const params = new URLSearchParams(location.search);
+  const id     = params.get("id") || "";
+
+  if (!id) { showError(); return; }
+
+  let data;
+  try {
+    const res = await fetch(`${BOT_API_BASE}/api/article?id=${encodeURIComponent(id)}`, { cache: "no-store" });
+    data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || "not found");
+  } catch (e) {
+    console.error("Article load failed:", e);
+    showError();
+    return;
+  }
+
+  // Also fetch banner in parallel
+  let banner = null;
+  try {
+    const br = await fetch(`${BOT_API_BASE}/api/banner`, { cache: "no-store" });
+    const bd = await br.json();
+    if (bd?.active && bd?.image_url) banner = bd;
+  } catch (_) {}
+
+  renderArticle(data, banner);
+}
+
+function showError() {
+  $("articleSkeleton").style.display = "none";
+  $("articleError").style.display    = "block";
+}
+
+/* ── Main render ── */
+function renderArticle(data, banner) {
+  $("articleSkeleton").style.display = "none";
+
+  const isDv       = data.lang === "dv";
+  const isBreaking = data.breaking || data.category === "BREAKING";
+  const dir        = isDv ? "rtl" : "ltr";
+
+  /* ── SEO / meta ── */
+  const seoTitle = data.seo?.title || data.title || "Samuga Media";
+  const seoDesc  = data.seo?.desc  || data.seo?.description || data.excerpt || "";
+  const ogImg    = data.cover_image || FALLBACK_IMG;
+  const canonical = `https://samugamedia.com/article.html?id=${encodeURIComponent(data.id || "")}`;
+
+  document.title = `${seoTitle} | Samuga Media`;
+  setMeta("ogTitle",  seoTitle);
+  setMeta("ogDesc",   seoDesc);
+  setMeta("ogImage",  ogImg);
+  setMeta("twTitle",  seoTitle);
+  setMeta("twDesc",   seoDesc);
+  setMeta("twImage",  ogImg);
+  const cl = $("canonicalLink"); if (cl) cl.href = canonical;
+
+  // JSON-LD NewsArticle
+  const ld = {
+    "@context":       "https://schema.org",
+    "@type":          "NewsArticle",
+    "headline":       data.title || "",
+    "description":    seoDesc,
+    "datePublished":  data.published_at || "",
+    "dateModified":   data.updated_at || data.published_at || "",
+    "image":          ogImg,
+    "url":            canonical,
+    "publisher": {
+      "@type": "Organization",
+      "name":  "Samuga Media",
+      "logo":  { "@type": "ImageObject", "url": "https://samugamedia.com/assets/SamugaNewsBot_Profile.png" }
+    },
+    "author": data.author?.name
+      ? { "@type": "Person", "name": data.author.name }
+      : { "@type": "Organization", "name": "Samuga AI" },
+    "keywords": (data.seo?.keywords || []).join(", "),
+    "articleSection": data.category || "Local"
+  };
+  const ldEl = $("jsonLd");
+  if (ldEl) ldEl.textContent = JSON.stringify(ld);
+
+  /* ── Cover image or decorative strip ── */
+  const coverArea = $("coverArea");
+  if (data.cover_image) {
+    coverArea.innerHTML = `
+      <div class="article-cover">
+        <img src="${esc(data.cover_image)}" alt="${esc(data.cover_caption || data.title || '')}" loading="eager" />
+        <div class="article-cover-gradient" aria-hidden="true"></div>
+        ${data.cover_caption ? `<div class="article-cover-caption">${esc(data.cover_caption)}</div>` : ""}
+      </div>`;
+  } else {
+    coverArea.innerHTML = `<div class="article-no-cover" aria-hidden="true"></div>`;
+  }
+
+  /* ── Category tag class ── */
+  const catTagClass = ({
+    BREAKING:"breaking", POLITICAL:"politics", BUSINESS:"business",
+    SPORTS:"sports", WORLD:"world", LIFESTYLE:"lifestyle"
+  }[data.category] || "");
+
+  /* ── Display category ── */
+  const catDisplay = isDv
+    ? ({ BREAKING:"ބްރޭކިންގ", LOCAL:"ލޯކަލް", POLITICAL:"ސިޔާސީ",
+         BUSINESS:"އިޤްތިޞާދީ", SPORTS:"ކުޅިވަރު", WORLD:"ދުނިޔެ", LIFESTYLE:"ލައިފްސްޓައިލް" }[data.category] || data.category)
+    : ({ BREAKING:"Breaking", LOCAL:"Local", POLITICAL:"Politics",
+         BUSINESS:"Business", SPORTS:"Sports", WORLD:"World", LIFESTYLE:"Lifestyle" }[data.category] || data.category);
+
+  /* ── Author row ── */
+  const author      = data.author;
+  const authorName  = author?.name  || "Samuga AI";
+  const authorRole  = author?.role  || "AI Newsroom";
+  const authorPhoto = author?.photo;
+  const authorIsAI  = !author?.name;
+
+  const avatarHTML = authorPhoto
+    ? `<img class="author-avatar" src="${esc(authorPhoto)}" alt="${esc(authorName)}" loading="lazy" onerror="this.style.display='none'" />`
+    : `<div class="author-avatar ai-avatar" aria-label="Samuga AI">🤖</div>`;
+
+  const pubDate   = formatDate(data.published_at || data.time);
+  const updDate   = data.updated_at ? formatDate(data.updated_at) : null;
+  const readTime  = data.reading_time ? `${data.reading_time} min read` : null;
+
+  const updatedNotice = updDate
+    ? `<div class="updated-notice" role="note"><span class="updated-icon">✏️</span>Updated: ${esc(updDate)}</div>`
+    : "";
+
+  const authorRowHTML = `
+    <div class="author-row" dir="ltr">
+      ${avatarHTML}
+      <div class="author-info">
+        <div class="author-name">${esc(authorName)}</div>
+        <div class="author-role">${esc(authorRole)}</div>
+      </div>
+      <div class="author-divider" aria-hidden="true"></div>
+      <div class="article-meta-group">
+        <div class="article-meta-label">Published</div>
+        <div class="article-meta-value"><time datetime="${esc(data.published_at || '')}">${esc(pubDate)}</time></div>
+      </div>
+      ${readTime ? `<div class="reading-time-badge" aria-label="${esc(readTime)}">${esc(readTime)}</div>` : ""}
+    </div>`;
+
+  /* ── Article body paragraphs ── */
+  const paras = (data.paragraphs?.length
+    ? data.paragraphs
+    : String(data.body || "").split(/\n\n+/)
+  ).filter(Boolean);
+
+  const bodyHTML = paras.map(p => `<p>${esc(p)}</p>`).join("\n");
+
+  /* ── Related ── */
+  const relatedHTML = (data.related?.length)
+    ? `<section class="related-section" aria-label="Related stories">
+        <h2>${isDv ? "ގުޅޭ ޚަބަރުތައް" : "Related stories"}</h2>
+        <div class="related-grid">
+          ${data.related.map(r => `
+            <a class="related-card" href="article.html?id=${esc(r.id || '')}" aria-label="${esc(r.title)}">
+              <div class="related-cat">${esc(r.category || "Local")}</div>
+              <h3>${esc(r.title)}</h3>
+              <p>${esc(r.time || "")}</p>
+            </a>`).join("")}
+        </div>
+      </section>`
+    : "";
+
+  /* ── Banner ── */
+  const bannerHTML = banner
+    ? `<div class="article-banner">
+        <div class="article-banner-header ltr-lock">
+          <span>Sponsored</span>
+          <span class="ad-badge">Ad</span>
+        </div>
+        <a class="article-banner-frame" href="${esc(banner.link || 'https://samugamedia.com')}" target="_blank" rel="noopener sponsored" aria-label="Sponsor">
+          <img src="${esc(banner.image_url)}" alt="${esc(banner.text || 'Sponsored banner')}" loading="lazy" />
+        </a>
+        ${banner.text ? `<p class="article-banner-copy">${esc(banner.text)}</p>` : ""}
+      </div>`
+    : "";
+
+  /* ── Share buttons ── */
+  const articleUrl  = canonical;
+  const articleTitle = data.title || "Samuga Media";
+  const shareLabel  = isDv ? "ހިއްސާ ކުރޭ" : "Share this story";
+
+  const shareHTML = `
+    <div class="share-bar">
+      <div class="share-label">${esc(shareLabel)}</div>
+      <div class="share-buttons" role="group" aria-label="Share buttons">
+        <a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}" target="_blank" rel="noopener" aria-label="Share on Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          Facebook
+        </a>
+        <a class="share-btn" href="https://t.me/share/url?url=${encodeURIComponent(articleUrl)}&text=${encodeURIComponent(articleTitle)}" target="_blank" rel="noopener" aria-label="Share on Telegram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Telegram
+        </a>
+        <a class="share-btn" href="https://wa.me/?text=${encodeURIComponent(articleTitle + ' ' + articleUrl)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a class="share-btn" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(articleTitle)}&url=${encodeURIComponent(articleUrl)}" target="_blank" rel="noopener" aria-label="Share on X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.213 5.567 5.951-5.567zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X
+        </a>
+        <button class="share-btn copy" id="copyLinkBtn" aria-label="Copy article link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy link
+        </button>
+      </div>
+    </div>`;
+
+  /* ── CTA ── */
+  const ctaHTML = `
+    <div class="article-cta">
+      <div>
+        <strong>${isDv ? "ސަމުގާ ކޮމިއުނިޓީ ފޮލޯ ކުރޭ" : "Follow this story on Samuga Community"}</strong>
+        <p>${isDv ? "ލައިވް ޚަބަރު، ބްރޭކިންގ، ތަފްސީލު." : "Live updates, breaking news, discussions."}</p>
+      </div>
+      <a class="header-btn primary" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
+        ${isDv ? "ޖޮއިން ވޭ →" : "Join Telegram →"}
+      </a>
+    </div>`;
+
+  /* ── Assemble article ── */
+  const articleEl = $("articleContent");
+  articleEl.dir = dir;
+  articleEl.innerHTML = `
+    <header class="article-hero">
+      ${updatedNotice}
+      <div class="article-eyebrow">
+        <span class="article-cat-tag ${catTagClass}">${esc(catDisplay)}</span>
+        <span class="article-source-name">${esc(data.source || "Samuga Media")}</span>
+        ${isBreaking ? `<span style="background:var(--red);color:#fff;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;border-radius:6px;padding:4px 8px;animation:badge-pulse 2s ease-in-out infinite">LIVE</span>` : ""}
+      </div>
+      <h1 class="article-headline${isBreaking ? " breaking-headline" : ""}">${esc(data.title)}</h1>
+      ${data.excerpt ? `<p class="article-excerpt">${esc(data.excerpt)}</p>` : ""}
+      ${authorRowHTML}
+    </header>
+
+    <div class="article-body">
+      ${bodyHTML || `<p>${esc(data.excerpt || data.title || "")}</p>`}
+    </div>
+
+    ${ctaHTML}
+    ${bannerHTML}
+    ${shareHTML}
+    ${relatedHTML}
+  `;
+
+  articleEl.style.display = "block";
+
+  /* ── Copy link button ── */
+  const copyBtn = $("copyLinkBtn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(articleUrl);
+        copyBtn.classList.add("copied");
+        copyBtn.textContent = "✓ Copied!";
+        setTimeout(() => { copyBtn.classList.remove("copied"); copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy link'; }, 2200);
+      } catch (_) {}
+    });
+  }
+}
+
+/* ── Helpers ── */
+function setMeta(id, val) {
+  const el = $(id);
+  if (el) el.setAttribute(el.tagName === "LINK" ? "href" : "content", val);
+}
+
+function formatDate(raw) {
+  if (!raw) return "";
+  // Already a display string like "10 Jul 2026 • 14:23"
+  if (/[a-zA-Z]{3}/.test(raw) && !raw.includes("T")) return raw;
+  try {
+    const d = new Date(raw);
+    if (isNaN(d)) return raw;
+    return d.toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }) + " MVT";
+  } catch (_) { return raw; }
+}
+
+/* ── Init ── */
+loadArticle();
+</script>
 </body>
 </html>
