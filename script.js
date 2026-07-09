@@ -313,11 +313,19 @@ function cardHTML(s,featured=false){
     ?`<div class="card-cover"><img src="${esc(s.cover_image)}" alt="" loading="lazy">${s.breaking?`<span class="card-breaking-badge">Breaking</span>`:""}</div>`
     :(featured?`<div class="card-cover"><div class="card-no-cover"><div class="card-no-cover-icon">📰</div></div>${s.breaking?`<span class="card-breaking-badge">Breaking</span>`:""}</div>`:"");
 
-  const authorHTML=s.author?.name?`<div class="card-author-row">
-    ${s.author.photo?`<img class="card-author-avatar" src="${esc(s.author.photo)}" alt="${esc(s.author.name)}" loading="lazy">`:``}
-    <span class="card-author-name">${esc(s.author.name)}</span>
-    ${s.reading_time?`<span class="card-reading-time">${esc(String(s.reading_time))} min</span>`:""}
-  </div>`:(s.reading_time?`<div class="card-author-row"><span class="card-reading-time">${esc(String(s.reading_time))} min read</span></div>`:"");
+  // Author shown in footer right side next to Read more
+  const aName = s.author?.name || "Samuga AI";
+  const aPhoto = s.author?.photo || null;
+  const authorFooter = `
+    <div class="card-author-inline" dir="ltr">
+      ${aPhoto
+        ? `<img class="card-author-avatar" src="${esc(aPhoto)}" alt="${esc(aName)}" loading="lazy" onerror="this.style.display='none'">`
+        : `<div class="card-author-avatar-ai">🤖</div>`}
+      <span class="card-author-name">${esc(aName)}</span>
+    </div>`;
+
+  const rtBadge = s.reading_time
+    ? `<span class="card-reading-time">${esc(String(s.reading_time))} min</span>` : "";
 
   return`<article class="story-card${featured?" featured-card":""}" style="--cat-color:${color}" dir="${s.lang==="dv"?"rtl":"ltr"}" role="listitem">
     ${coverHTML}
@@ -329,8 +337,10 @@ function cardHTML(s,featured=false){
       <span class="cat-tag ${cls}">${esc(label)}</span>
       <h3 class="card-title"><a href="${escA(href)}">${esc(s.title)}</a></h3>
       ${s.summary?`<p class="card-summary">${esc(s.summary)}</p>`:""}
-      ${authorHTML}
-      <div class="card-footer"><a class="read-link" href="${escA(href)}">${esc(rm)}</a></div>
+      <div class="card-footer">
+        <a class="read-link" href="${escA(href)}">${esc(rm)} ${rtBadge}</a>
+        ${authorFooter}
+      </div>
     </div>
   </article>`;
 }

@@ -560,27 +560,45 @@ p:last-child { margin-bottom: 0; }
   overflow: hidden; font-family: var(--font-body);
 }
 
-.card-author-row {
-  display: flex; align-items: center; gap: 6px;
-  font-family: var(--font-ui); font-size: 11px; color: var(--muted-faint);
-}
-.card-author-avatar {
-  width: 18px; height: 18px; border-radius: 50%; object-fit: cover;
-  border: 1px solid var(--line); flex-shrink: 0;
-}
-.card-author-name { font-weight: 600; color: var(--muted); }
-.card-reading-time { margin-inline-start: auto; color: rgba(40,184,255,.45); font-size: 11px; }
+/* card-author-row removed — author now lives in card-footer (card-author-inline) */
 
 .card-footer {
   display: flex; align-items: center; justify-content: space-between;
   margin-top: auto; padding-top: 10px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line); gap: 10px;
 }
 .read-link {
   font-family: var(--font-ui); font-size: 12px; font-weight: 700;
-  color: var(--blue); transition: letter-spacing .2s;
+  color: var(--blue); display: flex; align-items: center; gap: 5px;
+  flex-shrink: 0; transition: letter-spacing .2s;
 }
 .read-link:hover { letter-spacing: .3px; }
+.card-reading-time {
+  font-size: 10px; font-weight: 600;
+  color: rgba(40,184,255,.45); white-space: nowrap;
+}
+
+/* Author inline in card footer */
+.card-author-inline {
+  display: flex; align-items: center; gap: 5px;
+  min-width: 0; overflow: hidden;
+}
+.card-author-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  object-fit: cover; border: 1px solid var(--line); flex-shrink: 0;
+}
+.card-author-avatar-ai {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: linear-gradient(135deg, #05102a, #0a2855);
+  border: 1px solid var(--blue-glow); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1;
+}
+.card-author-name {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+  color: var(--muted); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+}
 
 /* Wide featured card */
 .story-card.featured-card {
