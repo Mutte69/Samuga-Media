@@ -1,3 +1,12 @@
+/**
+ * Samuga Media — Cloudflare Pages Worker
+ *
+ * ONLY intercepts /article requests from social crawlers.
+ * Returns a lightweight HTML page with real OG meta tags.
+ * Does NOT touch /article.html or any other URL — those pass through to assets.
+ * Real users hitting /article get redirected to article.html by browser normally.
+ */
+
 const RAILWAY_API = "https://samuga-news-bot-production.up.railway.app";
 const DEFAULT_IMG = "https://samugamedia.com/assets/SamugaNewsBot_Profile.png";
 
@@ -8,17 +17,17 @@ const CRAWLERS = [
 ];
 
 function isCrawler(ua) {
-  return CRAWLERS.some(bot => (ua || "").toLowerCase().includes(bot));
+  return CRAWLERS.some(b => (ua||"").toLowerCase().includes(b));
 }
 
 function esc(s) {
-  return String(s || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0,400);
+  return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0,500);
 }
 
 async function getArticleMeta(id) {
   try {
     const r = await fetch(`${RAILWAY_API}/api/article?id=${encodeURIComponent(id)}`, {
-      headers: { "User-Agent": "Cloudflare-Worker/1.0", "Accept": "application/json" },
+      headers: { "User-Agent": "Mozilla/5.0 Cloudflare-Worker", "Accept": "application/json" },
       cf: { cacheTtl: 300, cacheEverything: true }
     });
     if (!r.ok) return null;
@@ -35,30 +44,29 @@ async function getArticleMeta(id) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const path = url.pathname;
     const id = url.searchParams.get("id");
     const ua = request.headers.get("user-agent") || "";
 
-    // Only intercept /article (extensionless — what Cloudflare serves after 308)
-    // for social crawlers only
-    if (path === "/article" && id && isCrawler(ua)) {
-      const [meta, pageRes] = await Promise.all([
-        getArticleMeta(id),
-        env.ASSETS.fetch(new Request(
-          `${url.origin}/article.html?id=${encodeURIComponent(id)}`,
-          { headers: { "Accept": "text/html" } }
-        )),
-      ]);
+    // ONLY intercept /article (extensionless) requests from social crawlers
+    // Everything else — pass through to static assets untouched
+    if (url.pathname !== "/article" || !id || !isCrawler(ua)) {
+      return env.ASSETS.fetch(request);
+    }
 
-      const title = meta?.title || "Samuga Media";
-      const desc  = meta?.desc  || "Live Maldives news powered by Samuga AI.";
-      const img   = meta?.image || DEFAULT_IMG;
-      const canon = `https://samugamedia.com/article.html?id=${encodeURIComponent(id)}`;
+    // Crawler hit /article?id=... — serve a real HTML page with OG tags
+    const meta = await getArticleMeta(id);
+    const title = meta?.title || "Samuga Media";
+    const desc  = meta?.desc  || "Live Maldives news powered by Samuga AI.";
+    const img   = meta?.image || DEFAULT_IMG;
+    const articleUrl = `https://samugamedia.com/article.html?id=${encodeURIComponent(id)}`;
 
-      const tags = `
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
   <title>${esc(title)} | Samuga Media</title>
   <meta name="description" content="${esc(desc)}">
-  <link rel="canonical" href="${canon}">
+  <link rel="canonical" href="${articleUrl}">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Samuga Media">
   <meta property="og:title" content="${esc(title)}">
@@ -66,26 +74,25 @@ export default {
   <meta property="og:image" content="${esc(img)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="${canon}">
+  <meta property="og:url" content="${articleUrl}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(desc)}">
-  <meta name="twitter:image" content="${esc(img)}">`;
+  <meta name="twitter:image" content="${esc(img)}">
+  <meta http-equiv="refresh" content="0;url=${articleUrl}">
+</head>
+<body>
+  <p><a href="${articleUrl}">${esc(title)}</a></p>
+  <script>window.location.replace("${articleUrl}")</script>
+</body>
+</html>`;
 
-      const body = pageRes.ok
-        ? new HTMLRewriter()
-            .on("head", { element(el) { el.prepend(tags, { html: true }); } })
-            .on("title", { element(el) { el.setInnerContent(`${title} | Samuga Media`); } })
-            .transform(pageRes).body
-        : `<html><head>${tags}</head><body><p>Redirecting...</p><script>location.href='${canon}'</script></body></html>`;
-
-      return new Response(body, {
-        status: 200,
-        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" }
-      });
-    }
-
-    // Everything else — pass through untouched
-    return env.ASSETS.fetch(request);
-  },
+    return new Response(html, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=300",
+      }
+    });
+  }
 };
