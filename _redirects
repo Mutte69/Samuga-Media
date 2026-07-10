@@ -1,2 +1,2 @@
-# Prevent Cloudflare Pages from redirecting article.html to article
-/article  /article.html  200
+# Intentionally empty.
+# Article routing is handled by _worker.js to avoid redirect loops.

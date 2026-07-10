@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/article"],
-  "exclude": ["/*"]
+  "include": ["/article", "/article.html"],
+  "exclude": []
 }

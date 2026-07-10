@@ -9,11 +9,11 @@
   <meta property="og:site_name" content="Samuga Media" />
   <meta property="og:title"       content="Samuga Media" id="ogTitle" />
   <meta property="og:description" content=""                id="ogDesc" />
-  <meta property="og:image"       content="assets/SamugaNewsBot_Profile.png" id="ogImage" />
+  <meta property="og:image"       content="https://samugamedia.com/assets/SamugaNewsBot_Profile.png" id="ogImage" />
   <meta name="twitter:card"       content="summary_large_image" />
   <meta name="twitter:title"      content="Samuga Media"   id="twTitle" />
   <meta name="twitter:description" content=""              id="twDesc" />
-  <meta name="twitter:image"      content="assets/SamugaNewsBot_Profile.png" id="twImage" />
+  <meta name="twitter:image"      content="https://samugamedia.com/assets/SamugaNewsBot_Profile.png" id="twImage" />
   <link rel="canonical" href="" id="canonicalLink" />
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
   <link rel="stylesheet" href="styles.css" />
@@ -27,13 +27,13 @@
 
 <header class="article-header" role="banner">
   <div class="wrap article-header-inner">
-    <a class="article-header-brand" href="index.html" aria-label="Samuga Media">
+    <a class="article-header-brand" href="/" aria-label="Samuga Media">
       <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media"
            style="height:28px;width:auto;max-width:140px;object-fit:contain;border-radius:0;filter:drop-shadow(0 0 8px rgba(40,184,255,.2))"
            onerror="this.style.display='none'" />
     </a>
     <nav class="article-header-nav">
-      <a class="header-btn" href="index.html">← Latest</a>
+      <a class="header-btn" href="/">← Latest</a>
       <a class="header-btn primary" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Join Community</a>
     </nav>
   </div>
@@ -57,7 +57,7 @@
       <div class="empty-state">
         <strong>Article unavailable</strong>
         <p>We could not load this story.
-          <a href="index.html" style="color:var(--blue)">Return to latest stories →</a></p>
+          <a href="/" style="color:var(--blue)">Return to latest stories →</a></p>
       </div>
     </div>
   </div>
@@ -73,7 +73,7 @@
       </div>
     </div>
     <nav class="footer-links">
-      <a href="index.html">Home</a>
+      <a href="/">Home</a>
       <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Community</a>
       <a href="https://t.me/Samuga_Media" target="_blank" rel="noopener">Send a Tip</a>
     </nav>
@@ -106,6 +106,13 @@ function fmtDate(raw){
     return d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false})+" MVT";
   }catch{return raw;}
 }
+function absoluteUrl(raw){
+  const v=String(raw||FALLBACK).trim();
+  if(/^https?:\/\//i.test(v)) return v;
+  if(v.startsWith("//")) return "https:"+v;
+  if(v.startsWith("/")) return "https://samugamedia.com"+v;
+  return "https://samugamedia.com/"+v.replace(/^\.\//,"");
+}
 const CAT_EN={BREAKING:"Breaking",LOCAL:"Local",POLITICAL:"Politics",BUSINESS:"Business",SPORTS:"Sports",WORLD:"World",LIFESTYLE:"Lifestyle"};
 const CAT_CLASS={BREAKING:"breaking",POLITICAL:"politics",BUSINESS:"business",SPORTS:"sports",WORLD:"world",LIFESTYLE:"lifestyle"};
 
@@ -132,12 +139,12 @@ function render(data,banner){
   $("articleSkeleton").style.display="none";
   const isDv=data.lang==="dv";
   const isBreaking=data.breaking||data.category==="BREAKING";
-  const canonical=`https://samugamedia.com/article.html?id=${encodeURIComponent(data.id||"")}`;
+  const canonical=`https://samugamedia.com/article?id=${encodeURIComponent(data.id||"")}`;
 
   // SEO
   const seoTitle=data.seo?.title||data.title||"Samuga Media";
   const seoDesc=data.seo?.description||data.excerpt||"";
-  const ogImg=data.cover_image||FALLBACK;
+  const ogImg=absoluteUrl(data.cover_image||FALLBACK);
   document.title=`${seoTitle} | Samuga Media`;
   document.documentElement.lang=isDv?"dv":"en";
   document.documentElement.dir=isDv?"rtl":"ltr";
@@ -219,7 +226,7 @@ function render(data,banner){
   const related=(data.related?.length)?`<section class="related-section">
     <h2 class="related-head">${esc(relLabel)}</h2>
     <div class="related-grid">
-      ${data.related.map(r=>`<a class="related-card" href="article.html?id=${esc(r.id||"")}">
+      ${data.related.map(r=>`<a class="related-card" href="article?id=${esc(r.id||"")}">
         <div class="related-cat">${esc(r.category||"Local")}</div>
         <h3>${esc(r.title)}</h3>
         <p>${esc(r.time||"")}</p>
