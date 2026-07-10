@@ -224,7 +224,7 @@ function renderFeatured(){
     const rt=featured.reading_time?`<span style="font-size:11px;color:var(--muted-faint);font-family:var(--font-ui)">· ${esc(String(featured.reading_time))} min read</span>`:"";
     meta.innerHTML=`<div class="featured-author">${avatarHTML}<span>${esc(aName)}</span></div><span class="featured-time">${esc(relTime(featured.time))}</span>${rt}`;
   }
-  const href=featured.id&&featured.id.startsWith("fb")?featured.url:`/story?id=${encodeURIComponent(featured.id)}`;
+  const href=featured.id&&featured.id.startsWith("fb")?featured.url:`/article?id=${encodeURIComponent(featured.id)}`;
   if(rb){ rb.href=href; rb.textContent="Read story →"; }
 }
 
@@ -251,7 +251,7 @@ function renderBreaking(){
   if(!brk.length){ panel.style.display="none"; return; }
   panel.style.display="";
   items.innerHTML=brk.map(s=>{
-    const href=s.id&&!s.id.startsWith("fb")?`/story?id=${encodeURIComponent(s.id)}`:escA(s.url);
+    const href=s.id&&!s.id.startsWith("fb")?`/article?id=${encodeURIComponent(s.id)}`:escA(s.url);
     return`<a class="breaking-item" href="${escA(href)}">
       <div class="breaking-item-title">${esc(s.title)}</div>
       <div class="breaking-item-time">${esc(relTime(s.time))}</div>
@@ -305,7 +305,7 @@ function cardHTML(s,featured=false){
   const color=CAT_COLOR[cat]||"var(--cat-local)";
   const cls=CAT_CLASS[cat]||"";
   const label=activeLang==="dv"?(CAT_DV[cat]||cat):(CAT_EN[cat]||cat);
-  const href=s.id&&!s.id.startsWith("fb")?`/story?id=${encodeURIComponent(s.id)}`:escA(s.url);
+  const href=s.id&&!s.id.startsWith("fb")?`/article?id=${encodeURIComponent(s.id)}`:escA(s.url);
   const age=relTime(s.time);
   const rm=UI[activeLang].readMore;
 
@@ -365,7 +365,7 @@ function renderPopular(){
   const pop=stories.filter(s=>s.lang===activeLang).slice(0,6);
   if(!pop.length){ list.innerHTML=`<li class="popular-item"><span class="popular-num">—</span><div class="popular-link">${activeLang==="dv"?"ޕޮޕިއުލަރ ޚަބަރެއް ނެތް.":"No popular stories yet."}</div></li>`; return; }
   list.innerHTML=pop.map((s,i)=>{
-    const href=s.id&&!s.id.startsWith("fb")?`/story?id=${encodeURIComponent(s.id)}`:escA(s.url);
+    const href=s.id&&!s.id.startsWith("fb")?`/article?id=${encodeURIComponent(s.id)}`:escA(s.url);
     return`<li class="popular-item" dir="${s.lang==="dv"?"rtl":"ltr"}">
       <span class="popular-num">${i+1}</span>
       <div>
