@@ -319,7 +319,9 @@ function cardHTML(s,featured=false){
   const authorFooter = `
     <div class="card-author-inline" dir="ltr">
       ${aPhoto
-        ? `<img class="card-author-avatar" src="${esc(aPhoto)}" alt="${esc(aName)}" loading="lazy" onerror="this.style.display='none'">`
+        ? `<img class="card-author-avatar" src="${esc(aPhoto)}" alt="${esc(aName)}" loading="lazy"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          ><div class="card-author-avatar-ai" style="display:none">🤖</div>`
         : `<div class="card-author-avatar-ai">🤖</div>`}
       <span class="card-author-name">${esc(aName)}</span>
     </div>`;

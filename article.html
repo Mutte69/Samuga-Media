@@ -175,7 +175,9 @@ function render(data,banner){
   const aRole=author?.role||"AI Newsroom";
   const aPhoto=author?.photo;
   const avatarHTML=aPhoto
-    ?`<img class="author-avatar" src="${esc(aPhoto)}" alt="${esc(aName)}" loading="lazy" onerror="this.style.display='none'">`
+    ?`<img class="author-avatar" src="${esc(aPhoto)}" alt="${esc(aName)}" loading="lazy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      ><div class="author-avatar-ai" style="display:none" aria-label="${esc(aName)}">🤖</div>`
     :`<div class="author-avatar-ai" aria-label="${esc(aName)}">🤖</div>`;
 
   const pubDate=fmtDate(data.published_at||data.time);
