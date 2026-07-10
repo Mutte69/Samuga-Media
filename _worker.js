@@ -8,23 +8,21 @@ const CRAWLERS = [
 ];
 
 function isCrawler(ua) {
-  const lower = (ua || "").toLowerCase();
-  return CRAWLERS.some(bot => lower.includes(bot));
+  return CRAWLERS.some(bot => (ua || "").toLowerCase().includes(bot));
 }
 
 function esc(s) {
   return String(s || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0,400);
 }
 
-async function getArticleMeta(articleId) {
+async function getArticleMeta(id) {
   try {
-    const res = await fetch(
-      `${RAILWAY_API}/api/article?id=${encodeURIComponent(articleId)}`,
-      { headers: { "User-Agent": "Cloudflare-Worker/1.0", "Accept": "application/json" },
-        cf: { cacheTtl: 300, cacheEverything: true } }
-    );
-    if (!res.ok) return null;
-    const d = await res.json();
+    const r = await fetch(`${RAILWAY_API}/api/article?id=${encodeURIComponent(id)}`, {
+      headers: { "User-Agent": "Cloudflare-Worker/1.0", "Accept": "application/json" },
+      cf: { cacheTtl: 300, cacheEverything: true }
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
     if (d.error) return null;
     return {
       title: (d.title || "Samuga Media").trim(),
@@ -38,58 +36,66 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
-    const articleId = url.searchParams.get("id");
+    const id = url.searchParams.get("id");
 
-    // Intercept both /article.html and /article (Cloudflare Pages strips .html)
-    const isArticle = path === "/article.html" || path === "/article" || path.endsWith("/article.html") || path.endsWith("/article");
-
-    if (!isArticle || !articleId) {
-      return env.ASSETS.fetch(request);
-    }
+    // Intercept ALL article requests — both /article.html and /article
+    const isArticle = path === "/article.html" || path === "/article";
+    if (!isArticle || !id) return env.ASSETS.fetch(request);
 
     const ua = request.headers.get("user-agent") || "";
-    if (!isCrawler(ua)) {
-      return env.ASSETS.fetch(request);
-    }
 
-    const [pageRes, meta] = await Promise.all([
-      env.ASSETS.fetch(new Request(`${url.origin}/article.html?id=${encodeURIComponent(articleId)}`, request)),
-      getArticleMeta(articleId),
-    ]);
+    // For crawlers: fetch article.html directly (bypassing the 308)
+    // and inject real meta tags
+    if (isCrawler(ua)) {
+      const [meta, pageRes] = await Promise.all([
+        getArticleMeta(id),
+        // Always fetch the canonical article.html content — bypass redirect
+        env.ASSETS.fetch(new Request(
+          `${url.origin}/article.html`,
+          { headers: request.headers }
+        )),
+      ]);
 
-    if (!pageRes.ok) return pageRes;
+      if (!pageRes.ok) return pageRes;
 
-    const title    = meta?.title || "Samuga Media";
-    const desc     = meta?.desc  || "Live Maldives news powered by Samuga AI.";
-    const image    = meta?.image || DEFAULT_IMG;
-    const canonical = `https://samugamedia.com/article.html?id=${encodeURIComponent(articleId)}`;
+      const title = meta?.title || "Samuga Media";
+      const desc  = meta?.desc  || "Live Maldives news powered by Samuga AI.";
+      const img   = meta?.image || DEFAULT_IMG;
+      const canon = `https://samugamedia.com/article.html?id=${encodeURIComponent(id)}`;
 
-    const tags = `
+      const tags = `
   <title>${esc(title)} | Samuga Media</title>
   <meta name="description" content="${esc(desc)}">
-  <link rel="canonical" href="${canonical}">
+  <link rel="canonical" href="${canon}">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Samuga Media">
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(desc)}">
-  <meta property="og:image" content="${esc(image)}">
+  <meta property="og:image" content="${esc(img)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="${canonical}">
+  <meta property="og:url" content="${canon}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(desc)}">
-  <meta name="twitter:image" content="${esc(image)}">`;
+  <meta name="twitter:image" content="${esc(img)}">`;
 
-    return new HTMLRewriter()
-      .on("head", { element(el) { el.prepend(tags, { html: true }); } })
-      .on("title", { element(el) { el.setInnerContent(`${title} | Samuga Media`); } })
-      .on('meta[id="ogTitle"]',  { element(el) { el.setAttribute("content", title); } })
-      .on('meta[id="ogDesc"]',   { element(el) { el.setAttribute("content", desc);  } })
-      .on('meta[id="ogImage"]',  { element(el) { el.setAttribute("content", image); } })
-      .on('meta[id="twTitle"]',  { element(el) { el.setAttribute("content", title); } })
-      .on('meta[id="twDesc"]',   { element(el) { el.setAttribute("content", desc);  } })
-      .on('meta[id="twImage"]',  { element(el) { el.setAttribute("content", image); } })
-      .transform(pageRes);
+      // Return 200 directly — no redirect
+      const transformed = new HTMLRewriter()
+        .on("head", { element(el) { el.prepend(tags, { html: true }); } })
+        .on("title", { element(el) { el.setInnerContent(`${title} | Samuga Media`); } })
+        .transform(pageRes);
+
+      return new Response(transformed.body, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=300",
+        }
+      });
+    }
+
+    // Real users: pass through normally
+    return env.ASSETS.fetch(request);
   },
 };
