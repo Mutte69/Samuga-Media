@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "include": ["/article.html"],
+  "include": ["/article.html", "/article"],
   "exclude": [
     "/assets/*",
     "/styles.css",
