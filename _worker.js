@@ -37,26 +37,18 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
     const id = url.searchParams.get("id");
-
-    // Intercept ALL article requests — both /article.html and /article
-    const isArticle = path === "/article.html" || path === "/article";
-    if (!isArticle || !id) return env.ASSETS.fetch(request);
-
     const ua = request.headers.get("user-agent") || "";
 
-    // For crawlers: fetch article.html directly (bypassing the 308)
-    // and inject real meta tags
-    if (isCrawler(ua)) {
+    // Only intercept /article (extensionless — what Cloudflare serves after 308)
+    // for social crawlers only
+    if (path === "/article" && id && isCrawler(ua)) {
       const [meta, pageRes] = await Promise.all([
         getArticleMeta(id),
-        // Always fetch the canonical article.html content — bypass redirect
         env.ASSETS.fetch(new Request(
-          `${url.origin}/article.html`,
-          { headers: request.headers }
+          `${url.origin}/article.html?id=${encodeURIComponent(id)}`,
+          { headers: { "Accept": "text/html" } }
         )),
       ]);
-
-      if (!pageRes.ok) return pageRes;
 
       const title = meta?.title || "Samuga Media";
       const desc  = meta?.desc  || "Live Maldives news powered by Samuga AI.";
@@ -80,22 +72,20 @@ export default {
   <meta name="twitter:description" content="${esc(desc)}">
   <meta name="twitter:image" content="${esc(img)}">`;
 
-      // Return 200 directly — no redirect
-      const transformed = new HTMLRewriter()
-        .on("head", { element(el) { el.prepend(tags, { html: true }); } })
-        .on("title", { element(el) { el.setInnerContent(`${title} | Samuga Media`); } })
-        .transform(pageRes);
+      const body = pageRes.ok
+        ? new HTMLRewriter()
+            .on("head", { element(el) { el.prepend(tags, { html: true }); } })
+            .on("title", { element(el) { el.setInnerContent(`${title} | Samuga Media`); } })
+            .transform(pageRes).body
+        : `<html><head>${tags}</head><body><p>Redirecting...</p><script>location.href='${canon}'</script></body></html>`;
 
-      return new Response(transformed.body, {
+      return new Response(body, {
         status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "public, max-age=300",
-        }
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" }
       });
     }
 
-    // Real users: pass through normally
+    // Everything else — pass through untouched
     return env.ASSETS.fetch(request);
   },
 };
