@@ -77,7 +77,7 @@ function paragraphHtml(data) {
 }
 
 function articleHtml(data, id) {
-  const articleUrl = `${SITE_URL}/article?id=${encodeURIComponent(id)}`;
+  const articleUrl = `${SITE_URL}/story?id=${encodeURIComponent(id)}`;
   const title = textLimit(data.seo?.title || data.title || "Samuga Media", 160);
   const desc = textLimit(data.seo?.description || data.excerpt || data.summary || data.body || "Live Maldives news powered by Samuga AI.", 280);
   const image = absoluteUrl(data.cover_image);
@@ -223,7 +223,7 @@ export default {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
-    if (pathname !== "/article" && pathname !== "/article.html") {
+    if (pathname !== "/story" && pathname !== "/article" && pathname !== "/article.html") {
       return env.ASSETS.fetch(request);
     }
 
@@ -238,7 +238,8 @@ export default {
         status: 200,
         headers: {
           "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "public, max-age=120, s-maxage=120"
+          "Cache-Control": "public, max-age=120, s-maxage=120",
+          "X-Samuga-Worker": "story-server-rendered"
         }
       });
     } catch (err) {

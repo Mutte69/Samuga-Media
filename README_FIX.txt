@@ -1,13 +1,13 @@
-SAMUGA MEDIA — NUCLEAR REDIRECT LOOP FIX
+SAMUGA MEDIA SOCIAL PREVIEW FIX - /story URL VERSION
 
-This version fixes ERR_TOO_MANY_REDIRECTS by making /article?id=... fully server-rendered inside _worker.js.
+Why this version exists:
+Cloudflare Pages can create a 308 clean-url redirect conflict around /article because article.html also exists.
+Facebook Sharing Debugger shows this as: Could Not Follow Redirect, Response Code 308.
 
-Why this fixes it:
-Cloudflare Pages can redirect article.html -> /article because of clean URLs.
-The old worker fetched article.html from assets, so Cloudflare redirected back to /article, causing a loop.
-This new worker never fetches article.html for article pages. It fetches article data from Railway and returns the full HTML directly.
+This version avoids that conflict by using /story?id=ARTICLE_ID for all new article links.
+/story does not conflict with article.html, so Facebook/WhatsApp/Telegram should receive a direct 200 HTML response with OG tags.
 
-Upload these files to the ROOT of your GitHub repo:
+Upload these exact files to the root of your GitHub repo:
 - index.html
 - article.html
 - styles.css
@@ -17,15 +17,25 @@ Upload these files to the ROOT of your GitHub repo:
 - _redirects
 - CNAME
 
-Very important:
-1. Delete old cloudflare-worker.js from GitHub.
-2. Delete any old _redirects content that says /article /article.html 200.
-3. Make sure the file is named exactly _redirects, not _redirects.txt.
-4. Make sure the file is named exactly _worker.js, not _worker (1).js.
-5. Redeploy Cloudflare Pages.
-6. Test in private/incognito window:
-   https://samugamedia.com/article?id=manual_46a74b9aafbc
+Also delete old duplicate files from GitHub root if present:
+- cloudflare-worker.js
+- _worker (1).js
+- _redirects.txt
+- index (11).html
+- article (5).html
+- script (4).js
+- styles (4).css
+- CNAME (4).txt
 
-Social preview:
-The preview image comes from cover_image in the Railway /api/article response.
-If cover_image is missing, it uses Samuga default image.
+After Cloudflare Pages redeploys, test this style of URL:
+https://samugamedia.com/story?id=manual_46a74b9aafbc
+
+Then paste that /story URL into Facebook Sharing Debugger and click Scrape Again.
+Expected result:
+- Response Code: 200
+- No Could Not Follow Redirect warning
+- Link preview uses article title, description and cover image if the API has cover_image.
+
+Important:
+Facebook caches old previews. Always click Scrape Again after deployment.
+If the preview image is still Samuga profile image, the article API probably has no cover_image or the cover_image is not a public HTTPS image.

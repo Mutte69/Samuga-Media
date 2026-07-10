@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/article", "/article.html"],
+  "include": ["/story", "/article", "/article.html"],
   "exclude": []
 }
