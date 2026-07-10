@@ -1,2 +1,1 @@
-# Intentionally empty.
-# Article routing is handled by _worker.js to avoid redirect loops.
+# Intentionally empty. Do not add /article redirects.

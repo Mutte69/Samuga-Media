@@ -1,14 +1,13 @@
-Samuga Media fixed Cloudflare Pages files
+SAMUGA MEDIA — NUCLEAR REDIRECT LOOP FIX
 
-What was fixed:
-1. Removed the redirect-loop setup.
-2. Replaced the duplicate worker approach with one Cloudflare Pages _worker.js.
-3. /article?id=ARTICLE_ID now works for real users without redirecting.
-4. Facebook, WhatsApp, Telegram, X, LinkedIn and Discord crawlers receive real Open Graph meta tags.
-5. Home page article links now use /article?id=... instead of article.html?id=...
-6. _redirects is intentionally empty because article routing is handled by _worker.js.
+This version fixes ERR_TOO_MANY_REDIRECTS by making /article?id=... fully server-rendered inside _worker.js.
 
-Upload these files to the root of the GitHub repo:
+Why this fixes it:
+Cloudflare Pages can redirect article.html -> /article because of clean URLs.
+The old worker fetched article.html from assets, so Cloudflare redirected back to /article, causing a loop.
+This new worker never fetches article.html for article pages. It fetches article data from Railway and returns the full HTML directly.
+
+Upload these files to the ROOT of your GitHub repo:
 - index.html
 - article.html
 - styles.css
@@ -18,14 +17,15 @@ Upload these files to the root of the GitHub repo:
 - _redirects
 - CNAME
 
-Important:
-- Delete old cloudflare-worker.js from the repo.
-- Delete old files with names like "_worker (1).js", "article (5).html", "script (4).js" etc.
-- Make sure the deployed files have the clean exact names above.
-- Do not add any extra Cloudflare Dashboard Worker route for samugamedia.com/article*.
-- Cloudflare Pages will automatically use _worker.js from the repo.
+Very important:
+1. Delete old cloudflare-worker.js from GitHub.
+2. Delete any old _redirects content that says /article /article.html 200.
+3. Make sure the file is named exactly _redirects, not _redirects.txt.
+4. Make sure the file is named exactly _worker.js, not _worker (1).js.
+5. Redeploy Cloudflare Pages.
+6. Test in private/incognito window:
+   https://samugamedia.com/article?id=manual_46a74b9aafbc
 
-After deploy:
-1. Open https://samugamedia.com/article?id=YOUR_ARTICLE_ID
-2. If it still loops, clear Cloudflare cache and browser cache.
-3. Test preview in Facebook Sharing Debugger or by sending the link on WhatsApp/Telegram.
+Social preview:
+The preview image comes from cover_image in the Railway /api/article response.
+If cover_image is missing, it uses Samuga default image.
