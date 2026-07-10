@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "include": ["/article.html"],
+  "exclude": [
+    "/assets/*",
+    "/styles.css",
+    "/script.js"
+  ]
+}
