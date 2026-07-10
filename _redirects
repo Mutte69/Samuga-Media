@@ -1,0 +1,2 @@
+# Prevent Cloudflare Pages from redirecting article.html to article
+/article  /article.html  200
