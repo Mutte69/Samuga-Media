@@ -1094,7 +1094,38 @@ p:last-child { margin-bottom: 0; }
   .author-sep { display: none; }
   .article-readtime { margin-inline-start: 0; }
   .article-cta { flex-direction: column; }
-  .utility-right { display: none; }
+
+  /* Keep the EN / DV language switch visible on mobile */
+  .utility-inner {
+    gap: 8px;
+  }
+
+  .utility-left {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .utility-date {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Hide these two links on small screens to make room */
+  .utility-links {
+    display: none;
+  }
+
+  .utility-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .lang-btn {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 520px) {
