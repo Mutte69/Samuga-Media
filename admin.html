@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="7">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
   <meta name="robots" content="noindex,nofollow">
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin-build7.css">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -25,17 +25,17 @@
     <aside class="sidebar" id="sidebar">
       <a class="admin-brand" href="/" aria-label="Open Samuga Media"><img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media"></a>
       <nav>
-        <button class="side-link active" data-view="home"><span>⌂</span>Overview</button>
-        <button class="side-link" data-view="articles"><span>▤</span>Articles</button>
-        <button class="side-link" data-view="editor"><span>＋</span>New article</button>
-        <button class="side-link" data-view="media"><span>▧</span>Media</button>
-        <button class="side-link publish-only" data-view="contentlab"><span>◫</span>Content Lab <b class="side-badge" id="contentLabBadge" hidden>0</b></button>
-        <button class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
-        <button class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
-        <button class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
-        <button class="side-link" data-view="authors"><span>◉</span>Authors</button>
-        <button class="side-link admin-only" data-view="users"><span>♙</span>Users</button>
-        <button class="side-link admin-only" data-view="activity"><span>◷</span>Activity</button>
+        <button type="button" class="side-link active" data-view="home"><span>⌂</span>Overview</button>
+        <button type="button" class="side-link" data-view="articles"><span>▤</span>Articles</button>
+        <button type="button" class="side-link" data-view="editor"><span>＋</span>New article</button>
+        <button type="button" class="side-link" data-view="media"><span>▧</span>Media</button>
+        <button type="button" class="side-link publish-only" data-view="contentlab"><span>◫</span>Content Lab <b class="side-badge" id="contentLabBadge" hidden>0</b></button>
+        <button type="button" class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
+        <button type="button" class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
+        <button type="button" class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
+        <button type="button" class="side-link" data-view="authors"><span>◉</span>Authors</button>
+        <button type="button" class="side-link admin-only" data-view="users"><span>♙</span>Users</button>
+        <button type="button" class="side-link admin-only" data-view="activity"><span>◷</span>Activity</button>
       </nav>
       <div class="sidebar-bottom"><a href="/" target="_blank" rel="noopener">View website ↗</a><button id="logoutBtn">Sign out</button></div>
     </aside>
@@ -135,7 +135,7 @@
 
       <section class="view publish-only" id="view-contentlab">
         <div class="toolbar"><div><h2>Content Lab</h2><p>The same live review queue used in Telegram. Actions stay synchronized both ways.</p></div><button class="secondary" id="refreshContentLabBtn" type="button">Refresh</button></div>
-        <div class="content-lab-note"><span class="sync-pulse"></span><div><strong>Live Telegram sync</strong><span>Use the same Post to Telegram, Post to Social, Post to All, Edit and Reject actions here. Telegram buttons are closed automatically when you act.</span></div></div>
+        <div class="content-lab-note"><span class="sync-pulse"></span><div><strong>Live Telegram sync</strong><span id="contentLabConnection">Connecting to the shared Telegram approval queue…</span></div></div>
         <div class="content-lab-stats"><article><span>Waiting</span><strong id="labStatPending">—</strong></article><article><span>English</span><strong id="labStatEnglish">—</strong></article><article><span>Dhivehi</span><strong id="labStatDhivehi">—</strong></article><article><span>Breaking</span><strong id="labStatBreaking">—</strong></article></div>
         <div class="content-lab-grid" id="contentLabList"><div class="empty-panel">Loading Content Lab…</div></div>
         <div class="panel content-lab-history-panel"><div class="panel-head"><div><h2>Recent actions</h2><p>Actions from both Telegram and the dashboard.</p></div></div><div class="article-table" id="contentLabHistory"></div></div>
@@ -194,6 +194,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin.js"></script>
+  <script src="admin-build7.js"></script>
 </body>
 </html>
