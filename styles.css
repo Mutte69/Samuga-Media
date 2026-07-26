@@ -1,11 +1,10 @@
-@import url('https://db.onlinewebfonts.com/c/f91c109632ac0c8e5980c24dff098a6f?family=Faruma');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thaana:wght@300;400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Thaana:wght@300;400;500;600;700&display=swap');
 
 :root{
   color-scheme:dark;
   --bg:#0d1117;--surface:#121821;--surface-2:#18212c;--text:#f4f7fb;--text-2:#c9d2dd;--muted:#8795a7;--line:#26313e;
   --brand:#20b8f5;--brand-soft:rgba(32,184,245,.12);--danger:#f04444;--success:#23c483;--shadow:0 16px 44px rgba(0,0,0,.22);
-  --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--thaana:'Faruma','MV Faseyha','Noto Sans Thaana',sans-serif;
+  --serif:'Poppins',system-ui,sans-serif;--sans:'Poppins',system-ui,sans-serif;--thaana:'Noto Sans Thaana','MV Faseyha','Faruma',sans-serif;
   --radius:14px;--wrap:1180px;
 }
 html[data-theme="light"]{
