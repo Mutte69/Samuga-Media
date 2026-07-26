@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><title>Samuga Newsroom</title>
+  <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
+  <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <section class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media">
+      <p>Newsroom dashboard</p>
+      <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Sign in</button><div class="form-error" id="loginError"></div>
+    </form>
+  </section>
+
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar">
+      <a class="admin-brand" href="/"><img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media"></a>
+      <nav>
+        <button class="side-link active" data-view="home"><span>⌂</span>Overview</button>
+        <button class="side-link" data-view="articles"><span>▤</span>Articles</button>
+        <button class="side-link" data-view="editor"><span>＋</span>New article</button>
+        <button class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
+        <button class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
+        <button class="side-link admin-only" data-view="users"><span>♙</span>Users</button>
+        <button class="side-link admin-only" data-view="activity"><span>◷</span>Activity</button>
+      </nav>
+      <div class="sidebar-bottom"><a href="/" target="_blank">View website ↗</a><button id="logoutBtn">Sign out</button></div>
+    </aside>
+
+    <main class="dashboard">
+      <header class="dash-header"><button class="mobile-sidebar" id="mobileSidebar">☰</button><div><span class="eyebrow">Samuga Media</span><h1 id="viewTitle">Overview</h1></div><div class="profile"><button class="theme-button" id="themeToggle">☾</button><div><strong id="profileName">User</strong><span id="profileRole">Newsroom</span></div></div></header>
+
+      <section class="view active" id="view-home">
+        <div class="welcome-row"><div><h2>Good to see you.</h2><p>Write, review and publish without the clutter.</p></div><button class="primary" data-open-editor>New article</button></div>
+        <div class="stat-grid"><article><span>Published</span><strong id="statPublished">—</strong></article><article><span>Drafts</span><strong id="statDrafts">—</strong></article><article><span>Today</span><strong id="statToday">—</strong></article><article><span>Recent failures</span><strong id="statFailures">0</strong></article></div>
+        <div class="panel"><div class="panel-head"><h2>Recent articles</h2><button class="text-button" data-view-jump="articles">View all</button></div><div class="article-table" id="recentArticles"></div></div>
+      </section>
+
+      <section class="view" id="view-articles">
+        <div class="toolbar"><label class="table-search">⌕<input id="articleSearch" type="search" placeholder="Search articles"></label><select id="articleStatus"><option value="">All statuses</option><option value="draft">Drafts</option><option value="review">In review</option><option value="posted">Published</option><option value="hidden">Hidden</option></select><button class="primary" data-open-editor>New article</button></div>
+        <div class="panel"><div class="article-table" id="articleList"></div></div>
+      </section>
+
+      <section class="view" id="view-editor">
+        <form id="articleForm" class="editor-layout">
+          <input id="articleId" type="hidden">
+          <div class="editor-main">
+            <div class="panel editor-panel">
+              <div class="editor-topline"><div class="language-switch" role="group"><button type="button" class="active" data-editor-lang="en">English</button><button type="button" data-editor-lang="dv">ދިވެހި</button></div><span id="saveState">Not saved</span></div>
+              <label class="field-label">Headline<input class="headline-input" id="articleTitle" maxlength="500" placeholder="Write the headline" required></label>
+              <label class="field-label optional">Subheadline <span>Optional</span><textarea id="articleExcerpt" rows="2" maxlength="1800" placeholder="A short line that adds context"></textarea></label>
+              <label class="field-label body-field">Body<textarea id="articleBody" rows="18" placeholder="Write the article body. Separate paragraphs with a blank line." required></textarea></label>
+            </div>
+
+            <div class="panel media-panel">
+              <div class="panel-head"><div><h2>Cover</h2><p>Image or video. The full banner will stay visible without forced cropping.</p></div></div>
+              <div class="media-tabs"><button type="button" class="active" data-cover-type="image">Image</button><button type="button" data-cover-type="video">Video</button></div>
+              <div class="upload-row"><input id="coverUrl" type="url" placeholder="Paste media URL"><label class="upload-button">Upload file<input id="coverUpload" type="file" accept="image/*,video/mp4,video/webm" hidden></label></div>
+              <div class="upload-row video-poster-row" id="videoPosterRow" hidden><input id="videoPosterUrl" type="url" placeholder="Video thumbnail URL (optional)"><label class="upload-button">Upload thumbnail<input id="videoPosterUpload" type="file" accept="image/*" hidden></label></div>
+              <div class="upload-progress" id="uploadProgress" hidden><span></span></div>
+              <div class="cover-preview" id="coverPreview"><span>No cover selected</span></div>
+              <label class="field-label optional">Caption <span>Optional</span><input id="coverCaption" placeholder="Photo or video caption"></label>
+            </div>
+
+            <div class="panel media-panel">
+              <div class="panel-head"><div><h2>Relevant media</h2><p>Add optional images or videos inside the article.</p></div><button type="button" class="secondary" id="addMediaBtn">Add media</button></div>
+              <div id="inlineMediaList" class="inline-media-list"></div>
+            </div>
+          </div>
+
+          <aside class="editor-side">
+            <div class="panel side-panel">
+              <h2>Publish</h2>
+              <label>Category<select id="articleCategory"><option>LOCAL</option><option>BREAKING</option><option>POLITICAL</option><option>BUSINESS</option><option>WORLD</option><option>SPORTS</option><option>LIFESTYLE</option></select></label>
+              <label>Author<select id="articleAuthor"></select></label>
+              <label>Status<select id="articlePublishStatus"><option value="draft">Draft</option><option value="review">Submit for review</option><option value="posted">Publish now</option></select></label>
+              <label class="check-row"><input id="articleFeatured" type="checkbox"><span>Feature on homepage</span></label>
+              <label class="check-row"><input id="articleBreaking" type="checkbox"><span>Mark as breaking</span></label>
+            </div>
+            <div class="panel side-panel" id="sharePanel">
+              <h2>Share after publishing</h2>
+              <label class="check-row"><input id="shareTelegram" type="checkbox"><span>Telegram Community</span></label>
+              <label class="check-row"><input id="shareFacebook" type="checkbox"><span>Facebook</span></label>
+              <label class="check-row"><input id="shareX" type="checkbox"><span>X</span></label>
+              <label>Social caption <span class="optional-text">Optional</span><textarea id="socialCaption" rows="4" placeholder="Defaults to headline + article link"></textarea></label>
+            </div>
+            <div class="editor-actions"><button type="button" class="secondary" id="saveDraftBtn">Save draft</button><button type="submit" class="primary" id="publishBtn">Save article</button></div>
+          </aside>
+        </form>
+      </section>
+
+      <section class="view" id="view-ads">
+        <div class="toolbar"><div><h2>Advertisements</h2><p>Upload full banners without forced cropping and control where they appear.</p></div><button class="primary" id="newAdBtn">Add advertisement</button></div>
+        <div class="panel"><div class="article-table" id="adList"></div></div>
+        <dialog id="adDialog"><form method="dialog" id="adForm"><h2 id="adDialogTitle">Add advertisement</h2><input id="adId" type="hidden"><label>Name<input id="adName" required placeholder="Sponsor name"></label><label>Banner URL<input id="adImage" type="url" required placeholder="https://..."><input id="adUpload" type="file" accept="image/*"><span class="optional-text">Recommended: 1200×400 or wider. Full artwork will remain visible.</span></label><label>Mobile banner URL <span class="optional-text">Optional</span><input id="adMobileImage" type="url"></label><label>Destination URL<input id="adLink" type="url" placeholder="https://..."></label><label>Caption <span class="optional-text">Optional</span><input id="adCaption"></label><label>Placement<select id="adPlacement"><option value="feed">Feed</option><option value="article">Article</option><option value="sidebar">Sidebar</option></select></label><label>Image fit<select id="adFit"><option value="contain">Show full artwork</option><option value="cover">Crop to fill</option></select></label><label class="check-row"><input id="adActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveAdBtn">Save</button></div><div class="form-error" id="adError"></div></form></dialog>
+      </section>
+
+      <section class="view" id="view-site">
+        <form class="site-settings-grid" id="siteSettingsForm">
+          <div class="panel settings-panel">
+            <div class="panel-head"><div><h2>Public website</h2><p>Change the essentials without touching code.</p></div></div>
+            <label>English tagline<input id="siteTaglineEn" maxlength="240" placeholder="Maldives news made simple."></label>
+            <label>Dhivehi tagline<input id="siteTaglineDv" maxlength="240" dir="rtl" placeholder="ދިވެހިރާއްޖޭގެ ޚަބަރު ފަސޭހަކޮށް."></label>
+            <label>Community link<input id="siteCommunityUrl" type="url" placeholder="https://t.me/samugacommunity"></label>
+            <label>Send-a-tip link<input id="siteTipUrl" type="url" placeholder="https://t.me/Samuga_Media"></label>
+            <label>Contact email <span class="optional-text">Optional</span><input id="siteContactEmail" type="email" placeholder="newsroom@samugamedia.com"></label>
+          </div>
+          <div class="panel settings-panel">
+            <div class="panel-head"><div><h2>Appearance</h2><p>Readers can always switch light and dark mode themselves.</p></div></div>
+            <label>First-visit theme<select id="siteDefaultTheme"><option value="system">Follow device</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+            <label class="check-row"><input id="siteShowAi" type="checkbox" checked><span>Show Ask Samuga AI</span></label>
+            <div class="settings-actions"><button class="primary" type="submit">Save website settings</button></div>
+            <div class="form-error" id="siteSettingsError"></div>
+          </div>
+        </form>
+      </section>
+
+      <section class="view" id="view-users">
+        <div class="toolbar"><div><h2>Newsroom access</h2><p>Separate logins and rights for every team member.</p></div><button class="primary" id="newUserBtn">Add user</button></div>
+        <div class="panel"><div class="article-table" id="userList"></div></div>
+        <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
+      </section>
+      <section class="view" id="view-activity">
+        <div class="toolbar"><div><h2>Activity log</h2><p>Recent publishing, account and website changes.</p></div><button class="secondary" id="refreshAuditBtn" type="button">Refresh</button></div>
+        <div class="panel"><div class="article-table" id="auditList"></div></div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="admin.js"></script>
+</body>
+</html>

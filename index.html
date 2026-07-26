@@ -1,67 +1,47 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Samuga Media | Live Maldives News</title>
-  <meta name="description" content="Samuga Media — AI-powered live Maldives news. Breaking news, politics, business, sports and Samuga AI chat." />
-  <meta property="og:title"       content="Samuga Media | Live Maldives News" />
-  <meta property="og:description" content="AI-powered live Maldives news — breaking, politics, business, sports." />
-  <meta property="og:image"       content="https://samugamedia.com/assets/SamugaNewsBot_Profile.png" />
-  <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://samugamedia.com/" />
-  <meta property="og:site_name"   content="Samuga Media" />
-  <meta name="twitter:card"       content="summary_large_image" />
-  <meta name="twitter:title"      content="Samuga Media | Live Maldives News" />
-  <meta name="twitter:description" content="AI-powered live Maldives news." />
-  <meta name="twitter:image"      content="https://samugamedia.com/assets/SamugaNewsBot_Profile.png" />
-  <link rel="canonical" href="https://samugamedia.com/" />
-  <link rel="icon" href="assets/SamugaNewsBot_Profile.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Samuga Media | Maldives news made simple</title>
+  <meta name="description" content="Samuga Media brings clear, fast and simple Maldives news in English and Dhivehi.">
+  <meta property="og:title" content="Samuga Media | Maldives news made simple">
+  <meta property="og:description" content="Clear, fast and simple Maldives news in English and Dhivehi.">
+  <meta property="og:image" content="https://samugamedia.com/assets/SamugaNewsBot_Profile.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://samugamedia.com/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://samugamedia.com/">
+  <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
+  <script>
+    (()=>{const saved=localStorage.getItem('samuga-theme');const theme=saved||((matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');document.documentElement.dataset.theme=theme;})();
+  </script>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#latest">Skip to stories</a>
 
-<!-- HEADER -->
-<header class="site-header" role="banner">
-  <div class="utility-bar">
-    <div class="wrap utility-inner">
-      <div class="utility-left">
-        <span class="utility-date" id="todayLine">Loading…</span>
-        <nav class="utility-links" aria-label="Utility">
-          <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Community</a>
-          <a href="https://t.me/Samuga_Media" target="_blank" rel="noopener">Send a Tip</a>
-        </nav>
-      </div>
-      <div class="utility-right ltr-lock">
-        <button class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
-        <button class="lang-btn" data-lang="dv" aria-pressed="false">DV</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="masthead">
-    <div class="wrap masthead-inner">
-      <a class="brand" href="/" aria-label="Samuga Media">
-        <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media"
-             onerror="this.src='assets/SamugaNewsBot_Profile.png'" />
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="/" aria-label="Samuga Media home">
+        <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media" onerror="this.src='assets/SamugaNewsBot_Profile.png'">
       </a>
-      <div class="clock ltr-lock" aria-live="polite">
-        <div class="clock-time" id="clockTime">00:00:00</div>
-        <div class="clock-date" id="clockDate">—</div>
-        <div class="clock-hijri" id="clockHijri">—</div>
-        <div class="clock-mvt">Maldives Time</div>
+      <div class="header-actions ltr-lock">
+        <div class="segmented" aria-label="Language">
+          <button class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
+          <button class="lang-btn" data-lang="dv" aria-pressed="false">ދވ</button>
+        </div>
+        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Switch colour theme" title="Switch colour theme">
+          <span class="theme-sun" aria-hidden="true">☀</span><span class="theme-moon" aria-hidden="true">☾</span>
+        </button>
+        <a class="header-community" id="headerCommunity" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Community</a>
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Open categories" aria-expanded="false"><span></span><span></span></button>
       </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </div>
-  </div>
-
-  <nav class="primary-nav" id="primaryNav" aria-label="Category navigation">
-    <div class="wrap">
-      <div class="nav-scroll">
-        <button class="nav-btn active" data-cat="all">All Stories</button>
-        <button class="nav-btn" data-cat="BREAKING">🔴 Breaking</button>
+    <nav class="category-nav" id="primaryNav" aria-label="News categories">
+      <div class="wrap nav-scroll">
+        <button class="nav-btn active" data-cat="all">Latest</button>
+        <button class="nav-btn breaking-link" data-cat="BREAKING"><span class="live-dot"></span>Breaking</button>
         <button class="nav-btn" data-cat="LOCAL">Local</button>
         <button class="nav-btn" data-cat="POLITICAL">Politics</button>
         <button class="nav-btn" data-cat="BUSINESS">Business</button>
@@ -69,245 +49,83 @@
         <button class="nav-btn" data-cat="SPORTS">Sports</button>
         <button class="nav-btn" data-cat="LIFESTYLE">Lifestyle</button>
       </div>
-    </div>
-  </nav>
-</header>
+    </nav>
+  </header>
 
-<!-- TICKER -->
-<div class="ticker-bar" role="marquee" aria-label="Breaking news ticker">
-  <div class="ticker-label">Breaking</div>
-  <div class="ticker-track-wrap">
-    <div id="tickerTrack" aria-hidden="true">
-      <span>Samuga AI newsroom is monitoring Maldives news live</span>
-      <span>Samuga AI newsroom is monitoring Maldives news live</span>
+  <div class="news-strip" id="newsStrip" hidden>
+    <div class="wrap news-strip-inner">
+      <strong>Breaking</strong><a id="stripLink" href="#"></a><span id="stripTime"></span>
     </div>
   </div>
-  <div class="ticker-live ltr-lock"><div class="ticker-dot"></div>Live</div>
-</div>
 
-<!-- HERO -->
-<section class="home-hero" aria-label="Featured stories">
-  <div class="wrap">
-    <div class="featured-grid">
-
-      <!-- Main featured story -->
-      <div class="featured-story" id="featuredStory">
-        <div class="featured-cover" id="featuredCover">
-          <div class="featured-orb" id="featuredOrb">
-            <div class="ai-orb-sm">
-              <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI" />
-              <div class="orb-ring orb-ring-1"></div>
-              <div class="orb-ring orb-ring-2"></div>
-              <div class="orb-glow"></div>
-            </div>
-          </div>
-        </div>
-        <div class="featured-body">
-          <div class="featured-eyebrow">
-            <div class="featured-eyebrow-dot"></div>
-            <span id="featuredEyebrow">Samuga AI Feed</span>
-          </div>
-          <h1 class="featured-headline" id="featuredHeadline">Live Maldives news, powered by Samuga AI</h1>
-          <p class="featured-summary" id="featuredSummary">Ask Samuga AI about the latest Maldives news, breaking stories and public archive.</p>
-          <div class="featured-meta" id="featuredMeta">
-            <div class="featured-author">
-              <div class="featured-author-dot">🤖</div>
-              <span>Samuga AI</span>
-            </div>
-          </div>
-          <a class="featured-read-btn" id="featuredReadBtn" href="#latest">
-            Explore all stories <span aria-hidden="true">→</span>
+  <main>
+    <section class="lead-section" aria-label="Top story">
+      <div class="wrap lead-layout">
+        <article class="lead-story" id="featuredStory">
+          <a class="lead-media" id="featuredMediaLink" href="#latest" aria-label="Featured story">
+            <div id="featuredMedia" class="media-placeholder"><img src="assets/SamugaNewsBot_Profile.png" alt=""></div>
           </a>
-        </div>
+          <div class="lead-copy">
+            <div class="story-kicker"><span id="featuredCategory">Latest</span><time id="featuredTime"></time></div>
+            <h1 id="featuredHeadline">Maldives news, made simple.</h1>
+            <p id="featuredSummary">Clear updates from Samuga Media, with English and Dhivehi stories in one clean feed.</p>
+            <a class="text-link" id="featuredReadBtn" href="#latest">Read latest stories <span>→</span></a>
+          </div>
+        </article>
+
+        <aside class="top-rail" aria-label="Top stories">
+          <div class="rail-heading"><h2 id="topStoriesTitle">Top stories</h2><span id="storyCountInline"></span></div>
+          <ol class="top-list" id="popularList"><li class="top-item skeleton-row"></li><li class="top-item skeleton-row"></li></ol>
+        </aside>
       </div>
+    </section>
 
-      <!-- Right sidebar -->
-      <aside class="hero-sidebar" aria-label="Breaking news and sponsors">
-
-        <!-- Breaking panel -->
-        <div class="breaking-panel" id="breakingPanel" style="display:none">
-          <div class="breaking-panel-head">
-            <span class="breaking-panel-label">Breaking Now</span>
-            <div class="breaking-pulse"></div>
-          </div>
-          <div id="breakingItems"></div>
-        </div>
-
-        <!-- Sponsor panel -->
-        <div class="sponsor-panel">
-          <div class="sponsor-head ltr-lock">
-            <span class="sponsor-head-label">Sponsor</span>
-            <span class="ad-badge">Ad</span>
-          </div>
-          <a class="sponsor-frame" id="heroSponsorLink" href="https://samugamedia.com"
-             target="_blank" rel="noopener sponsored" aria-label="Sponsor">
-            <img id="sponsorImage" src="assets/sponsor_samuga_media.png" alt="Samuga Media" loading="lazy" />
-          </a>
-          <p class="sponsor-caption" id="sponsorCaption">Promote your business with Samuga Media</p>
-          <div class="sponsor-controls ltr-lock">
-            <div class="sponsor-dots" id="sponsorDots" role="tablist"></div>
-            <div class="sponsor-arrows">
-              <button class="sp-arrow" id="sponsorPrev" aria-label="Previous">‹</button>
-              <button class="sp-arrow" id="sponsorNext" aria-label="Next">›</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live stats -->
-        <div class="panel">
-          <div class="panel-head"><h2 id="statsTitle">Live Stats</h2></div>
-          <div class="panel-body" style="display:grid;gap:10px;padding-top:14px">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:12px;color:var(--muted);font-family:var(--font-ui)">Stories live</span>
-              <span id="storyCount" style="font-size:18px;font-weight:800;color:var(--blue);font-family:var(--font-ui)">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:12px;color:var(--muted);font-family:var(--font-ui)">Last update</span>
-              <span id="lastPost" style="font-size:13px;font-weight:600;color:var(--ink-dim);font-family:var(--font-ui)">—</span>
-            </div>
-            <div style="height:1px;background:var(--line)"></div>
-            <div style="display:flex;gap:8px">
-              <button class="community-btn" data-open-chat style="flex:1;justify-content:center;font-size:12px;padding:7px 10px">💬 Ask AI</button>
-            </div>
-          </div>
-        </div>
-
-      </aside>
-    </div>
-  </div>
-</section>
-
-<!-- FEED -->
-<main class="home-feed" id="latest" aria-label="Latest stories">
-  <div class="wrap">
-    <div class="home-layout">
-
-      <!-- Main -->
-      <div>
-        <div class="section-divider">
-          <h2 id="latestTitle">Latest Stories</h2>
-          <span class="section-divider-count" id="storyCountInline"></span>
-        </div>
-
-        <div style="margin-bottom:16px">
-          <input class="search-input" id="searchInput" type="search"
-                 placeholder="Search stories…" autocomplete="off"
-                 aria-label="Search stories" />
+    <section class="feed-section" id="latest">
+      <div class="wrap">
+        <div class="feed-toolbar">
+          <div><p class="section-label">Samuga feed</p><h2 id="latestTitle">Latest stories</h2></div>
+          <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search stories" autocomplete="off" aria-label="Search stories"></label>
         </div>
 
         <div class="story-grid" id="storyGrid" role="list" aria-live="polite">
-          <!-- Skeletons -->
-          <div class="story-card" aria-hidden="true" style="min-height:200px">
-            <div class="card-body">
-              <div class="skel-line w60" style="height:11px;margin-bottom:8px"></div>
-              <div class="skel-line tall" style="height:48px;margin-bottom:8px"></div>
-              <div class="skel-line w80" style="height:11px"></div>
-            </div>
-          </div>
-          <div class="story-card" aria-hidden="true" style="min-height:200px">
-            <div class="card-body">
-              <div class="skel-line w60" style="height:11px;margin-bottom:8px"></div>
-              <div class="skel-line tall" style="height:48px;margin-bottom:8px"></div>
-              <div class="skel-line w80" style="height:11px"></div>
-            </div>
-          </div>
+          <div class="story-card skeleton-card" aria-hidden="true"></div><div class="story-card skeleton-card" aria-hidden="true"></div><div class="story-card skeleton-card" aria-hidden="true"></div>
         </div>
       </div>
+    </section>
+  </main>
 
-      <!-- Rail -->
-      <aside class="rail" aria-label="Sidebar">
-
-        <div class="panel">
-          <div class="panel-head"><h2 id="popularTitle">Most Read</h2></div>
-          <div class="panel-body" style="padding:0 18px 14px">
-            <ol class="popular-list" id="popularList">
-              <li class="popular-item"><span class="popular-num">—</span><div><div class="popular-link">Loading…</div></div></li>
-            </ol>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head"><h2>Trending</h2></div>
-          <div class="panel-body">
-            <div class="tip-panel-inner">
-              <div id="trendingList" style="display:grid;gap:8px;margin-bottom:14px"></div>
-              <h2 id="tipTitle">Send a Tip</h2>
-              <p id="tipText">Have a Maldives story for Samuga AI to watch?</p>
-              <a class="community-btn" id="communityLink" href="https://t.me/samugacommunity" target="_blank" rel="noopener">
-                Join Samuga Community →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" id="sideSponsorPanel" style="display:none">
-          <div class="panel-head ltr-lock"><h2>Sponsor</h2><span class="ad-badge" style="margin-inline-start:auto">Ad</span></div>
-          <div class="panel-body">
-            <a class="sponsor-frame" id="sideSponsorLink" href="#" target="_blank" rel="noopener sponsored"
-               style="aspect-ratio:4/3;margin-bottom:8px">
-              <img id="sideSponsorImage" src="" alt="Sponsor" loading="lazy" style="object-fit:contain" />
-            </a>
-            <p class="sponsor-caption" id="sideSponsorCaption"></p>
-          </div>
-        </div>
-
-      </aside>
-    </div>
-  </div>
-</main>
-
-<!-- FOOTER -->
-<footer class="site-footer" role="contentinfo">
-  <div class="wrap footer-inner">
-    <div class="footer-brand">
-      <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga Media" loading="lazy" />
-      <div>
-        <div class="footer-brand-name">Samuga Media</div>
-        <div class="footer-tagline" id="footerText">Live news, powered by Samuga AI.</div>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div class="footer-intro">
+        <img src="assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media">
+        <p id="footerText">Maldives news made simple.</p>
       </div>
+      <nav class="footer-group" aria-label="Newsroom">
+        <strong>Newsroom</strong>
+        <a href="/about.html">About</a><a id="footerTip" href="https://t.me/Samuga_Media" target="_blank" rel="noopener">Send a tip</a><a href="/contact.html">Contact</a><a href="/advertising.html">Advertising</a>
+      </nav>
+      <nav class="footer-group" aria-label="Policies">
+        <strong>Policies</strong>
+        <a href="/editorial-policy.html">Editorial policy</a><a href="/corrections-policy.html">Corrections</a><a href="/privacy-policy.html">Privacy</a><a href="/terms.html">Terms</a>
+      </nav>
+      <nav class="footer-group" aria-label="Follow Samuga">
+        <strong>Follow</strong>
+        <a id="footerCommunity" href="https://t.me/samugacommunity" target="_blank" rel="noopener">Telegram</a><a href="/admin.html">Newsroom login</a>
+      </nav>
     </div>
-    <nav class="footer-links">
-      <a href="https://t.me/samugacommunity" target="_blank" rel="noopener">Community</a>
-      <a href="https://t.me/Samuga_Media" target="_blank" rel="noopener">Send a Tip</a>
-    </nav>
-    <p class="footer-copy">© 2026 Samuga Media</p>
-  </div>
-</footer>
-
-<!-- CHAT -->
-<button class="chat-fab" id="chatFab"
-        aria-label="Open Samuga AI chat" aria-haspopup="dialog" aria-expanded="false">
-  <div class="chat-fab-dot" aria-hidden="true"></div>
-  <span>Ask Samuga AI</span>
-</button>
-
-<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Samuga AI chat" aria-modal="true">
-  <header class="chat-head">
-    <div class="chat-brand-row">
-      <img src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI" />
-      <div>
-        <strong>Samuga AI</strong>
-        <span id="chatSubtitle">Live Maldives news assistant</span>
-      </div>
+    <div class="wrap footer-bottom">
+      <span>© <span id="footerYear">2026</span> Samuga Media. All rights reserved.</span>
+      <span>Powered by <a href="https://www.samugacreative.com" target="_blank" rel="noopener">Samuga Creative</a></span>
     </div>
-    <button class="chat-close-btn" id="chatClose" aria-label="Close">✕</button>
-  </header>
-  <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
-    <div class="msg bot">Hi! Ask me about Maldives news, breaking stories, or anything on Samuga. 🇲🇻</div>
-    <div class="quick-prompts">
-      <button class="quick-prompt-btn" data-prompt="What is the latest news in Maldives?">Latest news</button>
-      <button class="quick-prompt-btn" data-prompt="Any breaking news right now?">Breaking</button>
-      <button class="quick-prompt-btn" data-prompt="What is happening in politics?">Politics</button>
-    </div>
-  </div>
-  <form class="chat-form" id="chatForm" novalidate>
-    <textarea class="chat-input" id="chatInput" rows="1"
-              placeholder="Ask about Maldives news…"
-              aria-label="Message" autocomplete="off"></textarea>
-    <button class="chat-send" id="chatSend" type="submit">Send</button>
-  </form>
-</div>
+  </footer>
 
-<script src="script.js"></script>
+  <button class="chat-fab" id="chatFab" aria-label="Ask Samuga AI" aria-expanded="false"><span class="online-dot"></span><span>Ask Samuga AI</span></button>
+  <section class="chat-panel" id="chatPanel" role="dialog" aria-label="Samuga AI" aria-modal="true">
+    <header><div><strong>Samuga AI</strong><span id="chatSubtitle">Maldives news assistant</span></div><button id="chatClose" type="button" aria-label="Close">×</button></header>
+    <div class="chat-messages" id="chatMessages" role="log"><div class="msg bot">Ask me about a story on Samuga Media.</div></div>
+    <form id="chatForm"><textarea id="chatInput" rows="1" placeholder="Ask about the news…" aria-label="Message"></textarea><button id="chatSend" type="submit">Send</button></form>
+  </section>
+
+  <script src="script.js"></script>
 </body>
 </html>
