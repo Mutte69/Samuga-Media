@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="8">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="9">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build8.css">
+  <link rel="stylesheet" href="admin-build9.css">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -30,7 +30,9 @@
         <button type="button" class="side-link" data-view="editor"><span>＋</span>New article</button>
         <button type="button" class="side-link" data-view="media"><span>▧</span>Media</button>
         <button type="button" class="side-link publish-only" data-view="contentlab"><span>◫</span>Content Lab <b class="side-badge" id="contentLabBadge" hidden>0</b></button>
+        <button type="button" class="side-link publish-only" data-view="socialcard"><span>▰</span>Social card creation</button>
         <button type="button" class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
+        <button type="button" class="side-link publish-only" data-view="analytics"><span>⌁</span>Web analytics</button>
         <button type="button" class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button type="button" class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
         <button type="button" class="side-link" data-view="authors"><span>◉</span>Authors</button>
@@ -142,6 +144,31 @@
         <div class="panel content-lab-history-panel"><div class="panel-head"><div><h2>Recent actions</h2><p>Actions from both Telegram and the dashboard.</p></div></div><div class="article-table" id="contentLabHistory"></div></div>
       </section>
 
+      <section class="view publish-only" id="view-socialcard">
+        <div class="toolbar"><div><h2>Social card creation</h2><p>Create the same branded card used by the Telegram manual-card workflow, then choose where to post it.</p></div><button class="secondary" id="resetSocialCardBtn" type="button">New card</button></div>
+        <div class="social-card-layout">
+          <form class="panel social-card-form" id="socialCardForm">
+            <label>Headline<input id="socialCardHeadline" maxlength="220" placeholder="Short clear headline" required></label>
+            <label>Small paragraph <span class="optional-text">Optional</span><textarea id="socialCardParagraph" rows="5" maxlength="600" placeholder="One short paragraph with the important detail"></textarea></label>
+            <div class="two-field-row"><label>Category<select id="socialCardCategory"><option>LOCAL</option><option>BREAKING</option><option>POLITICAL</option><option>BUSINESS</option><option>WORLD</option><option>SPORTS</option><option>LIFESTYLE</option></select></label><label>Background photo <span class="optional-text">Optional</span><input id="socialCardImageUrl" type="text" placeholder="Upload or paste image URL"></label></div>
+            <div class="button-row"><label class="upload-button">Upload photo<input id="socialCardImageUpload" type="file" accept="image/*" hidden></label><button type="button" class="secondary compact" data-open-media-picker="socialcard">Choose from library</button><button type="button" class="danger-button compact" id="removeSocialCardImageBtn" hidden>Remove photo</button></div>
+            <div class="social-card-photo-preview" id="socialCardPhotoPreview"><span>No background photo selected</span></div>
+            <button class="primary wide" type="submit" id="createSocialCardBtn">Create card</button>
+            <div class="form-error" id="socialCardError"></div>
+          </form>
+          <section class="panel social-card-result">
+            <div class="panel-head"><div><h2>Card preview</h2><p>Nothing posts until you choose a destination.</p></div><span class="status-pill draft" id="socialCardState">Not created</span></div>
+            <div class="social-card-generated" id="socialCardGenerated"><span>Your generated card appears here.</span></div>
+            <div class="social-card-post-actions" id="socialCardPostActions" hidden>
+              <button class="secondary" type="button" data-social-card-post="telegram">Post to Telegram Community</button>
+              <button class="secondary" type="button" data-social-card-post="socials">Post to Socials</button>
+              <button class="primary" type="button" data-social-card-post="all">Post to All</button>
+            </div>
+          </section>
+        </div>
+        <div class="panel"><div class="panel-head"><div><h2>Recent social cards</h2><p>Cards created from this dashboard.</p></div><button class="text-button" type="button" id="refreshSocialCardsBtn">Refresh</button></div><div class="social-card-history" id="socialCardHistory"><div class="empty-panel">No dashboard cards yet.</div></div></div>
+      </section>
+
       <section class="view publish-only" id="view-publishing">
         <div class="toolbar"><div><h2>Publishing centre</h2><p>One queue for Telegram, Facebook and X, with independent retries.</p></div><div class="button-row"><button class="secondary" id="checkConnectionsBtn" type="button">Check connections</button><button class="primary" id="retryFailedJobsBtn" type="button">Retry failed</button></div></div>
         <div class="connection-grid" id="connectionGrid">
@@ -152,6 +179,19 @@
         <div class="publishing-stat-grid"><article><span>Waiting</span><strong id="publishStatWaiting">—</strong></article><article><span>Processing</span><strong id="publishStatProcessing">—</strong></article><article><span>Failed</span><strong id="publishStatFailed">—</strong></article><article><span>Sent in 24h</span><strong id="publishStatSent">—</strong></article></div>
         <div class="panel"><div class="panel-head"><div><h2>Publish queue</h2><p>Failed platforms do not block successful ones.</p></div><button class="text-button" id="refreshPublishingBtn" type="button">Refresh</button></div><div class="article-table publishing-table" id="publishQueue"></div></div>
         <div class="panel"><div class="panel-head"><div><h2>Recent social activity</h2><p>Latest completed and failed delivery attempts.</p></div></div><div class="article-table" id="publishingActivity"></div></div>
+      </section>
+
+      <section class="view publish-only" id="view-analytics">
+        <div class="toolbar"><div><h2>Web analytics</h2><p>First-party website traffic without storing readers’ raw IP addresses.</p></div><label class="analytics-range">Range<select id="analyticsDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label></div>
+        <div class="stat-grid analytics-stats"><article><span>Pageviews</span><strong id="analyticsViews">—</strong></article><article><span>Visitors</span><strong id="analyticsVisitors">—</strong></article><article><span>Views today</span><strong id="analyticsTodayViews">—</strong></article><article><span>Visitors today</span><strong id="analyticsTodayVisitors">—</strong></article></div>
+        <div class="analytics-grid">
+          <section class="panel analytics-wide"><div class="panel-head"><div><h2>Traffic trend</h2><p>Daily pageviews and visitors.</p></div></div><div class="analytics-bars" id="analyticsTrend"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Devices</h2></div></div><div class="analytics-list" id="analyticsDevices"></div></section>
+          <section class="panel analytics-wide"><div class="panel-head"><div><h2>Top pages and stories</h2></div></div><div class="analytics-table" id="analyticsTopPages"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Referrers</h2></div></div><div class="analytics-list" id="analyticsReferrers"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Languages</h2></div></div><div class="analytics-list" id="analyticsLanguages"></div></section>
+        </div>
+        <p class="analytics-privacy" id="analyticsPrivacy"></p>
       </section>
 
       <section class="view" id="view-ads">
@@ -192,9 +232,11 @@
 
   <dialog id="authorDialog"><form method="dialog" id="authorForm"><h2 id="authorDialogTitle">Edit author profile</h2><input id="authorProfileId" type="hidden"><div class="author-dialog-head"><div class="author-avatar large" id="authorAvatarPreview">S</div><div><strong id="authorProfileSource">Newsroom profile</strong><span>This is the public identity shown on articles.</span></div></div><label>Public name<input id="authorProfileName" required maxlength="160"></label><label>Public role<input id="authorProfileRole" maxlength="160" placeholder="Reporter, Editor, Founder…"></label><label>Profile photo URL <span class="optional-text">Optional</span><div class="upload-row"><input id="authorProfilePhoto" type="url" placeholder="https://…"><label class="upload-button">Upload photo<input id="authorPhotoUpload" type="file" accept="image/*" hidden></label></div></label><label>Short bio <span class="optional-text">Optional</span><textarea id="authorProfileBio" rows="4" maxlength="800" placeholder="A short public author description"></textarea></label><label class="author-admin-field">Telegram user ID <span class="optional-text">Optional</span><input id="authorTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label class="check-row author-admin-field"><input id="authorProfileActive" type="checkbox" checked><span>Active author profile</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveAuthorBtn">Save profile</button></div><div class="form-error" id="authorError"></div></form></dialog>
 
+  <dialog id="deleteAuthorDialog"><form method="dialog" id="deleteAuthorForm"><h2>Delete author</h2><input id="deleteAuthorId" type="hidden"><p id="deleteAuthorMessage">Choose where existing articles and linked logins should move.</p><label id="deleteAuthorTargetRow">Move content to<select id="deleteAuthorTarget"></select></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="danger-button" id="confirmDeleteAuthorBtn">Delete author</button></div><div class="form-error" id="deleteAuthorError"></div></form></dialog>
+
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build8.js"></script>
+  <script src="admin-build9.js"></script>
 </body>
 </html>
