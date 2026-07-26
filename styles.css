@@ -91,3 +91,39 @@ body.lang-dv .article-subhead{font-size:19px}.article-body[dir="rtl"],body.lang-
 body.lang-dv .article-body h2{font-family:var(--thaana);font-size:26px;font-weight:400;line-height:1.8;letter-spacing:0}
 body.lang-dv .nav-btn,body.lang-dv .story-kicker,body.lang-dv .card-kicker,body.lang-dv .text-link{font-weight:400;letter-spacing:0}
 @media(max-width:760px){body.lang-dv .lead-copy h1{font-size:32px;line-height:1.72}body.lang-dv .article-headline{font-size:34px;line-height:1.68}body.lang-dv .article-body{font-size:18px;line-height:2.08}}
+
+/* ── Build 5.1: typography polish ──────────────────────────────────────────
+   1) Thaana on Noto Sans Thaana needs real weight to match the dense look of
+      Maldivian news sites (Mihaaru etc.) — the old 400-everywhere was tuned
+      for the naturally-thick Faruma webfont that has been removed.
+   2) DV headline sizes reduced: Thaana glyphs are taller than Latin, so the
+      old English-sized clamps overflowed the lead card.
+   3) English (Poppins) headlines: weight 600 + relaxed tracking. The old
+      -1.5/-1.8px letter-spacing was tuned for Source Serif and makes Poppins
+      look like a heavy black wall.                                          */
+
+/* — Dhivehi: bold, dense headlines; comfortable body — */
+body.lang-dv h1,body.lang-dv h2,body.lang-dv h3,
+body.lang-dv .lead-copy h1,body.lang-dv .article-headline,
+body.lang-dv .top-item a,body.lang-dv .card-title,
+body.lang-dv .related-card h3,body.lang-dv .article-body h2{font-weight:700}
+body.lang-dv .lead-copy h1{font-size:clamp(24px,2.7vw,36px);line-height:1.78}
+body.lang-dv .article-headline{font-size:clamp(27px,3.6vw,42px);line-height:1.75}
+body.lang-dv .card-title{font-size:19px;line-height:1.8}
+body.lang-dv .top-item a{font-size:15px;line-height:1.85}
+body.lang-dv .lead-copy p,body.lang-dv .card-summary{font-size:14px;font-weight:500}
+body.lang-dv .article-body{font-weight:500}
+body.lang-dv .nav-btn,body.lang-dv .story-kicker,body.lang-dv .card-kicker,body.lang-dv .text-link{font-weight:600}
+@media(max-width:760px){
+  body.lang-dv .lead-copy h1{font-size:25px;line-height:1.8}
+  body.lang-dv .article-headline{font-size:28px;line-height:1.78}
+}
+
+/* — English: Poppins headlines at 600, gentle tracking — */
+.lead-copy h1{font-weight:600;letter-spacing:-.4px}
+.article-headline{font-weight:600;letter-spacing:-.6px;font-size:clamp(34px,5vw,56px);line-height:1.08}
+.card-title{font-weight:600;letter-spacing:-.2px}
+.top-item a{font-weight:600}
+.feed-toolbar h2,.related h2,.policy-main h1,.policy-main h2{font-weight:600;letter-spacing:-.3px}
+.article-subhead,.lead-copy p,.card-summary{font-weight:400}
+.article-body{font-weight:400}
