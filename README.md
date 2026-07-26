@@ -1,16 +1,18 @@
-# Samuga Media — Clean Newsroom Build 2
+# Samuga Media — Publishing + Video Newsroom Build 3/4
 
 This is the public website and desktop newsroom frontend for Samuga Media.
 
 
-## Build 2 additions
+## Build 3/4 additions
 
+- Thin, regular-weight Dhivehi typography for easy reading
+- Durable Telegram, Facebook and X publishing queue
+- Publishing Centre with connection checks, retries and cancel controls
+- Browser-compatible video conversion and automatic posters
+- Dashboard drag-and-drop media library
+- Telegram `/webmedia` import workflow
 - Scheduled publishing with saved social targets
-- Browser recovery autosave, article preview and revision history
-- Persistent media library
-- Per-platform social status and retry
-- Advertisement campaign dates
-- Second-pass minimal public layout and headline-first article pages
+- Browser recovery, article preview and revision history
 
 ## Included
 

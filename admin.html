@@ -29,6 +29,7 @@
         <button class="side-link" data-view="articles"><span>▤</span>Articles</button>
         <button class="side-link" data-view="editor"><span>＋</span>New article</button>
         <button class="side-link" data-view="media"><span>▧</span>Media</button>
+        <button class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
         <button class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
         <button class="side-link admin-only" data-view="users"><span>♙</span>Users</button>
@@ -122,9 +123,23 @@
       </section>
 
       <section class="view" id="view-media">
-        <div class="toolbar"><div><h2>Media library</h2><p>Uploaded newsroom images and videos.</p></div><div class="button-row"><label class="upload-button primary-like">Upload media<input id="libraryUpload" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" hidden></label></div></div>
+        <div class="toolbar"><div><h2>Media library</h2><p>Images and videos are prepared for fast, reliable website playback.</p></div><div class="button-row"><label class="upload-button primary-like">Upload media<input id="libraryUpload" type="file" accept="image/*,video/mp4,video/webm,video/quicktime,video/x-m4v" multiple hidden></label></div></div>
+        <div class="media-source-note"><strong>Telegram workflow</strong><span>Reply to a photo or video in the Core Team group with <code>/webmedia</code>. It will appear here after processing.</span></div>
+        <div class="media-drop-zone" id="mediaDropZone" tabindex="0"><strong>Drop images or videos here</strong><span>MOV and other phone videos are converted automatically for browsers.</span></div>
         <div class="media-toolbar"><label class="table-search">⌕<input id="mediaSearch" type="search" placeholder="Search file names"></label><select id="mediaTypeFilter"><option value="">All media</option><option value="image">Images</option><option value="video">Videos</option></select></div>
         <div class="media-library-grid" id="mediaLibrary"></div>
+      </section>
+
+      <section class="view publish-only" id="view-publishing">
+        <div class="toolbar"><div><h2>Publishing centre</h2><p>One queue for Telegram, Facebook and X, with independent retries.</p></div><div class="button-row"><button class="secondary" id="checkConnectionsBtn" type="button">Check connections</button><button class="primary" id="retryFailedJobsBtn" type="button">Retry failed</button></div></div>
+        <div class="connection-grid" id="connectionGrid">
+          <article class="connection-card" data-platform-card="telegram"><span class="connection-icon">✈</span><div><strong>Telegram</strong><span>Not checked</span></div><i></i></article>
+          <article class="connection-card" data-platform-card="facebook"><span class="connection-icon">f</span><div><strong>Facebook</strong><span>Not checked</span></div><i></i></article>
+          <article class="connection-card" data-platform-card="x"><span class="connection-icon">𝕏</span><div><strong>X</strong><span>Not checked</span></div><i></i></article>
+        </div>
+        <div class="publishing-stat-grid"><article><span>Waiting</span><strong id="publishStatWaiting">—</strong></article><article><span>Processing</span><strong id="publishStatProcessing">—</strong></article><article><span>Failed</span><strong id="publishStatFailed">—</strong></article><article><span>Sent in 24h</span><strong id="publishStatSent">—</strong></article></div>
+        <div class="panel"><div class="panel-head"><div><h2>Publish queue</h2><p>Failed platforms do not block successful ones.</p></div><button class="text-button" id="refreshPublishingBtn" type="button">Refresh</button></div><div class="article-table publishing-table" id="publishQueue"></div></div>
+        <div class="panel"><div class="panel-head"><div><h2>Recent social activity</h2><p>Latest completed and failed delivery attempts.</p></div></div><div class="article-table" id="publishingActivity"></div></div>
       </section>
 
       <section class="view" id="view-ads">

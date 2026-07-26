@@ -56,3 +56,14 @@ After Cloudflare Pages deploys:
 3. Open an article and verify the order is headline → subheadline → byline → cover → body.
 4. Open `/admin.html`, save a draft, refresh the page and test browser recovery.
 5. Test Preview, History, Media library and one scheduled article before using the workflow for live breaking news.
+
+## Build 3 + 4 checks
+
+1. Open the Dhivehi homepage and confirm headlines use thin, regular Thaana letters with comfortable spacing.
+2. Open **Newsroom → Publishing** and run **Check connections**. This does not create a social post.
+3. Publish one private test article to Telegram only. Confirm the job changes from queued/processing to succeeded.
+4. Retry or cancel a test queue job from the Publishing Centre.
+5. Upload a short `.mov` phone video. Keep the page open until the cover picker reports **Ready**.
+6. Confirm a poster appears in the Media Library and the public feed does not preload the full video.
+7. Reply to a test video in the Telegram Core Team group with `/webmedia`; verify it appears in Newsroom → Media.
+8. Restart Railway and confirm previously uploaded media is still available.

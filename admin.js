@@ -19,8 +19,9 @@ let mediaPickerTarget = "cover";
 let dirty = false;
 let recoveryTimer = null;
 let mediaSearchTimer = null;
+let publishingRefreshTimer = null;
 
-const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",ads:"Advertisements",site:"Website settings",users:"Newsroom users",activity:"Activity log"};
+const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",publishing:"Publishing centre",ads:"Advertisements",site:"Website settings",users:"Newsroom users",activity:"Activity log"};
 const PUBLISH_ROLES = new Set(["editor","admin","super_admin"]);
 const ADMIN_ROLES = new Set(["admin","super_admin"]);
 
@@ -68,6 +69,16 @@ function wireStaticEvents() {
   $("#libraryUpload")?.addEventListener("change", event => uploadLibraryFiles(event.target.files));
   $("#mediaSearch")?.addEventListener("input", () => { clearTimeout(mediaSearchTimer); mediaSearchTimer = setTimeout(loadMediaLibrary, 300); });
   $("#mediaTypeFilter")?.addEventListener("change", loadMediaLibrary);
+  const dropZone = $("#mediaDropZone");
+  ["dragenter","dragover"].forEach(name => dropZone?.addEventListener(name, event => { event.preventDefault(); dropZone.classList.add("dragging"); }));
+  ["dragleave","drop"].forEach(name => dropZone?.addEventListener(name, event => { event.preventDefault(); dropZone.classList.remove("dragging"); }));
+  dropZone?.addEventListener("drop", event => uploadLibraryFiles(event.dataTransfer?.files));
+  dropZone?.addEventListener("click", () => $("#libraryUpload")?.click());
+  dropZone?.addEventListener("keydown", event => { if (["Enter"," "].includes(event.key)) { event.preventDefault(); $("#libraryUpload")?.click(); } });
+
+  $("#checkConnectionsBtn")?.addEventListener("click", checkPublishingConnections);
+  $("#refreshPublishingBtn")?.addEventListener("click", loadPublishing);
+  $("#retryFailedJobsBtn")?.addEventListener("click", () => retryPublishJob());
 
   $("#newAdBtn")?.addEventListener("click", () => openAdDialog());
   $("#adForm")?.addEventListener("submit", saveAd);
@@ -127,6 +138,7 @@ function showApp() {
   $("#profileName").textContent = user?.name || "Newsroom user";
   $("#profileRole").textContent = String(user?.role || "newsroom").replaceAll("_", " ");
   $$(".admin-only").forEach(el => el.hidden = !ADMIN_ROLES.has(user?.role));
+  $$(".publish-only").forEach(el => el.hidden = !PUBLISH_ROLES.has(user?.role));
   configureRoleControls();
   loadAuthors();
   openView("home");
@@ -169,6 +181,8 @@ async function api(path, options = {}) {
 function openView(name) {
   if (!TITLES[name]) name = "home";
   if (["ads","site","users","activity"].includes(name) && !ADMIN_ROLES.has(user?.role)) name = "home";
+  if (name === "publishing" && !PUBLISH_ROLES.has(user?.role)) name = "home";
+  clearInterval(publishingRefreshTimer); publishingRefreshTimer = null;
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".side-link").forEach(button => button.classList.toggle("active", button.dataset.view === name));
   $("#viewTitle").textContent = TITLES[name];
@@ -176,6 +190,7 @@ function openView(name) {
   if (name === "home") loadDashboard();
   if (name === "articles") loadArticles();
   if (name === "media") loadMediaLibrary();
+  if (name === "publishing") { loadPublishing(); publishingRefreshTimer = setInterval(loadPublishing, 15000); }
   if (name === "ads") loadAds();
   if (name === "site") loadSiteSettings();
   if (name === "users") loadUsers();
@@ -228,9 +243,16 @@ function renderArticles(articles, container, compact = false) {
   $$('[data-view-public]', container).forEach(button => button.addEventListener("click", () => window.open(`/article?id=${encodeURIComponent(button.dataset.viewPublic)}`, "_blank", "noopener")));
 }
 
+function socialStateClass(value) {
+  const status = String(value?.status || "").toLowerCase();
+  if (value?.ok === true || ["succeeded","posted","published","sent"].includes(status)) return "ok";
+  if (["queued","pending","retry","retrying","processing"].includes(status)) return "queued";
+  if (["cancelled","canceled"].includes(status)) return "muted";
+  return "failed";
+}
 function socialBadges(status) {
   if (!status || typeof status !== "object" || !Object.keys(status).length) return "";
-  const badges = Object.entries(status).map(([platform, value]) => `<span class="social-badge ${value?.ok ? "ok" : "failed"}">${esc(platform)}</span>`).join("");
+  const badges = Object.entries(status).map(([platform, value]) => `<span class="social-badge ${socialStateClass(value)}">${esc(platform)}</span>`).join("");
   return `<span class="social-badges">${badges}</span>`;
 }
 
@@ -399,9 +421,8 @@ async function saveArticle(forceDraft) {
     dirty = false; localStorage.removeItem(RECOVERY_KEY); $("#recoveryBanner").hidden = true;
     $("#saveState").textContent = "Saved";
     toast(data.message || "Article saved");
-    if (data.share_results && Object.keys(data.share_results).length) {
-      const failed = Object.values(data.share_results).some(value => !value.ok);
-      toast(Object.entries(data.share_results).map(([name,value]) => `${name}: ${value.ok ? "done" : "failed"}`).join(" · "), failed);
+    if (data.share_jobs?.length) {
+      toast(`${data.share_jobs.length} social publishing job${data.share_jobs.length === 1 ? "" : "s"} queued`);
     }
     await loadDashboard();
   } catch (error) { $("#saveState").textContent = "Save failed"; toast(error.message, true); }
@@ -416,8 +437,8 @@ async function shareArticleNow() {
   try {
     const data = await api("/api/admin/share", {method:"POST", body:JSON.stringify({id, platforms, caption:$("#socialCaption").value.trim()})});
     renderSocialSummary(data.social_status || {});
-    const failed = Object.values(data.results || {}).some(value => !value.ok);
-    toast(Object.entries(data.results || {}).map(([name,value]) => `${name}: ${value.ok ? "done" : "failed"}`).join(" · "), failed);
+    const jobs = data.jobs || [];
+    toast(jobs.length ? `${jobs.length} publishing job${jobs.length === 1 ? "" : "s"} queued` : "Publishing request queued");
   } catch (error) { toast(error.message, true); }
   finally { button.disabled = false; button.textContent = "Share selected now"; }
 }
@@ -425,7 +446,7 @@ async function shareArticleNow() {
 function renderSocialSummary(status) {
   const target = $("#socialStatusSummary"); if (!target) return;
   const entries = Object.entries(status || {});
-  target.innerHTML = entries.length ? entries.map(([name,value]) => `<span class="social-badge ${value?.ok ? "ok" : "failed"}" title="${attr(value?.message || "")}">${esc(name)}</span>`).join("") : `<span class="optional-text">Not shared</span>`;
+  target.innerHTML = entries.length ? entries.map(([name,value]) => `<span class="social-badge ${socialStateClass(value)}" title="${attr(value?.message || value?.status || "")}">${esc(name)}</span>`).join("") : `<span class="optional-text">Not shared</span>`;
 }
 
 function renderCoverPreview() {
@@ -437,7 +458,7 @@ function renderCoverPreview() {
 
 async function handleCoverUpload(file) {
   if (!file) return;
-  try { const data = await uploadFile(file, true); coverType = data.type; setCoverType(data.type); $("#coverUrl").value = data.url; renderCoverPreview(); markDirty(); toast("Cover uploaded"); }
+  try { let data = await uploadFile(file, true); data = await waitForMediaReady(data, "Preparing video for the website"); coverType = data.type; setCoverType(data.type); $("#coverUrl").value = data.url; if (data.poster) $("#videoPosterUrl").value = data.poster; renderCoverPreview(); markDirty(); toast(data.type === "video" ? "Video ready" : "Cover uploaded"); }
   catch (error) { toast(error.message, true); }
   finally { $("#coverUpload").value = ""; }
 }
@@ -485,7 +506,7 @@ function renderMediaItems() {
   $$('[data-media-caption]', list).forEach(input => input.addEventListener("input", () => { mediaItems[+input.dataset.mediaCaption].caption = input.value; markDirty(); }));
   $$('[data-media-upload]', list).forEach(input => input.addEventListener("change", async () => {
     const file = input.files?.[0], index = +input.dataset.mediaUpload; if (!file) return;
-    try { const data = await uploadFile(file, true); mediaItems[index].url = data.url; mediaItems[index].type = data.type; renderMediaItems(); markDirty(); toast("Media uploaded"); }
+    try { let data = await uploadFile(file, true); data = await waitForMediaReady(data, "Preparing video for the website"); mediaItems[index].url = data.url; mediaItems[index].type = data.type; mediaItems[index].poster = data.poster || ""; renderMediaItems(); markDirty(); toast(data.type === "video" ? "Video ready" : "Media uploaded"); }
     catch (error) { toast(error.message, true); }
   }));
 }
@@ -538,25 +559,75 @@ async function loadMediaLibrary() {
   catch (error) { toast(error.message, true); }
 }
 
+function mediaStatusLabel(item) {
+  const status = String(item.status || "ready").toLowerCase();
+  if (status === "pending") return "Waiting";
+  if (status === "processing") return "Processing";
+  if (status === "failed") return "Failed";
+  return "Ready";
+}
+function mediaMeta(item) {
+  const parts = [formatBytes(item.size_bytes)];
+  if (item.type === "video" && item.duration) parts.push(formatDuration(item.duration));
+  if (item.width && item.height) parts.push(`${item.width}×${item.height}`);
+  if (item.source === "telegram") parts.push("Telegram");
+  parts.push(shortDate(item.created_at));
+  return parts.filter(Boolean).join(" · ");
+}
+function mediaVisual(item) {
+  const status = String(item.status || "ready").toLowerCase();
+  if (item.type === "video") {
+    const visual = item.poster ? `<img src="${attr(item.poster)}" alt="${attr(item.name || "Video")}" loading="lazy">` : `<div class="video-placeholder">▶</div>`;
+    return `${visual}<span class="video-badge">▶ Video</span>${status !== "ready" ? `<span class="processing-overlay"><i></i>${esc(mediaStatusLabel(item))}</span>` : ""}`;
+  }
+  return `<img src="${attr(item.url)}" alt="${attr(item.name || "")}" loading="lazy">`;
+}
 function renderMediaLibrary(container, items, picker = false) {
   if (!container) return;
   if (!items.length) { container.innerHTML = `<div class="empty-panel">No uploaded media found.</div>`; return; }
-  container.innerHTML = items.map(item => `<article class="media-card"><div class="media-thumb">${item.type === "video" ? `<video src="${attr(item.url)}" muted preload="metadata"></video>` : `<img src="${attr(item.url)}" alt="${attr(item.name || "")}" loading="lazy">`}</div><div class="media-info"><strong>${esc(item.name || "Uploaded media")}</strong><span>${esc(formatBytes(item.size_bytes))} · ${esc(shortDate(item.created_at))}</span></div><div class="media-actions">${picker ? `<button data-pick-media="${item.id}">Use media</button>` : `<button data-use-cover="${item.id}">Use as cover</button><button data-add-inline="${item.id}">Add inline</button>${ADMIN_ROLES.has(user?.role) ? `<button data-delete-media="${item.id}">Delete</button>` : ""}`}</div></article>`).join("");
+  container.innerHTML = items.map(item => {
+    const status = String(item.status || "ready").toLowerCase();
+    const ready = status === "ready";
+    const useButton = picker ? `<button data-pick-media="${item.id}" ${ready ? "" : "disabled"}>${ready ? "Use media" : mediaStatusLabel(item)}</button>` : `<button data-use-cover="${item.id}" ${ready ? "" : "disabled"}>Use as cover</button><button data-add-inline="${item.id}" ${ready ? "" : "disabled"}>Add inline</button>`;
+    const retry = status === "failed" ? `<button data-reprocess-media="${item.id}">Reprocess</button>` : "";
+    const error = item.error ? `<span class="media-error" title="${attr(item.error)}">${esc(item.error)}</span>` : "";
+    return `<article class="media-card ${status}"><div class="media-thumb">${mediaVisual(item)}</div><div class="media-info"><div><strong>${esc(item.name || "Uploaded media")}</strong><span class="media-status ${status}">${esc(mediaStatusLabel(item))}</span></div><span>${esc(mediaMeta(item))}</span>${error}</div><div class="media-actions">${useButton}${retry}${!picker && ADMIN_ROLES.has(user?.role) ? `<button data-delete-media="${item.id}">Delete</button>` : ""}</div></article>`;
+  }).join("");
   $$('[data-pick-media]', container).forEach(button => button.addEventListener("click", () => chooseMedia(items.find(item => String(item.id) === button.dataset.pickMedia))));
   $$('[data-use-cover]', container).forEach(button => button.addEventListener("click", () => { const item = items.find(x => String(x.id) === button.dataset.useCover); useMediaAsCover(item); openView("editor"); }));
   $$('[data-add-inline]', container).forEach(button => button.addEventListener("click", () => { const item = items.find(x => String(x.id) === button.dataset.addInline); addMediaInline(item); openView("editor"); }));
+  $$('[data-reprocess-media]', container).forEach(button => button.addEventListener("click", () => reprocessMedia(button.dataset.reprocessMedia)));
   $$('[data-delete-media]', container).forEach(button => button.addEventListener("click", () => deleteMedia(button.dataset.deleteMedia)));
 }
 
 async function uploadLibraryFiles(fileList) {
   const files = [...(fileList || [])]; if (!files.length) return;
   for (const file of files) {
-    try { await uploadFile(file, true); toast(`${file.name} uploaded`); }
+    try { const data = await uploadFile(file, true); toast(data.type === "video" ? `${file.name} uploaded — preparing in background` : `${file.name} uploaded`); }
     catch (error) { toast(`${file.name}: ${error.message}`, true); }
   }
   $("#libraryUpload").value = ""; loadMediaLibrary();
+  setTimeout(loadMediaLibrary, 3000);
 }
 
+async function waitForMediaReady(upload, message = "Processing media") {
+  if (!upload || upload.type !== "video" || !upload.id || String(upload.status || "ready") === "ready") return upload;
+  toast(`${message}…`);
+  const deadline = Date.now() + 180000;
+  while (Date.now() < deadline) {
+    await delay(2000);
+    const data = await api(`/api/admin/media?id=${encodeURIComponent(upload.id)}`);
+    const item = data.media?.[0];
+    if (!item) throw new Error("Uploaded video could not be found.");
+    if (item.status === "ready") return item;
+    if (item.status === "failed") throw new Error(item.error || "Video processing failed.");
+  }
+  throw new Error("The video is still processing. It is safely saved in the Media library.");
+}
+async function reprocessMedia(id) {
+  try { await api("/api/admin/media/reprocess", {method:"POST", body:JSON.stringify({id})}); toast("Video processing restarted"); loadMediaLibrary(); setTimeout(loadMediaLibrary, 3000); }
+  catch (error) { toast(error.message, true); }
+}
 async function openMediaPicker(target) {
   mediaPickerTarget = target === "inline" ? "inline" : "cover";
   $("#mediaPickerGrid").innerHTML = `<div class="empty-panel">Loading media…</div>`;
@@ -564,12 +635,65 @@ async function openMediaPicker(target) {
   try { const data = await api("/api/admin/media"); renderMediaLibrary($("#mediaPickerGrid"), data.media || [], true); }
   catch (error) { $("#mediaPickerGrid").innerHTML = `<div class="empty-panel">${esc(error.message)}</div>`; }
 }
-function chooseMedia(item) { if (!item) return; if (mediaPickerTarget === "cover") useMediaAsCover(item); else addMediaInline(item); $("#mediaPickerDialog").close(); }
-function useMediaAsCover(item) { if (!item) return; setCoverType(item.type); $("#coverUrl").value = item.url; renderCoverPreview(); markDirty(); toast("Cover selected"); }
-function addMediaInline(item) { if (!item) return; mediaItems.push({type:item.type,url:item.url,poster:"",caption:"",position:""}); renderMediaItems(); markDirty(); toast("Media added to article"); }
+function chooseMedia(item) { if (!item || item.status === "failed" || ["pending","processing"].includes(item.status)) return; if (mediaPickerTarget === "cover") useMediaAsCover(item); else addMediaInline(item); $("#mediaPickerDialog").close(); }
+function useMediaAsCover(item) { if (!item) return; setCoverType(item.type); $("#coverUrl").value = item.url; if (item.type === "video") $("#videoPosterUrl").value = item.poster || ""; renderCoverPreview(); markDirty(); toast("Cover selected"); }
+function addMediaInline(item) { if (!item) return; mediaItems.push({type:item.type,url:item.url,poster:item.poster || "",caption:"",position:""}); renderMediaItems(); markDirty(); toast("Media added to article"); }
 async function deleteMedia(id) {
   if (!confirm("Remove this item from the media library? Live article files are kept safely.")) return;
   try { const data = await api("/api/admin/media/delete", {method:"POST", body:JSON.stringify({id})}); toast(data.kept_for_article ? "Removed from library; file kept because an article uses it." : "Media deleted"); loadMediaLibrary(); }
+  catch (error) { toast(error.message, true); }
+}
+
+async function loadPublishing() {
+  if (!PUBLISH_ROLES.has(user?.role)) return;
+  try {
+    const data = await api("/api/admin/publishing");
+    renderPublishingConnections(data.connections || {}, data.connections_checked_at);
+    const jobs = data.jobs || [];
+    $("#publishStatWaiting").textContent = jobs.filter(job => ["pending","retry"].includes(job.status)).length;
+    $("#publishStatProcessing").textContent = jobs.filter(job => job.status === "processing").length;
+    $("#publishStatFailed").textContent = data.counts?.failed ?? jobs.filter(job => job.status === "failed").length;
+    $("#publishStatSent").textContent = data.counts?.sent_24h ?? 0;
+    renderPublishQueue(jobs); renderPublishingActivity(data.logs || []);
+  } catch (error) { toast(error.message, true); }
+}
+function renderPublishingConnections(connections, checkedAt = null) {
+  ["telegram","facebook","x"].forEach(platform => {
+    const card = $(`[data-platform-card="${platform}"]`); if (!card) return;
+    const value = connections[platform] || {};
+    const state = value.ok === true ? "connected" : value.ok === false ? "failed" : value.configured ? "configured" : "missing";
+    card.className = `connection-card ${state}`;
+    const message = value.message || (value.configured ? "Configured" : "Not configured");
+    $("span", card.querySelector("div")).textContent = message;
+    card.title = checkedAt ? `Checked ${shortDateTime(checkedAt)}` : message;
+  });
+}
+function renderPublishQueue(jobs) {
+  const container = $("#publishQueue"); if (!container) return;
+  const active = jobs.filter(job => ["pending","retry","processing","failed"].includes(job.status));
+  if (!active.length) { container.innerHTML = `<div class="empty-panel">The publishing queue is clear.</div>`; return; }
+  container.innerHTML = `<div class="table-row header"><span>Article</span><span>Platform</span><span>Status</span><span>Attempt</span><span></span></div>` + active.map(job => `<div class="table-row"><div class="article-cell"><strong>${esc(job.title || job.article_id)}</strong><span>${esc(job.error || (job.next_attempt_at ? `Next try ${shortDateTime(job.next_attempt_at)}` : shortDateTime(job.created_at)))}</span></div><span class="platform-name">${esc(job.platform)}</span><span class="status-pill ${esc(job.status)}">${esc(job.status)}</span><span>${esc(`${job.attempts}/${job.max_attempts}`)}</span><div class="row-actions">${["failed","retry"].includes(job.status) ? `<button data-retry-job="${job.id}">Retry</button>` : ""}${["pending","retry"].includes(job.status) ? `<button data-cancel-job="${job.id}">Cancel</button>` : ""}</div></div>`).join("");
+  $$('[data-retry-job]', container).forEach(button => button.addEventListener("click", () => retryPublishJob(button.dataset.retryJob)));
+  $$('[data-cancel-job]', container).forEach(button => button.addEventListener("click", () => cancelPublishJob(button.dataset.cancelJob)));
+}
+function renderPublishingActivity(logs) {
+  const container = $("#publishingActivity"); if (!container) return;
+  if (!logs.length) { container.innerHTML = `<div class="empty-panel">No social publishing activity yet.</div>`; return; }
+  container.innerHTML = `<div class="table-row header"><span>Article</span><span>Platform</span><span>Status</span><span>Time</span><span></span></div>` + logs.slice(0,30).map(log => `<div class="table-row"><div class="article-cell"><strong>${esc(log.title || log.article_id || "Article")}</strong><span>${esc(log.message || "")}</span></div><span class="platform-name">${esc(log.platform)}</span><span class="status-pill ${esc(log.status)}">${esc(log.status)}</span><span>${esc(shortDateTime(log.created_at))}</span><span></span></div>`).join("");
+}
+async function checkPublishingConnections() {
+  const button = $("#checkConnectionsBtn"); button.disabled = true; button.textContent = "Checking…";
+  try { const data = await api("/api/admin/connections/check", {method:"POST", body:"{}"}); renderPublishingConnections(data.connections || {}, data.checked_at); toast("Connections checked"); }
+  catch (error) { toast(error.message, true); }
+  finally { button.disabled = false; button.textContent = "Check connections"; }
+}
+async function retryPublishJob(id = null) {
+  try { const data = await api("/api/admin/publish-jobs/retry", {method:"POST", body:JSON.stringify(id ? {id} : {})}); toast(`${data.retried || 0} job${data.retried === 1 ? "" : "s"} queued for retry`); loadPublishing(); }
+  catch (error) { toast(error.message, true); }
+}
+async function cancelPublishJob(id) {
+  if (!confirm("Cancel this pending publishing job?")) return;
+  try { await api("/api/admin/publish-jobs/cancel", {method:"POST", body:JSON.stringify({id})}); toast("Publishing job cancelled"); loadPublishing(); }
   catch (error) { toast(error.message, true); }
 }
 
@@ -639,4 +763,7 @@ function shortDateTime(value) { if (!value) return "—"; const date = new Date(
 function toLocalInput(value) { if (!value) return ""; const date = new Date(value); if (Number.isNaN(date.getTime())) return ""; const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000); return local.toISOString().slice(0,16); }
 function formatBytes(bytes) { const n = Number(bytes || 0); if (n < 1024) return `${n} B`; if (n < 1024 ** 2) return `${(n / 1024).toFixed(1)} KB`; return `${(n / 1024 ** 2).toFixed(1)} MB`; }
 function toast(message, error = false) { const element = $("#toast"); element.textContent = message || "Done"; element.style.background = error ? "var(--danger)" : "var(--text)"; element.style.color = error ? "#fff" : "var(--bg)"; element.classList.add("show"); clearTimeout(element._timer); element._timer = setTimeout(() => element.classList.remove("show"), 3900); }
+function formatDuration(seconds) { const total = Math.max(0, Math.round(Number(seconds) || 0)); const minutes = Math.floor(total / 60); const rest = total % 60; return minutes ? `${minutes}:${String(rest).padStart(2,"0")}` : `${rest}s`; }
+function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
 function debounce(fn, wait) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), wait); }; }
