@@ -20,6 +20,17 @@ Required files at the deployed root include:
 - `functions/story.js`
 - `_redirects`
 
+
+## API address
+
+This website currently points to:
+
+```text
+https://samuga-news-bot-production.up.railway.app
+```
+
+If the Railway service domain changes, update the `API` constant in `script.js`, `admin.js`, `article-client.js`, `functions/article.js`, and `functions/story.js` before deploying Cloudflare Pages.
+
 ## 3. Test in this order
 
 1. Open the homepage and switch light/dark mode.
@@ -35,3 +46,13 @@ Required files at the deployed root include:
 ## Rollback
 
 Keep the previous Cloudflare Pages deployment available. If the bot APIs are not ready, roll back the Pages deployment before changing the database manually.
+
+## Build 2 browser checks
+
+After Cloudflare Pages deploys:
+
+1. Hard refresh the homepage and verify both light and dark themes.
+2. Check one desktop sponsor banner and one mobile banner; full artwork should remain visible when fit mode is **Show full artwork**.
+3. Open an article and verify the order is headline → subheadline → byline → cover → body.
+4. Open `/admin.html`, save a draft, refresh the page and test browser recovery.
+5. Test Preview, History, Media library and one scheduled article before using the workflow for live breaking news.

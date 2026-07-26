@@ -1,6 +1,16 @@
-# Samuga Media — Clean Newsroom Build
+# Samuga Media — Clean Newsroom Build 2
 
 This is the public website and desktop newsroom frontend for Samuga Media.
+
+
+## Build 2 additions
+
+- Scheduled publishing with saved social targets
+- Browser recovery autosave, article preview and revision history
+- Persistent media library
+- Per-platform social status and retry
+- Advertisement campaign dates
+- Second-pass minimal public layout and headline-first article pages
 
 ## Included
 
