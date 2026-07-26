@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="7">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="8">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build7.css">
+  <link rel="stylesheet" href="admin-build8.css">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -88,10 +88,11 @@
             <div class="panel media-panel">
               <div class="panel-head"><div><h2>Cover</h2><p>Use an image or video. Full banner artwork stays visible by default.</p></div><button type="button" class="text-button" data-open-media-picker="cover">Choose from library</button></div>
               <div class="media-tabs"><button type="button" class="active" data-cover-type="image">Image</button><button type="button" data-cover-type="video">Video</button></div>
-              <div class="upload-row"><input id="coverUrl" type="url" placeholder="Paste media URL"><label class="upload-button">Upload file<input id="coverUpload" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" hidden></label></div>
+              <div class="upload-row"><input id="coverUrl" type="url" placeholder="Paste media URL"><label class="upload-button"><span id="coverUploadLabel">Upload file</span><input id="coverUpload" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" hidden></label></div>
               <div class="upload-row video-poster-row" id="videoPosterRow" hidden><input id="videoPosterUrl" type="url" placeholder="Video thumbnail URL (optional)"><label class="upload-button">Upload thumbnail<input id="videoPosterUpload" type="file" accept="image/*" hidden></label></div>
               <div class="upload-progress" id="uploadProgress" hidden><span></span></div>
               <div class="cover-preview" id="coverPreview"><span>No cover selected</span></div>
+              <div class="cover-edit-actions"><span id="coverActionHint">Upload or choose an image, then add Samuga branding when needed.</span><div class="button-row"><button type="button" class="secondary compact" id="brandCoverBtn" hidden>Add Samuga branding</button><button type="button" class="danger-button compact" id="removeCoverBtn" hidden>Remove cover</button></div></div>
               <label class="field-label optional">Caption <span>Optional</span><input id="coverCaption" placeholder="Photo or video caption"></label>
             </div>
 
@@ -194,6 +195,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build7.js"></script>
+  <script src="admin-build8.js"></script>
 </body>
 </html>

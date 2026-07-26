@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="7">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="8">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -16,7 +16,7 @@
   <script>
     (()=>{const saved=localStorage.getItem('samuga-theme');const theme=saved||((matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');document.documentElement.dataset.theme=theme;})();
   </script>
-  <link rel="stylesheet" href="site-build7.css">
+  <link rel="stylesheet" href="site-build8.css">
 </head>
 <body>
   <a class="skip-link" href="#latest">Skip to stories</a>
@@ -123,12 +123,12 @@
     <span class="chat-fab-logo-wrap"><img class="chat-fab-logo" src="assets/SamugaNewsBot_Profile.png" alt=""><span class="chat-status-dot" aria-hidden="true"></span></span>
     <span class="chat-fab-label">Ask Samuga AI</span>
   </button>
-  <section class="chat-panel" id="chatPanel" role="dialog" aria-label="Samuga AI" aria-modal="true" aria-hidden="true">
+  <section class="chat-panel" id="chatPanel" dir="ltr" role="dialog" aria-label="Samuga AI" aria-modal="true" aria-hidden="true">
     <header><div class="chat-identity"><img class="chat-header-logo" src="assets/SamugaNewsBot_Profile.png" alt="Samuga AI"><div><strong>Samuga AI</strong><span id="chatSubtitle">Maldives news assistant</span></div></div><button id="chatClose" type="button" aria-label="Close">×</button></header>
     <div class="chat-messages" id="chatMessages" role="log"><div class="msg bot">Ask me about a story on Samuga Media.</div></div>
-    <form id="chatForm"><textarea id="chatInput" rows="1" placeholder="Ask about the news…" aria-label="Message"></textarea><button id="chatSend" type="submit">Send</button></form>
+    <form id="chatForm" dir="ltr"><textarea id="chatInput" rows="1" placeholder="Ask about the news…" aria-label="Message"></textarea><button id="chatSend" type="submit">Send</button></form>
   </section>
 
-  <script src="site-build7.js"></script>
+  <script src="site-build8.js"></script>
 </body>
 </html>
