@@ -12,6 +12,7 @@ let token = localStorage.getItem(TOKEN_KEY) || "";
 let user = null;
 let currentArticles = [];
 let currentMedia = [];
+let currentAuthors = [];
 let editorLang = "en";
 let coverType = "image";
 let mediaItems = [];
@@ -21,7 +22,7 @@ let recoveryTimer = null;
 let mediaSearchTimer = null;
 let publishingRefreshTimer = null;
 
-const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",publishing:"Publishing centre",ads:"Advertisements",site:"Website settings",users:"Newsroom users",activity:"Activity log"};
+const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",publishing:"Publishing centre",ads:"Advertisements",site:"Website settings",authors:"Author profiles",users:"Newsroom users",activity:"Activity log"};
 const PUBLISH_ROLES = new Set(["editor","admin","super_admin"]);
 const ADMIN_ROLES = new Set(["admin","super_admin"]);
 
@@ -51,6 +52,7 @@ function wireStaticEvents() {
   $("#previewBtn")?.addEventListener("click", showPreview);
   $("#revisionsBtn")?.addEventListener("click", loadRevisions);
   $("#shareNowBtn")?.addEventListener("click", shareArticleNow);
+  $("#deleteArticleBtn")?.addEventListener("click", () => deleteArticle($("#articleId")?.value, $("#articleTitle")?.value));
   $("#articlePublishStatus")?.addEventListener("change", updateScheduleVisibility);
   $("#addMediaBtn")?.addEventListener("click", () => { mediaItems.push({type:"image",url:"",poster:"",caption:"",position:""}); renderMediaItems(); markDirty(); });
   $$('[data-editor-lang]').forEach(button => button.addEventListener("click", () => setEditorLanguage(button.dataset.editorLang)));
@@ -90,6 +92,11 @@ function wireStaticEvents() {
   });
 
   $("#siteSettingsForm")?.addEventListener("submit", saveSiteSettings);
+  $("#refreshAuthorsBtn")?.addEventListener("click", loadAuthorProfiles);
+  $("#authorForm")?.addEventListener("submit", saveAuthorProfile);
+  $("#authorProfilePhoto")?.addEventListener("input", renderAuthorAvatarPreview);
+  $("#authorProfileName")?.addEventListener("input", renderAuthorAvatarPreview);
+  $("#authorPhotoUpload")?.addEventListener("change", handleAuthorPhotoUpload);
   $("#newUserBtn")?.addEventListener("click", () => openUserDialog());
   $("#userForm")?.addEventListener("submit", saveUser);
   $("#refreshAuditBtn")?.addEventListener("click", loadAudit);
@@ -193,6 +200,7 @@ function openView(name) {
   if (name === "publishing") { loadPublishing(); publishingRefreshTimer = setInterval(loadPublishing, 15000); }
   if (name === "ads") loadAds();
   if (name === "site") loadSiteSettings();
+  if (name === "authors") loadAuthorProfiles();
   if (name === "users") loadUsers();
   if (name === "activity") loadAudit();
 }
@@ -236,11 +244,12 @@ function renderArticles(articles, container, compact = false) {
       <span class="status-pill ${esc(status)}">${esc(status)}</span>
       <span>${esc(article.category || "LOCAL")}</span>
       <span>${esc(time)}</span>
-      <div class="row-actions"><button data-edit-article="${attr(article.id)}">Edit</button>${isPublicStatus(status) ? `<button data-view-public="${attr(article.id)}">View</button>` : ""}</div>
+      <div class="row-actions"><button data-edit-article="${attr(article.id)}">Edit</button>${isPublicStatus(status) ? `<button data-view-public="${attr(article.id)}">View</button>` : ""}${user?.role === "super_admin" ? `<button class="danger-link" data-delete-article="${attr(article.id)}" data-delete-title="${attr(article.title || "Untitled")}">Delete</button>` : ""}</div>
     </div>`;
   }).join("");
   $$('[data-edit-article]', container).forEach(button => button.addEventListener("click", () => openArticle(button.dataset.editArticle)));
   $$('[data-view-public]', container).forEach(button => button.addEventListener("click", () => window.open(`/article?id=${encodeURIComponent(button.dataset.viewPublic)}`, "_blank", "noopener")));
+  $$('[data-delete-article]', container).forEach(button => button.addEventListener("click", () => deleteArticle(button.dataset.deleteArticle, button.dataset.deleteTitle)));
 }
 
 function socialStateClass(value) {
@@ -284,6 +293,7 @@ function resetEditor() {
   $("#saveState").textContent = "Not saved";
   $("#revisionsBtn").hidden = true;
   $("#shareNowBtn").hidden = true;
+  $("#deleteArticleBtn").hidden = true;
   $("#socialStatusSummary").textContent = "";
   renderMediaItems(); renderCoverPreview(); updateScheduleVisibility(); updateWordStats();
   dirty = false;
@@ -314,6 +324,7 @@ function fillEditor(article) {
   renderMediaItems(); renderCoverPreview(); updateScheduleVisibility(); updateWordStats();
   $("#revisionsBtn").hidden = !article.id;
   $("#shareNowBtn").hidden = !(article.id && isPublicStatus(article.status) && PUBLISH_ROLES.has(user?.role));
+  $("#deleteArticleBtn").hidden = !(article.id && user?.role === "super_admin");
   renderSocialSummary(article.social_status || {});
   $("#saveState").textContent = article.updated_at ? `Saved ${shortDateTime(article.updated_at)}` : "Saved";
   dirty = false;
@@ -511,12 +522,32 @@ function renderMediaItems() {
   }));
 }
 
-async function loadAuthors() {
+async function loadAuthors(includeInactive = false) {
   try {
-    const data = await api("/api/admin/authors");
-    $("#articleAuthor").innerHTML = (data.authors || []).map(author => `<option value="${attr(author.author_id)}">${esc(author.name)} — ${esc(author.role || "Reporter")}</option>`).join("");
-    if (user?.author_id) $("#articleAuthor").value = user.author_id;
-  } catch (error) { toast(error.message, true); }
+    const suffix = includeInactive && ADMIN_ROLES.has(user?.role) ? "?all=1" : "";
+    const data = await api(`/api/admin/authors${suffix}`);
+    currentAuthors = data.authors || [];
+    const activeAuthors = currentAuthors.filter(author => author.active !== false);
+    const articleSelect = $("#articleAuthor");
+    if (articleSelect) {
+      articleSelect.innerHTML = activeAuthors.map(author => `<option value="${attr(author.author_id)}">${esc(author.name)} — ${esc(author.role || "Reporter")}</option>`).join("");
+      if (user?.author_id && activeAuthors.some(author => author.author_id === user.author_id)) articleSelect.value = user.author_id;
+    }
+    populateUserAuthorSelect();
+    return currentAuthors;
+  } catch (error) { toast(error.message, true); return []; }
+}
+
+function populateUserAuthorSelect(selected = "") {
+  const select = $("#userAuthor");
+  if (!select) return;
+  const options = currentAuthors.filter(author => author.active !== false || author.author_id === selected).map(author => {
+    const source = author.source === "telegram" ? "Telegram" : author.source === "ai" ? "AI" : "Dashboard";
+    const linked = author.linked_users ? " · linked" : "";
+    return `<option value="${attr(author.author_id)}">${esc(author.name)} — ${esc(author.role || "Reporter")} (${source}${linked})</option>`;
+  }).join("");
+  select.innerHTML = `<option value="">Auto-match by exact name</option>${options}`;
+  if (selected) select.value = selected;
 }
 
 function showPreview() {
@@ -734,19 +765,161 @@ async function saveAd(event) {
   catch (error) { $("#adError").textContent = error.message; }
 }
 
-async function loadUsers() { try { const data = await api("/api/admin/users"); renderUsers(data.users || []); } catch (error) { toast(error.message, true); } }
+async function loadAuthorProfiles() {
+  try {
+    await loadAuthors(false);
+    renderAuthorProfiles(currentAuthors);
+  } catch (error) { toast(error.message, true); }
+}
+
+function authorInitial(name) {
+  return String(name || "S").trim().charAt(0).toUpperCase() || "S";
+}
+
+function renderAuthorProfiles(authors) {
+  const container = $("#authorGrid");
+  if (!container) return;
+  if (!authors.length) { container.innerHTML = `<div class="empty-panel panel">No author profiles found.</div>`; return; }
+  const canManageAll = ADMIN_ROLES.has(user?.role);
+  container.innerHTML = authors.map(author => {
+    const canEdit = canManageAll || author.is_mine;
+    const avatar = author.photo_url ? `<img src="${attr(author.photo_url)}" alt="">` : esc(authorInitial(author.name));
+    const sourceLabel = author.source === "telegram" ? "Telegram author" : author.source === "ai" ? "AI newsroom" : "Dashboard author";
+    return `<article class="author-card ${author.active === false ? "inactive" : ""}">
+      <div class="author-avatar">${avatar}</div>
+      <div class="author-card-copy"><div class="author-card-title"><strong>${esc(author.name || "Unnamed author")}</strong><span class="author-source ${esc(author.source || "dashboard")}">${esc(sourceLabel)}</span></div><span>${esc(author.role || "Reporter")}</span><p>${esc(author.bio || "No public bio added yet.")}</p><div class="author-stats"><span>${Number(author.article_count || 0)} articles</span><span>${Number(author.linked_users || 0)} linked login${Number(author.linked_users || 0) === 1 ? "" : "s"}</span>${author.telegram_user_id ? `<span>Telegram connected</span>` : ""}</div></div>
+      <div class="author-card-actions">${canEdit ? `<button class="secondary compact" data-edit-author="${attr(author.author_id)}">Edit profile</button>` : ""}</div>
+    </article>`;
+  }).join("");
+  $$('[data-edit-author]', container).forEach(button => button.addEventListener("click", () => openAuthorDialog(authors.find(author => author.author_id === button.dataset.editAuthor))));
+}
+
+function renderAuthorAvatarPreview() {
+  const preview = $("#authorAvatarPreview");
+  if (!preview) return;
+  const photo = $("#authorProfilePhoto")?.value.trim();
+  const name = $("#authorProfileName")?.value;
+  preview.innerHTML = photo ? `<img src="${attr(photo)}" alt="">` : esc(authorInitial(name));
+}
+
+function openAuthorDialog(author = {}) {
+  if (!author?.author_id) return;
+  const canManageAll = ADMIN_ROLES.has(user?.role);
+  $("#authorForm").reset();
+  $("#authorError").textContent = "";
+  $("#authorProfileId").value = author.author_id || "";
+  $("#authorProfileName").value = author.name || "";
+  $("#authorProfileRole").value = author.role || "Reporter";
+  $("#authorProfilePhoto").value = author.photo_url || "";
+  $("#authorProfileBio").value = author.bio || "";
+  $("#authorTelegramId").value = author.telegram_user_id || "";
+  $("#authorProfileActive").checked = author.active !== false;
+  $("#authorProfileRole").disabled = !canManageAll;
+  $$(".author-admin-field", $("#authorDialog")).forEach(field => field.hidden = !canManageAll);
+  $("#authorProfileSource").textContent = author.source === "telegram" ? "Connected Telegram author" : author.source === "ai" ? "Samuga AI profile" : "Dashboard author profile";
+  $("#authorDialogTitle").textContent = `Edit ${author.name || "author"}`;
+  renderAuthorAvatarPreview();
+  $("#authorDialog").showModal();
+}
+
+async function handleAuthorPhotoUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const data = await uploadFile(file);
+    if (data.type !== "image") throw new Error("Author profile photos must be images.");
+    $("#authorProfilePhoto").value = data.url;
+    renderAuthorAvatarPreview();
+    toast("Profile photo uploaded");
+  } catch (error) { toast(error.message, true); }
+  finally { event.target.value = ""; }
+}
+
+async function saveAuthorProfile(event) {
+  event.preventDefault(); event.stopPropagation();
+  $("#authorError").textContent = "";
+  const canManageAll = ADMIN_ROLES.has(user?.role);
+  const payload = {
+    author_id: $("#authorProfileId").value,
+    name: $("#authorProfileName").value.trim(),
+    photo_url: $("#authorProfilePhoto").value.trim(),
+    bio: $("#authorProfileBio").value.trim(),
+  };
+  if (canManageAll) {
+    payload.role = $("#authorProfileRole").value.trim();
+    payload.telegram_user_id = $("#authorTelegramId").value.trim() || null;
+    payload.active = $("#authorProfileActive").checked;
+  }
+  try {
+    await api("/api/admin/authors", {method:"POST", body:JSON.stringify(payload)});
+    $("#authorDialog").close();
+    const me = await api("/api/admin/me");
+    user = me.user;
+    $("#profileName").textContent = user?.name || "Newsroom user";
+    toast("Author profile saved");
+    await loadAuthorProfiles();
+  } catch (error) { $("#authorError").textContent = error.message; }
+}
+
+async function loadUsers() {
+  try {
+    await loadAuthors(true);
+    const data = await api("/api/admin/users");
+    renderUsers(data.users || []);
+  } catch (error) { toast(error.message, true); }
+}
 function renderUsers(users) {
   const container = $("#userList");
-  container.innerHTML = `<div class="table-row header"><span>Name</span><span>Email</span><span>Role</span><span>Status</span><span></span></div>` + users.map(account => `<div class="table-row"><div class="article-cell"><strong>${esc(account.name)}</strong><span>Last login: ${esc(shortDateTime(account.last_login))}</span></div><span>${esc(account.email)}</span><span>${esc(String(account.role).replaceAll("_"," "))}</span><span class="status-pill ${account.active ? "posted" : "draft"}">${account.active ? "Active" : "Disabled"}</span><div class="row-actions"><button data-edit-user="${account.id}">Edit</button></div></div>`).join("");
+  if (!users.length) { container.innerHTML = `<div class="empty-panel">No newsroom users found.</div>`; return; }
+  const authorById = new Map(currentAuthors.map(author => [author.author_id, author]));
+  container.innerHTML = `<div class="table-row header"><span>Name</span><span>Email</span><span>Role</span><span>Author</span><span></span></div>` + users.map(account => {
+    const linked = authorById.get(account.author_id);
+    return `<div class="table-row"><div class="article-cell"><strong>${esc(account.name)}</strong><span>Last login: ${esc(shortDateTime(account.last_login))}</span></div><span>${esc(account.email)}</span><span>${esc(String(account.role).replaceAll("_"," "))}</span><span>${esc(linked?.name || "Not linked")}</span><div class="row-actions"><button data-edit-user="${account.id}">Edit</button></div></div>`;
+  }).join("");
   $$('[data-edit-user]', container).forEach(button => button.addEventListener("click", () => openUserDialog(users.find(account => String(account.id) === button.dataset.editUser))));
 }
 function openUserDialog(account = {}) {
-  $("#userForm").reset(); $("#userError").textContent = ""; $("#userId").value = account.id || ""; $("#userName").value = account.name || ""; $("#userEmail").value = account.email || ""; $("#userRole").value = account.role || "journalist"; $("#userActive").checked = account.active !== false; $("#userPassword").required = !account.id; $("#userDialogTitle").textContent = account.id ? "Edit user" : "Add user"; $("#userDialog").showModal();
+  $("#userForm").reset();
+  $("#userError").textContent = "";
+  populateUserAuthorSelect(account.author_id || "");
+  $("#userId").value = account.id || "";
+  $("#userName").value = account.name || "";
+  $("#userEmail").value = account.email || "";
+  $("#userRole").value = account.role || "journalist";
+  $("#userAuthor").value = account.author_id || "";
+  $("#userTelegramId").value = account.telegram_user_id || "";
+  $("#userActive").checked = account.active !== false;
+  $("#userPassword").required = !account.id;
+  $("#userDialogTitle").textContent = account.id ? "Edit user" : "Add user";
+  $("#userDialog").showModal();
 }
 async function saveUser(event) {
   event.preventDefault(); event.stopPropagation(); $("#userError").textContent = "";
-  try { await api("/api/admin/users", {method:"POST", body:JSON.stringify({id:$("#userId").value || null,name:$("#userName").value.trim(),email:$("#userEmail").value.trim(),role:$("#userRole").value,password:$("#userPassword").value,active:$("#userActive").checked})}); $("#userDialog").close(); toast("User saved"); loadUsers(); }
-  catch (error) { $("#userError").textContent = error.message; }
+  try {
+    await api("/api/admin/users", {method:"POST", body:JSON.stringify({
+      id:$("#userId").value || null,
+      name:$("#userName").value.trim(),
+      email:$("#userEmail").value.trim(),
+      role:$("#userRole").value,
+      author_id:$("#userAuthor").value || null,
+      telegram_user_id:$("#userTelegramId").value.trim() || null,
+      password:$("#userPassword").value,
+      active:$("#userActive").checked,
+    })});
+    $("#userDialog").close(); toast("User saved and author identity linked"); loadUsers();
+  } catch (error) { $("#userError").textContent = error.message; }
+}
+
+async function deleteArticle(id, title = "this article") {
+  if (user?.role !== "super_admin" || !id) return;
+  const safeTitle = String(title || "this article").slice(0, 120);
+  if (!confirm(`Permanently delete “${safeTitle}”? This cannot be undone.`)) return;
+  try {
+    await api("/api/admin/article/delete", {method:"POST", body:JSON.stringify({id})});
+    toast("Article deleted");
+    if ($("#articleId")?.value === String(id)) resetEditor();
+    openView("articles");
+  } catch (error) { toast(error.message, true); }
 }
 
 async function loadAudit() {

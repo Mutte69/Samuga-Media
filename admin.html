@@ -32,6 +32,7 @@
         <button class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
         <button class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
+        <button class="side-link" data-view="authors"><span>◉</span>Authors</button>
         <button class="side-link admin-only" data-view="users"><span>♙</span>Users</button>
         <button class="side-link admin-only" data-view="activity"><span>◷</span>Activity</button>
       </nav>
@@ -117,7 +118,7 @@
               <label>Social caption <span class="optional-text">Optional</span><textarea id="socialCaption" rows="4" placeholder="Defaults to headline + article link"></textarea></label>
               <button type="button" class="secondary wide" id="shareNowBtn" hidden>Share selected now</button>
             </div>
-            <div class="editor-actions"><button type="button" class="secondary" id="saveDraftBtn">Save draft</button><button type="submit" class="primary" id="publishBtn">Save article</button></div>
+            <div class="editor-actions"><button type="button" class="danger-button" id="deleteArticleBtn" hidden>Delete article</button><button type="button" class="secondary" id="saveDraftBtn">Save draft</button><button type="submit" class="primary" id="publishBtn">Save article</button></div>
           </aside>
         </form>
       </section>
@@ -154,8 +155,14 @@
         </form>
       </section>
 
+      <section class="view" id="view-authors">
+        <div class="toolbar"><div><h2>Author profiles</h2><p>Telegram and dashboard publishing use one shared public identity.</p></div><button class="secondary" id="refreshAuthorsBtn" type="button">Refresh</button></div>
+        <div class="author-identity-note"><strong>No duplicate profiles</strong><span>Link a newsroom login to its existing Telegram author. Articles, profile photos and roles then stay under one author identity.</span></div>
+        <div class="author-grid" id="authorGrid"></div>
+      </section>
+
       <section class="view" id="view-users">
-        <div class="toolbar"><div><h2>Newsroom access</h2><p>Separate logins and rights for every team member.</p></div><button class="primary" id="newUserBtn">Add user</button></div>
+        <div class="toolbar"><div><h2>Newsroom access</h2><p>Separate logins and rights for every team member, linked to one public author profile.</p></div><button class="primary" id="newUserBtn">Add user</button></div>
         <div class="panel"><div class="article-table" id="userList"></div></div>
       </section>
 
@@ -172,7 +179,9 @@
 
   <dialog id="adDialog"><form method="dialog" id="adForm"><h2 id="adDialogTitle">Add advertisement</h2><input id="adId" type="hidden"><label>Name<input id="adName" required></label><label>Banner URL<input id="adImage" type="url" required><input id="adUpload" type="file" accept="image/*"><span class="optional-text">Recommended: 1200×400 or wider.</span></label><label>Mobile banner URL <span class="optional-text">Optional</span><input id="adMobileImage" type="url"></label><label>Destination URL<input id="adLink" type="url"></label><label>Caption <span class="optional-text">Optional</span><input id="adCaption"></label><div class="two-col"><label>Placement<select id="adPlacement"><option value="feed">Feed</option><option value="article">Article</option><option value="sidebar">Sidebar</option></select></label><label>Image fit<select id="adFit"><option value="contain">Show full artwork</option><option value="cover">Crop to fill</option></select></label></div><div class="two-col"><label>Start <span class="optional-text">Optional</span><input id="adStartsAt" type="datetime-local"></label><label>End <span class="optional-text">Optional</span><input id="adEndsAt" type="datetime-local"></label></div><label class="check-row"><input id="adActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveAdBtn">Save</button></div><div class="form-error" id="adError"></div></form></dialog>
 
-  <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
+  <dialog id="authorDialog"><form method="dialog" id="authorForm"><h2 id="authorDialogTitle">Edit author profile</h2><input id="authorProfileId" type="hidden"><div class="author-dialog-head"><div class="author-avatar large" id="authorAvatarPreview">S</div><div><strong id="authorProfileSource">Newsroom profile</strong><span>This is the public identity shown on articles.</span></div></div><label>Public name<input id="authorProfileName" required maxlength="160"></label><label>Public role<input id="authorProfileRole" maxlength="160" placeholder="Reporter, Editor, Founder…"></label><label>Profile photo URL <span class="optional-text">Optional</span><div class="upload-row"><input id="authorProfilePhoto" type="url" placeholder="https://…"><label class="upload-button">Upload photo<input id="authorPhotoUpload" type="file" accept="image/*" hidden></label></div></label><label>Short bio <span class="optional-text">Optional</span><textarea id="authorProfileBio" rows="4" maxlength="800" placeholder="A short public author description"></textarea></label><label class="author-admin-field">Telegram user ID <span class="optional-text">Optional</span><input id="authorTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label class="check-row author-admin-field"><input id="authorProfileActive" type="checkbox" checked><span>Active author profile</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveAuthorBtn">Save profile</button></div><div class="form-error" id="authorError"></div></form></dialog>
+
+  <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
   <script src="admin.js"></script>
