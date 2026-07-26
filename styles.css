@@ -1145,3 +1145,139 @@ p:last-child { margin-bottom: 0; }
     animation-duration: .01ms !important; transition-duration: .01ms !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   V4 CLEAN EDITORIAL LAYOUT
+   Keeps Samuga's card identity while reducing visual noise.
+════════════════════════════════════════════════════════════════ */
+:root {
+  --paper: #0b1017;
+  --surface: #111923;
+  --surface-2: #16212e;
+  --surface-3: #1b2837;
+  --ink: #f4f7fb;
+  --ink-dim: #c7d1de;
+  --muted: #8d9caf;
+  --muted-faint: #5f6f82;
+  --line: rgba(255,255,255,.085);
+  --line-med: rgba(255,255,255,.14);
+  --shadow: 0 8px 28px rgba(0,0,0,.22);
+  --shadow-lg: 0 20px 56px rgba(0,0,0,.30);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% -220px, rgba(40,184,255,.075), transparent 560px),
+    var(--paper);
+}
+
+.site-header,
+.article-header {
+  background: rgba(11,16,23,.92);
+  box-shadow: 0 1px 0 rgba(255,255,255,.025);
+}
+
+.utility-bar { background: rgba(7,11,16,.72); }
+.primary-nav { background: rgba(11,16,23,.78); }
+.ticker-bar {
+  background: #111923;
+  border-bottom-color: rgba(255,255,255,.07);
+  min-height: 36px;
+}
+.ticker-label { padding-inline: 14px; }
+.ticker-live { opacity: .82; }
+
+.home-hero { padding-top: 24px; }
+.featured-grid,
+.home-layout { gap: 22px; }
+.featured-story,
+.panel,
+.sponsor-panel,
+.breaking-panel,
+.story-card,
+.related-card {
+  box-shadow: var(--shadow);
+}
+.panel,
+.sponsor-panel,
+.breaking-panel {
+  background: rgba(17,25,35,.82);
+}
+.home-feed { padding-top: 30px; }
+
+/* Cleaner article canvas */
+.article-main { padding-bottom: 84px; }
+.article-no-cover { height: 28px; background: transparent; }
+.article-cover { max-height: 520px; }
+.article-cover img { max-height: 520px; }
+.article-cover-fade {
+  height: 120px;
+  background: linear-gradient(to bottom, transparent 0%, var(--paper) 100%);
+}
+.article-container {
+  width: min(760px, calc(100% - 36px));
+  padding-top: 42px;
+}
+.article-hero {
+  margin-bottom: 0;
+  padding-bottom: 28px;
+  border-bottom-color: rgba(255,255,255,.10);
+}
+.article-eyebrow { margin-bottom: 16px; }
+.article-headline {
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -1.7px;
+  text-wrap: balance;
+  margin-bottom: 14px;
+}
+.article-excerpt {
+  max-width: 680px;
+  font-style: normal;
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.58;
+  color: #b8c5d5;
+  margin-bottom: 22px;
+}
+.author-row {
+  padding: 15px 0 0;
+  border-top-color: rgba(255,255,255,.09);
+  border-bottom: 0;
+}
+.article-body {
+  max-width: 700px;
+  font-size: clamp(18px, 1.75vw, 20px);
+  line-height: 1.78;
+  color: #dde4ed;
+  padding: 42px 0 20px;
+}
+.article-body p { margin-bottom: 1.42em; }
+.article-body p:first-child {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  font-weight: 400;
+}
+.article-cta {
+  background: rgba(40,184,255,.065);
+  border-color: rgba(40,184,255,.18);
+  box-shadow: none;
+}
+.share-bar { margin-top: 24px; }
+.share-btn { background: rgba(17,25,35,.82); }
+.related-card { background: rgba(17,25,35,.82); }
+
+@media (max-width: 780px) {
+  .article-container { width: min(100% - 28px, 760px); padding-top: 28px; }
+  .article-headline { font-size: clamp(30px, 9vw, 42px); letter-spacing: -1.2px; }
+  .article-body { padding-top: 32px; }
+  .article-header-nav .header-btn:first-child { padding-inline: 11px; }
+}
+
+@media (max-width: 520px) {
+  .article-no-cover { height: 12px; }
+  .article-container { width: calc(100% - 24px); }
+  .article-headline { font-size: 31px; }
+  .article-excerpt { font-size: 17px; }
+  .author-avatar, .author-avatar-ai { width: 38px; height: 38px; }
+}

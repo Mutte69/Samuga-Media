@@ -204,9 +204,30 @@ function render(data,banner){
     ${readTime?`<div class="article-readtime">${esc(readTime)}</div>`:""}
   </div>`;
 
-  // Body
-  const paras=(data.paragraphs?.length?data.paragraphs:String(data.body||"").split(/\n\n+/)).filter(Boolean);
-  const bodyHTML=paras.length?paras.map(p=>`<p>${esc(p)}</p>`).join("\n"):`<p>${esc(data.excerpt||data.title||"")}</p>`;
+  // Body — remove duplicated title/deck text so readers do not restart the story.
+  const normaliseText=value=>String(value||"")
+    .replace(/<[^>]*>/g," ")
+    .replace(/[\s\u00a0]+/g," ")
+    .replace(/[“”‘’'".,!?;:–—-]+$/g,"")
+    .trim()
+    .toLowerCase();
+
+  const titleNorm=normaliseText(data.title);
+  const excerptNorm=normaliseText(data.excerpt);
+  let paras=(data.paragraphs?.length?data.paragraphs:String(data.body||"").split(/\n\n+/))
+    .map(p=>String(p||"").trim())
+    .filter(Boolean)
+    .filter(p=>{
+      const n=normaliseText(p);
+      if(!n)return false;
+      if(titleNorm&&n===titleNorm)return false;
+      if(excerptNorm&&(n===excerptNorm||n.startsWith(excerptNorm+" ")))return false;
+      return true;
+    });
+
+  const bodyHTML=paras.length
+    ?paras.map(p=>`<p>${esc(p)}</p>`).join("\n")
+    :`<p>${esc(data.excerpt||data.title||"")}</p>`;
 
   // Share
   const shareLabel=isDv?"ހިއްސާ ކުރޭ":"Share this story";
