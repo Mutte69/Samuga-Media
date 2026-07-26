@@ -29,6 +29,7 @@
         <button class="side-link" data-view="articles"><span>▤</span>Articles</button>
         <button class="side-link" data-view="editor"><span>＋</span>New article</button>
         <button class="side-link" data-view="media"><span>▧</span>Media</button>
+        <button class="side-link publish-only" data-view="contentlab"><span>◫</span>Content Lab <b class="side-badge" id="contentLabBadge" hidden>0</b></button>
         <button class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
         <button class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
@@ -129,6 +130,15 @@
         <div class="media-drop-zone" id="mediaDropZone" tabindex="0"><strong>Drop images or videos here</strong><span>MOV and other phone videos are converted automatically for browsers.</span></div>
         <div class="media-toolbar"><label class="table-search">⌕<input id="mediaSearch" type="search" placeholder="Search file names"></label><select id="mediaTypeFilter"><option value="">All media</option><option value="image">Images</option><option value="video">Videos</option></select></div>
         <div class="media-library-grid" id="mediaLibrary"></div>
+      </section>
+
+
+      <section class="view publish-only" id="view-contentlab">
+        <div class="toolbar"><div><h2>Content Lab</h2><p>The same live review queue used in Telegram. Actions stay synchronized both ways.</p></div><button class="secondary" id="refreshContentLabBtn" type="button">Refresh</button></div>
+        <div class="content-lab-note"><span class="sync-pulse"></span><div><strong>Live Telegram sync</strong><span>Use the same Post to Telegram, Post to Social, Post to All, Edit and Reject actions here. Telegram buttons are closed automatically when you act.</span></div></div>
+        <div class="content-lab-stats"><article><span>Waiting</span><strong id="labStatPending">—</strong></article><article><span>English</span><strong id="labStatEnglish">—</strong></article><article><span>Dhivehi</span><strong id="labStatDhivehi">—</strong></article><article><span>Breaking</span><strong id="labStatBreaking">—</strong></article></div>
+        <div class="content-lab-grid" id="contentLabList"><div class="empty-panel">Loading Content Lab…</div></div>
+        <div class="panel content-lab-history-panel"><div class="panel-head"><div><h2>Recent actions</h2><p>Actions from both Telegram and the dashboard.</p></div></div><div class="article-table" id="contentLabHistory"></div></div>
       </section>
 
       <section class="view publish-only" id="view-publishing">

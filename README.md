@@ -1,9 +1,9 @@
-# Samuga Media — Publishing + Video Newsroom Build 3/4
+# Samuga Media — Build 6 Clean Mobile Feed + Shared Content Lab
 
 This is the public website and desktop newsroom frontend for Samuga Media.
 
 
-## Build 3/4 additions
+## Existing platform features
 
 - Thin, regular-weight Dhivehi typography for easy reading
 - Durable Telegram, Facebook and X publishing queue

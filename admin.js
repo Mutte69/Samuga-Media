@@ -21,8 +21,10 @@ let dirty = false;
 let recoveryTimer = null;
 let mediaSearchTimer = null;
 let publishingRefreshTimer = null;
+let contentLabRefreshTimer = null;
+const contentLabObjectUrls = new Map();
 
-const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",publishing:"Publishing centre",ads:"Advertisements",site:"Website settings",authors:"Author profiles",users:"Newsroom users",activity:"Activity log"};
+const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",contentlab:"Content Lab",publishing:"Publishing centre",ads:"Advertisements",site:"Website settings",authors:"Author profiles",users:"Newsroom users",activity:"Activity log"};
 const PUBLISH_ROLES = new Set(["editor","admin","super_admin"]);
 const ADMIN_ROLES = new Set(["admin","super_admin"]);
 
@@ -78,6 +80,7 @@ function wireStaticEvents() {
   dropZone?.addEventListener("click", () => $("#libraryUpload")?.click());
   dropZone?.addEventListener("keydown", event => { if (["Enter"," "].includes(event.key)) { event.preventDefault(); $("#libraryUpload")?.click(); } });
 
+  $("#refreshContentLabBtn")?.addEventListener("click", loadContentLab);
   $("#checkConnectionsBtn")?.addEventListener("click", checkPublishingConnections);
   $("#refreshPublishingBtn")?.addEventListener("click", loadPublishing);
   $("#retryFailedJobsBtn")?.addEventListener("click", () => retryPublishJob());
@@ -148,6 +151,7 @@ function showApp() {
   $$(".publish-only").forEach(el => el.hidden = !PUBLISH_ROLES.has(user?.role));
   configureRoleControls();
   loadAuthors();
+  if (PUBLISH_ROLES.has(user?.role)) loadContentLab();
   openView("home");
 }
 
@@ -188,8 +192,9 @@ async function api(path, options = {}) {
 function openView(name) {
   if (!TITLES[name]) name = "home";
   if (["ads","site","users","activity"].includes(name) && !ADMIN_ROLES.has(user?.role)) name = "home";
-  if (name === "publishing" && !PUBLISH_ROLES.has(user?.role)) name = "home";
+  if (["contentlab","publishing"].includes(name) && !PUBLISH_ROLES.has(user?.role)) name = "home";
   clearInterval(publishingRefreshTimer); publishingRefreshTimer = null;
+  clearInterval(contentLabRefreshTimer); contentLabRefreshTimer = null;
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".side-link").forEach(button => button.classList.toggle("active", button.dataset.view === name));
   $("#viewTitle").textContent = TITLES[name];
@@ -197,6 +202,7 @@ function openView(name) {
   if (name === "home") loadDashboard();
   if (name === "articles") loadArticles();
   if (name === "media") loadMediaLibrary();
+  if (name === "contentlab") { loadContentLab(); contentLabRefreshTimer = setInterval(loadContentLab, 5000); }
   if (name === "publishing") { loadPublishing(); publishingRefreshTimer = setInterval(loadPublishing, 15000); }
   if (name === "ads") loadAds();
   if (name === "site") loadSiteSettings();
@@ -673,6 +679,84 @@ async function deleteMedia(id) {
   if (!confirm("Remove this item from the media library? Live article files are kept safely.")) return;
   try { const data = await api("/api/admin/media/delete", {method:"POST", body:JSON.stringify({id})}); toast(data.kept_for_article ? "Removed from library; file kept because an article uses it." : "Media deleted"); loadMediaLibrary(); }
   catch (error) { toast(error.message, true); }
+}
+
+
+async function loadContentLab() {
+  if (!PUBLISH_ROLES.has(user?.role)) return;
+  try {
+    const data = await api("/api/admin/content-lab");
+    const items = data.items || [], counts = data.counts || {};
+    $("#labStatPending").textContent = counts.pending ?? items.length;
+    $("#labStatEnglish").textContent = counts.english ?? items.filter(item => item.lang === "en").length;
+    $("#labStatDhivehi").textContent = counts.dhivehi ?? items.filter(item => item.lang === "dv").length;
+    $("#labStatBreaking").textContent = counts.breaking ?? items.filter(item => item.breaking).length;
+    const badge = $("#contentLabBadge");
+    if (badge) { badge.textContent = items.length > 99 ? "99+" : String(items.length); badge.hidden = !items.length; }
+    renderContentLab(items);
+    renderContentLabHistory(data.history || []);
+    await loadContentLabImages(items);
+  } catch (error) { toast(error.message, true); }
+}
+function renderContentLab(items) {
+  const container = $("#contentLabList"); if (!container) return;
+  for (const url of contentLabObjectUrls.values()) URL.revokeObjectURL(url);
+  contentLabObjectUrls.clear();
+  if (!items.length) { container.innerHTML = `<div class="empty-panel">Content Lab is clear. New Telegram review cards will appear here automatically.</div>`; return; }
+  container.innerHTML = items.map(item => {
+    const copy = item.lang === "dv" ? (item.dv_text || item.summary || "") : (item.caption || item.summary || "");
+    const direction = item.lang === "dv" ? "rtl" : "ltr";
+    return `<article class="lab-card ${item.breaking ? "breaking" : ""}" data-lab-key="${attr(item.key)}" dir="${direction}">
+      <div class="lab-card-media">${item.has_card ? `<span class="no-card">Loading card…</span>` : `<span class="no-card">Text preview</span>`}</div>
+      <div class="lab-card-body">
+        <div class="lab-card-kicker"><div><span class="lab-key">${esc(String(item.key || "").toUpperCase())}</span><span class="lab-category">${esc(item.category || "LOCAL")}</span><span class="lab-language">${item.lang === "dv" ? "Dhivehi" : "English"}</span></div><span class="lab-age">${esc(relativeAdminTime(item.created_at))}</span></div>
+        <h3 class="lab-title">${esc(item.title || "Untitled")}</h3>
+        ${copy ? `<div class="lab-copy">${esc(copy)}</div>` : ""}
+        <div class="lab-actions">
+          <button data-lab-action="post_tg" type="button">📣 Post to Telegram</button><button data-lab-action="post_soc" type="button">📱 Post to Social</button>
+          <button class="lab-all" data-lab-action="post_all" type="button">🌐 Post to All</button><button data-lab-edit type="button">✏️ Edit</button><button class="lab-reject" data-lab-action="reject" type="button">❌ Reject</button>
+        </div>
+        <div class="lab-edit-box"><textarea class="lab-edit-text" dir="${direction}" placeholder="Correct the caption or Dhivehi text before posting">${esc(copy)}</textarea><div class="lab-edit-destinations"><button data-lab-edit-action="post_tg" type="button">Save + Telegram</button><button data-lab-edit-action="post_soc" type="button">Save + Social</button><button data-lab-edit-action="post_all" type="button">Save + All</button></div></div>
+      </div></article>`;
+  }).join("");
+  $$('[data-lab-action]', container).forEach(button => button.addEventListener("click", () => runContentLabAction(button.closest("[data-lab-key]"), button.dataset.labAction)));
+  $$('[data-lab-edit]', container).forEach(button => button.addEventListener("click", () => button.closest(".lab-card-body").querySelector(".lab-edit-box")?.classList.toggle("open")));
+  $$('[data-lab-edit-action]', container).forEach(button => button.addEventListener("click", () => {
+    const card = button.closest("[data-lab-key]"); const corrected = card.querySelector(".lab-edit-text")?.value.trim() || "";
+    runContentLabAction(card, button.dataset.labEditAction, corrected);
+  }));
+}
+async function loadContentLabImages(items) {
+  await Promise.all(items.filter(item => item.has_card).map(async item => {
+    try {
+      const response = await fetch(`${API}/api/admin/content-lab/card?key=${encodeURIComponent(item.key)}`, {headers:{Authorization:`Bearer ${token}`},cache:"no-store"});
+      if (!response.ok) return;
+      const blob = await response.blob(), url = URL.createObjectURL(blob); contentLabObjectUrls.set(item.key, url);
+      const media = document.querySelector(`[data-lab-key="${CSS.escape(item.key)}"] .lab-card-media`);
+      if (media) media.innerHTML = `<img src="${url}" alt="Content Lab card for ${attr(item.title || item.key)}">`;
+    } catch {}
+  }));
+}
+async function runContentLabAction(card, action, corrected = "") {
+  if (!card) return;
+  const key = card.dataset.labKey;
+  const label = {post_tg:"Post this card to Telegram? The website will also be published.",post_soc:"Post this card to social platforms? The website will also be published.",post_all:"Post this card everywhere?",reject:"Reject and remove this card?"}[action] || "Continue?";
+  if (!confirm(label)) return;
+  card.classList.add("lab-working");
+  try {
+    const data = await api("/api/admin/content-lab/action", {method:"POST",body:JSON.stringify({key,action,corrected:corrected || null})});
+    toast(data.message || `${String(key).toUpperCase()} action accepted`); await loadContentLab();
+  } catch (error) { card.classList.remove("lab-working"); toast(error.message, true); }
+}
+function renderContentLabHistory(rows) {
+  const container = $("#contentLabHistory"); if (!container) return;
+  if (!rows.length) { container.innerHTML = `<div class="empty-panel">No Content Lab actions recorded yet.</div>`; return; }
+  container.innerHTML = `<div class="table-row header"><span>Card</span><span>Action</span><span>Status</span><span>Time</span><span></span></div>` + rows.map(row => `<div class="table-row"><div class="article-cell"><strong>${esc(String(row.key || "").toUpperCase())} — ${esc(row.title || "Untitled")}</strong><span>${esc(row.actor || "Samuga team")} · ${esc(row.origin || "Telegram")}</span></div><span>${esc((row.action || "—").replaceAll("_"," "))}</span><span class="lab-status ${esc(row.status || "")}">${esc(row.status || "—")}</span><span>${esc(shortDateTime(row.actioned_at || row.updated_at || row.created_at))}</span><span></span></div>`).join("");
+}
+function relativeAdminTime(value) {
+  if (!value) return "now"; const date = new Date(value); if (Number.isNaN(date.getTime())) return "now";
+  const sec = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+  if (sec < 60) return "now"; if (sec < 3600) return `${Math.floor(sec/60)}m ago`; if (sec < 86400) return `${Math.floor(sec/3600)}h ago`; return `${Math.floor(sec/86400)}d ago`;
 }
 
 async function loadPublishing() {
