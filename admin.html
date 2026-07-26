@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="10">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="11">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -182,7 +182,7 @@
       </section>
 
       <section class="view publish-only" id="view-analytics">
-        <div class="toolbar"><div><h2>Web analytics</h2><p>First-party website traffic without storing readers’ raw IP addresses.</p></div><label class="analytics-range">Range<select id="analyticsDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label></div>
+        <div class="toolbar"><div><h2>Web analytics</h2><p>First-party website traffic without storing readers’ raw IP addresses.</p></div><div class="toolbar-actions"><button class="secondary" id="refreshAnalyticsBtn" type="button">Refresh</button><label class="analytics-range">Range<select id="analyticsDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label></div></div>
         <div class="stat-grid analytics-stats"><article><span>Pageviews</span><strong id="analyticsViews">—</strong></article><article><span>Visitors</span><strong id="analyticsVisitors">—</strong></article><article><span>Views today</span><strong id="analyticsTodayViews">—</strong></article><article><span>Visitors today</span><strong id="analyticsTodayVisitors">—</strong></article></div>
         <div class="analytics-grid">
           <section class="panel analytics-wide"><div class="panel-head"><div><h2>Traffic trend</h2><p>Daily pageviews and visitors.</p></div></div><div class="analytics-bars" id="analyticsTrend"></div></section>
@@ -237,6 +237,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build10.js"></script>
+  <script src="admin-build11.js"></script>
 </body>
 </html>
