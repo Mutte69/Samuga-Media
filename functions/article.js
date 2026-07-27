@@ -104,7 +104,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="11"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="12"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -142,7 +142,7 @@ function page(article, id, settings = {}) {
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('${url}');e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build11.js"></script>
+    <script src="/analytics-build12.js"></script>
   </body></html>`;
 }
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="11">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="12">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build10.css">
+  <link rel="stylesheet" href="admin-build12.css">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -183,9 +183,23 @@
 
       <section class="view publish-only" id="view-analytics">
         <div class="toolbar"><div><h2>Web analytics</h2><p>First-party website traffic without storing readers’ raw IP addresses.</p></div><div class="toolbar-actions"><button class="secondary" id="refreshAnalyticsBtn" type="button">Refresh</button><label class="analytics-range">Range<select id="analyticsDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label></div></div>
-        <div class="stat-grid analytics-stats"><article><span>Pageviews</span><strong id="analyticsViews">—</strong></article><article><span>Visitors</span><strong id="analyticsVisitors">—</strong></article><article><span>Views today</span><strong id="analyticsTodayViews">—</strong></article><article><span>Visitors today</span><strong id="analyticsTodayVisitors">—</strong></article></div>
+        <div class="analytics-source-note">
+          <div><strong>Samuga first-party page analytics</strong><span id="analyticsCoverage">Waiting for the first tracked public page load.</span></div>
+          <p id="analyticsComparison">Cloudflare request totals are a different metric and are not imported here.</p>
+        </div>
+        <div class="stat-grid analytics-stats"><article><span>Tracked pageviews</span><strong id="analyticsViews">—</strong></article><article><span>Unique browsers</span><strong id="analyticsVisitors">—</strong></article><article><span>Views today</span><strong id="analyticsTodayViews">—</strong></article><article><span>Browsers today</span><strong id="analyticsTodayVisitors">—</strong></article></div>
+        <section class="panel cloudflare-analytics" id="cloudflareAnalyticsPanel">
+          <div class="panel-head"><div><h2>Cloudflare zone overview</h2><p>Historical edge traffic from Cloudflare, kept separate from Samuga browser events.</p></div><span class="status-pill draft" id="cloudflareAnalyticsStatus">Optional</span></div>
+          <div class="cloudflare-analytics-message" id="cloudflareAnalyticsMessage">Add the Cloudflare analytics credentials in Railway to show historical zone data here.</div>
+          <div class="stat-grid cloudflare-stats" id="cloudflareAnalyticsStats" hidden>
+            <article><span>Edge requests</span><strong id="cloudflareRequests">—</strong></article>
+            <article><span>HTML page views</span><strong id="cloudflarePageviews">—</strong></article>
+            <article><span>Peak daily uniques</span><strong id="cloudflareUniques">—</strong></article>
+            <article><span>Data range</span><strong id="cloudflareRange">—</strong></article>
+          </div>
+        </section>
         <div class="analytics-grid">
-          <section class="panel analytics-wide"><div class="panel-head"><div><h2>Traffic trend</h2><p>Daily pageviews and visitors.</p></div></div><div class="analytics-bars" id="analyticsTrend"></div></section>
+          <section class="panel analytics-wide"><div class="panel-head"><div><h2>Traffic trend</h2><p>Real public page loads recorded by Samuga after tracking began.</p></div><div class="analytics-legend"><span><i></i>Pageviews</span><span><b></b>Browsers</span></div></div><div class="analytics-bars" id="analyticsTrend"></div></section>
           <section class="panel"><div class="panel-head"><div><h2>Devices</h2></div></div><div class="analytics-list" id="analyticsDevices"></div></section>
           <section class="panel analytics-wide"><div class="panel-head"><div><h2>Top pages and stories</h2></div></div><div class="analytics-table" id="analyticsTopPages"></div></section>
           <section class="panel"><div class="panel-head"><div><h2>Referrers</h2></div></div><div class="analytics-list" id="analyticsReferrers"></div></section>
@@ -237,6 +251,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build11.js"></script>
+  <script src="admin-build12.js"></script>
 </body>
 </html>

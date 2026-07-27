@@ -10,5 +10,5 @@
 - Existing public API wildcard CORS behavior remained unchanged.
 - Browser tracker used same-origin `/api/track` with `credentials: omit`.
 - Cloudflare proxy forwarded JSON to Railway.
-- Cloudflare-rendered article and story pages included `analytics-build11.js`.
+- Cloudflare-rendered article and story pages included `analytics-build12.js`.
 - Full Python compilation, JavaScript syntax checks, HTML reference checks and archive integrity checks passed.
