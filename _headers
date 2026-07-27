@@ -1,0 +1,12 @@
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/admin*
+  Cache-Control: no-cache, no-store, must-revalidate
+/site-build15-2.css
+  Cache-Control: public, max-age=31536000, immutable
+/site-build15-2.js
+  Cache-Control: public, max-age=31536000, immutable
+/admin-build15-2.css
+  Cache-Control: public, max-age=31536000, immutable
+/admin-build15-2.js
+  Cache-Control: public, max-age=31536000, immutable
