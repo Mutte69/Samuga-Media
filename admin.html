@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="15.2">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="15.8">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build15-2.css?v=15.2">
+  <link rel="stylesheet" href="admin-build15-9.css?v=15.9">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -33,6 +33,7 @@
         <button type="button" class="side-link publish-only" data-view="socialcard"><span>▰</span>Social card creation</button>
         <button type="button" class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
         <button type="button" class="side-link publish-only" data-view="analytics"><span>⌁</span>Web analytics</button>
+        <button type="button" class="side-link publish-only" data-view="aiusage"><span>◌</span>AI Usage <b class="side-badge danger" id="aiUsageAlertBadge" hidden>0</b></button>
         <button type="button" class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button type="button" class="side-link admin-only" data-view="site"><span>⚙</span>Site</button>
         <button type="button" class="side-link" data-view="authors"><span>◉</span>Authors</button>
@@ -208,6 +209,68 @@
         <p class="analytics-privacy" id="analyticsPrivacy"></p>
       </section>
 
+
+      <section class="view publish-only" id="view-aiusage">
+        <div class="toolbar ai-usage-toolbar">
+          <div><h2>AI Usage & Diagnostics</h2><p>Provider-level telemetry from Samuga's own database. Prompts and responses are not stored.</p></div>
+          <div class="toolbar-actions"><button class="secondary" id="refreshAIUsageBtn" type="button">Refresh</button><label class="analytics-range">Range<select id="aiUsageDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label></div>
+        </div>
+
+        <div class="ai-usage-status-note"><div><strong>Live bot telemetry</strong><span id="aiUsageGeneratedAt">Waiting for data.</span></div><p>Costs are estimates based on configured model pricing. Provider invoices remain the final billing record.</p></div>
+
+        <div class="provider-guard-grid">
+          <section class="panel provider-guard-card" id="geminiGuardPanel">
+            <div class="panel-head"><div><h2>Gemini Cost Guard</h2><p>Key/project identity, live caps, retries and automatic stop state.</p></div><span class="status-pill draft" id="geminiGuardStatus">Loading</span></div>
+            <div class="provider-guard-body" id="geminiGuardBody"><div class="empty-panel">Waiting for diagnostics.</div></div>
+            <div class="provider-guard-actions"><button class="secondary compact admin-only" id="toggleGeminiBtn" type="button">Disable Gemini</button></div>
+          </section>
+          <section class="panel provider-guard-card" id="bufferGuardPanel">
+            <div class="panel-head"><div><h2>Buffer Diagnostics</h2><p>Exact API errors, requests, channels, retries, idempotency and official rate headers.</p></div><span class="status-pill draft" id="bufferGuardStatus">Loading</span></div>
+            <div class="provider-guard-body" id="bufferGuardBody"><div class="empty-panel">Waiting for diagnostics.</div></div>
+            <div class="provider-guard-actions admin-only"><button class="secondary compact" id="testBufferConnectionBtn" type="button">Test connection</button><button class="secondary compact" id="testBufferPostBtn" type="button">Queue test post</button><button class="secondary compact" id="resetBufferCooldownBtn" type="button">Reset cooldown</button><button class="secondary compact" id="toggleBufferBtn" type="button">Disable auto Buffer</button></div>
+          </section>
+        </div>
+        <section class="panel provider-incident-panel"><div class="panel-head"><div><h2>Incident evidence & limits</h2><p id="providerEvidenceText">Loading telemetry coverage.</p></div></div><div class="provider-incident-grid" id="providerIncidentFacts"></div></section>
+
+        <div class="stat-grid ai-today-stats">
+          <article><span>Requests today</span><strong id="aiTodayRequests">—</strong></article>
+          <article><span>Tokens today</span><strong id="aiTodayTokens">—</strong></article>
+          <article><span>Estimated cost today</span><strong id="aiTodayCost">—</strong></article>
+          <article><span>Errors today</span><strong id="aiTodayErrors">—</strong></article>
+          <article><span>Blocked today</span><strong id="aiTodayBlocked">—</strong></article>
+        </div>
+        <div class="ai-provider-strip" id="aiTodayProviders"></div>
+
+        <section class="panel ai-alert-panel">
+          <div class="panel-head"><div><h2>Usage alerts</h2><p>Loops, repeated article processing, retry storms, token spikes and provider failures.</p></div><span class="status-pill draft" id="aiAlertCount">0 open</span></div>
+          <div class="ai-alert-list" id="aiUsageAlerts"><div class="empty-panel">No open AI usage alerts.</div></div>
+        </section>
+
+        <div class="ai-usage-grid">
+          <section class="panel ai-usage-wide"><div class="panel-head"><div><h2>Feature breakdown</h2><p>Share of requests, tokens and estimated cost by News Bot feature.</p></div></div><div class="ai-feature-list" id="aiFeatureBreakdown"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Error dashboard</h2><p>Grouped provider and transport failures.</p></div></div><div class="ai-error-grid" id="aiErrorBreakdown"></div></section>
+          <section class="panel ai-usage-full"><div class="panel-head"><div><h2>Provider breakdown</h2><p>Claude, Gemini, OpenAI and DeepSeek in one view.</p></div></div><div class="ai-provider-grid" id="aiProviderBreakdown"></div></section>
+          <section class="panel ai-usage-full"><div class="panel-head"><div><h2>Daily graphs</h2><p>Requests, tokens, estimated cost and errors over the selected range.</p></div></div><div class="ai-daily-graphs" id="aiDailyGraphs"></div></section>
+          <section class="panel ai-usage-wide"><div class="panel-head"><div><h2>Top 20 most expensive requests</h2><p>Largest estimated costs in the selected range.</p></div></div><div class="ai-data-table" id="aiTopExpensive"></div></section>
+          <section class="panel"><div class="panel-head"><div><h2>Monthly summary</h2><p>Current Maldives calendar month.</p></div></div><div class="ai-monthly-list" id="aiMonthlySummary"></div></section>
+        </div>
+
+        <section class="panel ai-live-panel">
+          <div class="panel-head"><div><h2>Live request stream</h2><p>Newest requests first. Article titles and source URLs are visible only inside this admin view.</p></div><span id="aiLiveCount">0 requests</span></div>
+          <div class="ai-live-filters">
+            <label>Provider<select id="aiFilterProvider"><option value="">All providers</option></select></label>
+            <label>Feature<select id="aiFilterFeature"><option value="">All features</option></select></label>
+            <label>Model<select id="aiFilterModel"><option value="">All models</option></select></label>
+            <label>Status<select id="aiFilterStatus"><option value="">All statuses</option><option value="success">Success</option><option value="error">Errors</option><option value="blocked">Blocked</option><option value="pending">In progress</option><option value="429">HTTP 429</option><option value="500">HTTP 500</option></select></label>
+            <label>From<input type="date" id="aiFilterFrom"></label>
+            <label>To<input type="date" id="aiFilterTo"></label>
+            <button class="secondary compact" type="button" id="aiClearFiltersBtn">Clear</button>
+          </div>
+          <div class="ai-data-table ai-live-table" id="aiLiveRequests"><div class="empty-panel">No AI requests recorded yet.</div></div>
+          <div class="ai-load-more"><button class="secondary" id="aiLoadMoreBtn" type="button" hidden>Load more</button></div>
+        </section>
+      </section>
+
       <section class="view" id="view-ads">
         <div class="toolbar"><div><h2>Advertisements</h2><p>Keep full artwork visible and schedule campaigns when needed.</p></div><button class="primary" id="newAdBtn">Add advertisement</button></div>
         <div class="panel"><div class="article-table" id="adList"></div></div>
@@ -251,6 +314,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build15-2.js?v=15.2"></script>
+  <script src="admin-build15-9.js?v=15.9"></script>
 </body>
 </html>

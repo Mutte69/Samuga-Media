@@ -10,3 +10,7 @@
   Cache-Control: public, max-age=31536000, immutable
 /admin-build15-2.js
   Cache-Control: public, max-age=31536000, immutable
+/admin-build15-8.css
+  Cache-Control: public, max-age=31536000, immutable
+/admin-build15-8.js
+  Cache-Control: public, max-age=31536000, immutable
