@@ -1,0 +1,9 @@
+# No new required variables. Keep Build 15.9.5 settings.
+
+# Recommended image tuning
+TAVILY_IMAGE_MAX_RESULTS=6
+TAVILY_IMAGE_RELEVANCE_MIN_SCORE=2.0
+
+# Confirm these existing values remain active
+IMAGE_SEARCH_PROVIDER_ORDER=tavily,pexels
+TAVILY_IMAGE_SEARCH_ENABLED=true

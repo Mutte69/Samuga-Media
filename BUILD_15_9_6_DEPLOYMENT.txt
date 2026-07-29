@@ -1,0 +1,24 @@
+SAMUGA MEDIA — BUILD 15.9.6 DEPLOYMENT
+======================================
+
+1. Deploy the contents of:
+   Samuga-News-Bot-Build-15.9.6-Relevant-Social-Images-Backend.zip
+   to the Samuga News Bot Railway service.
+
+2. No Cloudflare website deployment is required.
+
+3. Keep all existing Build 15.9.5 variables and API keys.
+
+4. Optional image-tuning variables:
+   TAVILY_IMAGE_MAX_RESULTS=6
+   TAVILY_IMAGE_RELEVANCE_MIN_SCORE=2.0
+
+5. Confirm startup shows:
+   Samuga AI v15.9.6 starting
+   Image search providers: order=tavily,pexels Tavily=True Pexels=True
+
+6. For a named political/person story, expect:
+   [IMAGE] selected real/relevant Tavily photo for social + website
+
+7. When Tavily has no trustworthy match, expect:
+   Tavily exact image unavailable — Maldives scenic fallback
