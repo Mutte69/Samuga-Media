@@ -413,3 +413,9 @@ body.page-leaving{opacity:0;transform:translateY(5px);transition:opacity .18s ea
 .news-strip strong{color:var(--brand)}
 .news-strip.is-breaking{background:color-mix(in srgb,var(--danger) 7%,var(--surface));border-block-color:color-mix(in srgb,var(--danger) 26%,var(--line))}
 .news-strip.is-breaking strong{color:var(--danger)}
+
+/* Build 15.9.7: never show a branding placeholder as news photography. */
+.lead-story.lead-story-no-media{grid-template-columns:1fr}
+.lead-story.lead-story-no-media .lead-media{display:none!important}
+.story-card.no-cover .card-body{padding-top:22px}
+.story-card.no-cover{border-top:3px solid var(--cat,var(--brand))}
