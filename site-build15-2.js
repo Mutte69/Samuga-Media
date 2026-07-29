@@ -89,12 +89,15 @@ function renderStrip(){
   const pool=stories.filter(s=>s.lang===activeLang).sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
   const bar=$("#newsStrip");
   if(!pool.length){bar.hidden=true;bar.setAttribute("aria-hidden","true");return}
-  const freshBreaking=pool.find(s=>(s.breaking||s.category==="BREAKING")&&storyAgeMs(s)<=6*60*60*1000);
-  if(freshBreaking){setStripStory(freshBreaking,activeLang==="dv"?"ބްރޭކިންގ":"Breaking",true);return}
-  const livePool=pool.slice(0,Math.min(5,pool.length));
-  const label=activeLang==="dv"?"ލައިވް އަޕްޑޭޓް":"Live update";
-  setStripStory(livePool[0],label);
-  if(livePool.length>1){stripRotationTimer=setInterval(()=>{stripRotationIndex=(stripRotationIndex+1)%livePool.length;setStripStory(livePool[stripRotationIndex],label)},7000)}
+  const livePool=pool.slice(0,Math.min(8,pool.length));
+  const showCurrent=()=>{
+    const story=livePool[stripRotationIndex];
+    const isBreaking=Boolean((story.breaking||story.category==="BREAKING")&&storyAgeMs(story)<=6*60*60*1000);
+    const label=isBreaking?(activeLang==="dv"?"ބްރޭކިންގ":"Breaking"):(activeLang==="dv"?"ލައިވް އަޕްޑޭޓް":"Live update");
+    setStripStory(story,label,isBreaking);
+  };
+  showCurrent();
+  if(livePool.length>1){stripRotationTimer=setInterval(()=>{stripRotationIndex=(stripRotationIndex+1)%livePool.length;showCurrent()},6000)}
 }
 function renderFeatured(){
   const pool=stories.filter(s=>s.lang===activeLang);const s=pool.find(x=>x.featured)||pool[0];if(!s)return;
@@ -110,7 +113,7 @@ function renderCards(){
   const ads=dynamicSponsors.length?[...dynamicSponsors,...SPONSORS]:SPONSORS;const html=[];pool.forEach((s,i)=>{html.push(cardHTML(s));if((i+1)%6===0&&ads.length)html.push(adHTML(ads[Math.floor(i/6)%ads.length]))});grid.innerHTML=html.join("")
 }
 function cardHTML(s){
-  const cat=(activeLang==="dv"?CATS_DV:CATS)[s.category]||s.category;const media=s.cover_video?`<div class="card-media">${s.video_poster?`<img src="${attr(s.video_poster)}" alt="" loading="lazy">`:`<div class="video-poster-fallback" aria-hidden="true">▶</div>`}<span class="video-badge">▶ Video</span></div>`:s.cover_image?`<div class="card-media"><img src="${attr(s.cover_image)}" alt="" loading="lazy"></div>`:"";
+  const cat=(activeLang==="dv"?CATS_DV:CATS)[s.category]||s.category;const media=s.cover_video?`<div class="card-media">${s.video_poster?`<img src="${attr(s.video_poster)}" alt="" loading="lazy">`:`<div class="video-poster-fallback" aria-hidden="true">▶</div>`}<span class="video-badge">▶ Video</span></div>`:s.cover_image?`<div class="card-media"><img src="${attr(s.cover_image)}" alt="" loading="lazy"></div>`:`<div class="card-media card-media-fallback"><img src="${FALLBACK_IMG}" alt="Samuga Media" loading="lazy"></div>`;
   const author=s.author?.name||"Samuga AI";const avatar=s.author?.photo?`<img src="${attr(s.author.photo)}" alt="${esc(author)}" loading="lazy">`:`<span class="author-fallback">S</span>`;
   return`<a class="story-card" style="--cat:${COLORS[s.category]||COLORS.LOCAL}" role="listitem" href="${attr(articleHref(s))}" aria-label="${attr(s.title)}" dir="${s.lang==="dv"?"rtl":"ltr"}">${media}<div class="card-body"><div class="card-kicker"><strong>${esc(cat)}</strong><span>${esc(relativeTime(s.time))}</span></div><h3 class="card-title">${esc(s.title)}</h3>${s.summary?`<p class="card-summary">${esc(s.summary)}</p>`:""}<div class="card-footer"><div class="author-chip" dir="ltr">${avatar}<span>${esc(author)}</span></div><span class="read-time">${s.reading_time?`${esc(s.reading_time)} min read`:"Samuga Media"}</span></div></div></a>`
 }
