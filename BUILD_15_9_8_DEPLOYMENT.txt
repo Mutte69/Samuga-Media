@@ -1,0 +1,30 @@
+SAMUGA MEDIA BUILD 15.9.8 — EVERY ARTICLE COVER GUARANTEE
+
+STEP 1 — CLOUDFLARE PAGES
+Deploy:
+Samuga-Media-Build-15.9.8-Every-Article-Cover-Website.zip
+
+This immediately gives every homepage card and article page a deterministic
+Maldives scenery cover whenever the stored cover is empty or broken.
+Hard refresh samugamedia.com after deployment.
+
+STEP 2 — RAILWAY BACKEND
+Deploy:
+Samuga-News-Bot-Build-15.9.8-Cover-Guarantee-Backend.zip
+
+Add/update the variables from BUILD_15_9_8_RAILWAY_VARS.txt.
+
+Expected startup log:
+Samuga AI v15.9.8 starting
+Website cover guarantee active
+
+Expected repair log:
+[WEB COVER REPAIR] replaced missing/placeholder cover
+
+BEHAVIOUR
+1. Relevant Tavily image
+2. Maldives scenery through Pexels
+3. Bundled offline Maldives scenery
+4. Database/API/browser safety fallback
+
+A public article is never intentionally returned without a cover image.
