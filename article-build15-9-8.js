@@ -10,6 +10,7 @@ const SCENIC_COVERS = [
   "assets/maldives-scenic/island-harbour.jpg"
 ];
 const scenicCover = key => {let h=2166136261;for(const ch of String(key||"samuga")){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return SCENIC_COVERS[(h>>>0)%SCENIC_COVERS.length]};
+const brandedCover = id => `${API}/api/article-cover/${encodeURIComponent(String(id||"article"))}.jpg`;
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
 }[ch]));
@@ -98,11 +99,12 @@ function render(article) {
 }
 
 function articleMarkup(article, url, dv) {
-  const fallbackCover = scenicCover(`${article.id||""}|${article.title||""}`);
+  const fallbackCover = brandedCover(article.id);
+  const outageFallback = scenicCover(`${article.id||""}|${article.title||""}`);
   const coverImage = article.cover_image || fallbackCover;
   const cover = article.cover_video
     ? `<div class="article-cover article-cover-top"><video src="${attr(article.cover_video)}" poster="${attr(article.video_poster || coverImage)}" controls playsinline preload="metadata"></video>${article.cover_caption ? `<p class="media-caption">${esc(article.cover_caption)}</p>` : ""}</div>`
-    : `<div class="article-cover article-cover-top"><img src="${attr(coverImage)}" alt="${esc(article.cover_caption || article.title || "")}" fetchpriority="high" onerror="this.onerror=null;this.src='${attr(fallbackCover)}'">${article.cover_caption ? `<p class="media-caption">${esc(article.cover_caption)}</p>` : ""}</div>`;
+    : `<div class="article-cover article-cover-top"><img src="${attr(coverImage)}" alt="${esc(article.cover_caption || article.title || "")}" fetchpriority="high" onerror="this.onerror=null;this.src='${attr(outageFallback)}'">${article.cover_caption ? `<p class="media-caption">${esc(article.cover_caption)}</p>` : ""}</div>`;
 
   const author = article.author || {};
   const avatar = author.photo

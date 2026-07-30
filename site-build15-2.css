@@ -442,19 +442,3 @@ body.page-leaving{opacity:0;transform:translateY(5px);transition:opacity .18s ea
     left:10px;top:10px;width:108px;height:34px;
   }
 }
-
-/* Build 15.9.8.2 — one-by-one Live Update / Breaking headline slider. */
-.news-strip-inner{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center}
-.news-strip-window{min-width:0;overflow:hidden;position:relative}
-.news-strip-slide{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;transform:translateY(0);opacity:1;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .18s ease}
-.news-strip-slide.strip-leave{transform:translateY(-115%);opacity:0}
-.news-strip-slide.strip-enter{transform:translateY(115%);opacity:0;transition:none}
-.news-strip-slide a{min-width:0}
-.news-strip-slide span{margin-inline-start:0}
-@media(max-width:760px){
-  .news-strip-inner{grid-template-columns:auto minmax(0,1fr);padding:0 16px;gap:10px}
-  .news-strip-slide{grid-template-columns:minmax(0,1fr) auto;gap:10px}
-}
-@media(prefers-reduced-motion:reduce){
-  .news-strip-slide{transition:none!important;transform:none!important;opacity:1!important}
-}

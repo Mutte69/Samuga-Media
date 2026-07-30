@@ -1,6 +1,6 @@
 "use strict";
 const API="https://samuga-news-bot-production.up.railway.app";
-const SAMUGA_SITE_BUILD="15.9.8.2";
+const SAMUGA_SITE_BUILD="15.9.8.1";
 const FALLBACK_IMG="assets/SamugaNewsBot_Profile.png";
 const SCENIC_COVERS=[
   "assets/maldives-scenic/male-city.jpg",
@@ -25,7 +25,7 @@ const UI={
  dv:{latest:"އެންމެ ފަހުގެ ޚަބަރުތައް",top:"މުހިންމު ޚަބަރުތައް",search:"ޚަބަރު ހޯދާ",empty:"ޚަބަރެއް ނުފެނުނު",hint:"އެހެން ކެޓަގަރީއެއް ނުވަތަ ހޯދުމެއް ކޮށްލާ.",read:"ޚަބަރު ކިޔާ",footer:"ދިވެހިރާއްޖޭގެ ޚަބަރު ފަސޭހަކޮށް.",chat:"ދިވެހިރާއްޖޭގެ ޚަބަރު އެސިސްޓެންޓް"}
 };
 let stories=[],activeLang=localStorage.getItem("samuga-lang")||"en",activeCat="all",dynamicSponsors=[],siteSettings={tagline_en:UI.en.footer,tagline_dv:UI.dv.footer,community_url:"https://t.me/samugacommunity",tip_url:"https://t.me/Samuga_Media",show_ai_chat:true,default_theme:"system"};
-let stripRotationTimer=null,stripRotationIndex=0,storyRefreshTimer=null,stripAnimationToken=0;
+let stripRotationTimer=null,stripRotationIndex=0,storyRefreshTimer=null;
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const attr=s=>esc(s).replace(/`/g,"&#096;");
@@ -94,43 +94,27 @@ function storyAgeMs(story){
   const raw=story?.time||"";const stamp=new Date(raw).getTime();
   return Number.isFinite(stamp)?Math.max(0,Date.now()-stamp):Number.POSITIVE_INFINITY;
 }
-function setStripStory(story,label,isBreaking=false,animate=false){
-  const bar=$("#newsStrip"),labelEl=$("#stripLabel"),link=$("#stripLink"),time=$("#stripTime"),slide=$("#stripSlide");
-  if(!bar||!story||!link||!time)return;
-  const applyStory=()=>{
-    bar.hidden=false;bar.removeAttribute("aria-hidden");bar.classList.toggle("is-breaking",Boolean(isBreaking));
-    if(labelEl)labelEl.textContent=label;
-    link.textContent=story.title;link.href=articleHref(story);time.textContent=relativeTime(story.time);
-  };
-  const reducedMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  if(!animate||!slide||reducedMotion){applyStory();return}
-  const token=++stripAnimationToken;
-  slide.classList.remove("strip-enter");
-  slide.classList.add("strip-leave");
-  window.setTimeout(()=>{
-    if(token!==stripAnimationToken)return;
-    applyStory();
-    slide.classList.remove("strip-leave");
-    slide.classList.add("strip-enter");
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      if(token===stripAnimationToken)slide.classList.remove("strip-enter");
-    }));
-  },220);
+function setStripStory(story,label,isBreaking=false){
+  const bar=$("#newsStrip"),labelEl=$("#stripLabel"),link=$("#stripLink"),time=$("#stripTime");
+  if(!bar||!story)return;
+  bar.hidden=false;bar.removeAttribute("aria-hidden");bar.classList.toggle("is-breaking",Boolean(isBreaking));
+  if(labelEl)labelEl.textContent=label;
+  link.textContent=story.title;link.href=articleHref(story);time.textContent=relativeTime(story.time);
 }
 function renderStrip(){
-  clearInterval(stripRotationTimer);stripRotationTimer=null;stripRotationIndex=0;stripAnimationToken++;
-  const pool=stories.filter(s=>s.lang===activeLang&&storyAgeMs(s)<=4*60*60*1000).sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
+  clearInterval(stripRotationTimer);stripRotationTimer=null;stripRotationIndex=0;
+  const pool=stories.filter(s=>s.lang===activeLang).sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
   const bar=$("#newsStrip");
   if(!pool.length){bar.hidden=true;bar.setAttribute("aria-hidden","true");return}
   const livePool=pool.slice(0,Math.min(8,pool.length));
-  const showCurrent=(animate=false)=>{
+  const showCurrent=()=>{
     const story=livePool[stripRotationIndex];
-    const isBreaking=Boolean((story.breaking||story.category==="BREAKING")&&storyAgeMs(story)<=30*60*1000);
+    const isBreaking=Boolean((story.breaking||story.category==="BREAKING")&&storyAgeMs(story)<=6*60*60*1000);
     const label=isBreaking?(activeLang==="dv"?"ބްރޭކިންގ":"Breaking"):(activeLang==="dv"?"ލައިވް އަޕްޑޭޓް":"Live update");
-    setStripStory(story,label,isBreaking,animate);
+    setStripStory(story,label,isBreaking);
   };
-  showCurrent(false);
-  if(livePool.length>1){stripRotationTimer=setInterval(()=>{stripRotationIndex=(stripRotationIndex+1)%livePool.length;showCurrent(true)},6000)}
+  showCurrent();
+  if(livePool.length>1){stripRotationTimer=setInterval(()=>{stripRotationIndex=(stripRotationIndex+1)%livePool.length;showCurrent()},6000)}
 }
 function renderFeatured(){
   const pool=stories.filter(s=>s.lang===activeLang);const s=pool.find(x=>x.featured)||pool[0];if(!s)return;
