@@ -419,3 +419,42 @@ body.page-leaving{opacity:0;transform:translateY(5px);transition:opacity .18s ea
 .lead-story.lead-story-no-media .lead-media{display:none!important}
 .story-card.no-cover .card-body{padding-top:22px}
 .story-card.no-cover{border-top:3px solid var(--cat,var(--brand))}
+
+
+/* Build 15.9.8.1 — permanent Samuga branding on every visible news cover. */
+.card-media::after,
+.lead-media::after,
+.article-cover-top::after{
+  content:"";
+  position:absolute;
+  z-index:4;
+  left:14px;
+  top:14px;
+  width:132px;
+  height:42px;
+  pointer-events:none;
+  background:url("assets/Samuga_Media_Logo_Transparent.png") left center/contain no-repeat;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.8));
+}
+.article-cover-top{position:relative;overflow:hidden;border-radius:14px}
+@media(max-width:760px){
+  .card-media::after,.lead-media::after,.article-cover-top::after{
+    left:10px;top:10px;width:108px;height:34px;
+  }
+}
+
+/* Build 15.9.8.2 — one-by-one Live Update / Breaking headline slider. */
+.news-strip-inner{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center}
+.news-strip-window{min-width:0;overflow:hidden;position:relative}
+.news-strip-slide{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;transform:translateY(0);opacity:1;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .18s ease}
+.news-strip-slide.strip-leave{transform:translateY(-115%);opacity:0}
+.news-strip-slide.strip-enter{transform:translateY(115%);opacity:0;transition:none}
+.news-strip-slide a{min-width:0}
+.news-strip-slide span{margin-inline-start:0}
+@media(max-width:760px){
+  .news-strip-inner{grid-template-columns:auto minmax(0,1fr);padding:0 16px;gap:10px}
+  .news-strip-slide{grid-template-columns:minmax(0,1fr) auto;gap:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .news-strip-slide{transition:none!important;transform:none!important;opacity:1!important}
+}
