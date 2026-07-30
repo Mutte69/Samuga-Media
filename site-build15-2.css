@@ -421,27 +421,9 @@ body.page-leaving{opacity:0;transform:translateY(5px);transition:opacity .18s ea
 .story-card.no-cover{border-top:3px solid var(--cat,var(--brand))}
 
 
-/* Build 15.9.8.1 — permanent Samuga branding on every visible news cover. */
-.card-media::after,
-.lead-media::after,
-.article-cover-top::after{
-  content:"";
-  position:absolute;
-  z-index:4;
-  left:14px;
-  top:14px;
-  width:132px;
-  height:42px;
-  pointer-events:none;
-  background:url("assets/Samuga_Media_Logo_Transparent.png") left center/contain no-repeat;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,.8));
-}
+/* Build 15.9.8.5 — covers are branded by the backend card renderer.
+   Do not add a second website-level Samuga logo overlay. */
 .article-cover-top{position:relative;overflow:hidden;border-radius:14px}
-@media(max-width:760px){
-  .card-media::after,.lead-media::after,.article-cover-top::after{
-    left:10px;top:10px;width:108px;height:34px;
-  }
-}
 
 /* Build 15.9.8.4 — continuous multilingual Live Update / Breaking ticker. */
 .news-strip-inner{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px}
