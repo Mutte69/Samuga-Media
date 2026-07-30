@@ -3,7 +3,7 @@
 const API = "https://samuga-news-bot-production.up.railway.app";
 const TOKEN_KEY = "samuga-newsroom-token";
 const RECOVERY_KEY = "samuga-newsroom-recovery-v2";
-const SAMUGA_BUILD = "15.8";
+const SAMUGA_BUILD = "15.9.8.9";
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
@@ -23,6 +23,7 @@ let recoveryTimer = null;
 let mediaSearchTimer = null;
 let publishingRefreshTimer = null;
 let currentSocialCard = null;
+let socialCardRefreshTimer = null;
 let contentLabRefreshTimer = null;
 let analyticsRefreshTimer = null;
 let contentLabRefreshInFlight = false;
@@ -83,7 +84,7 @@ async function createSocialCard(event) {
     $("#socialCardGenerated").innerHTML = `<img src="${attr(data.card.card_url)}?v=${Date.now()}" alt="Generated Samuga Media social card"><div class="social-card-caption-preview"><strong>Posting caption</strong><p>${esc(data.card.caption.replace(/<[^>]+>/g,""))}</p></div>`;
     $("#socialCardPostActions").hidden = false;
     localStorage.removeItem("samuga-social-card-draft-v1");
-    toast("Social card created"); loadSocialCards();
+    toast(data.message || "Social card created", data.telegram_synced === false); loadSocialCards();
   } catch (error) { $("#socialCardError").textContent = error.message; }
   finally { button.disabled = false; button.textContent = "Create card"; }
 }
@@ -105,7 +106,16 @@ async function loadSocialCards() {
   try {
     const data = await api("/api/admin/social-cards");
     const cards = data.cards || [];
-    container.innerHTML = cards.length ? cards.map(card => `<article class="social-history-card"><img src="${attr(card.card_url)}" alt=""><div><strong>${esc(card.headline)}</strong><span>${esc(card.category)} · ${esc(shortDateTime(card.created_at))}</span><span class="status-pill ${card.status === "created" ? "draft" : "posted"}">${esc(card.status.replaceAll("_"," "))}</span></div><button class="secondary compact" data-reuse-social-card="${attr(card.card_id)}">Open</button></article>`).join("") : `<div class="empty-panel">No dashboard cards yet.</div>`;
+    if (currentSocialCard?.card_id) {
+      const live = cards.find(card => card.card_id === currentSocialCard.card_id);
+      if (live) {
+        currentSocialCard = {...currentSocialCard, ...live};
+        if ($("#socialCardState")) $("#socialCardState").textContent = String(live.status || "Ready").replaceAll("_", " ");
+        const terminal = ["posted_all","rejected","processing"].includes(live.status);
+        $$('[data-social-card-post]').forEach(button => button.disabled = terminal);
+      }
+    }
+    container.innerHTML = cards.length ? cards.map(card => `<article class="social-history-card"><img src="${attr(card.card_url)}" alt=""><div><strong>${esc(card.headline)}</strong><span>${esc(card.category)} · ${esc(card.origin || "dashboard")} · ${esc(shortDateTime(card.created_at))}</span><span class="status-pill ${card.status === "created" ? "draft" : "posted"}">${esc(String(card.status || "created").replaceAll("_"," "))}</span>${card.action_by ? `<span>${esc(card.action_by)} · ${esc(card.action_origin || "")}</span>` : ""}</div><button class="secondary compact" data-reuse-social-card="${attr(card.card_id)}">Open</button></article>`).join("") : `<div class="empty-panel">No shared manual cards yet.</div>`;
     $$('[data-reuse-social-card]', container).forEach(button => button.addEventListener("click", () => {
       const card = cards.find(item => item.card_id === button.dataset.reuseSocialCard); if (!card) return;
       currentSocialCard = card; $("#socialCardHeadline").value = card.headline; $("#socialCardParagraph").value = card.paragraph || ""; $("#socialCardCategory").value = card.category; $("#socialCardImageUrl").value = card.image_url || "";
@@ -662,6 +672,7 @@ function openView(name, options = {}) {
   if (["ads","site","users","activity"].includes(name) && !ADMIN_ROLES.has(user?.role)) name = "home";
   if (["contentlab","socialcard","publishing","analytics","aiusage"].includes(name) && !PUBLISH_ROLES.has(user?.role)) name = "home";
   clearInterval(publishingRefreshTimer); publishingRefreshTimer = null;
+  clearInterval(socialCardRefreshTimer); socialCardRefreshTimer = null;
   clearInterval(contentLabRefreshTimer); contentLabRefreshTimer = null;
   clearInterval(analyticsRefreshTimer); analyticsRefreshTimer = null;
   clearInterval(aiUsageRefreshTimer); aiUsageRefreshTimer = null;
@@ -674,7 +685,7 @@ function openView(name, options = {}) {
   if (name === "articles") loadArticles();
   if (name === "media") loadMediaLibrary();
   if (name === "contentlab") { setContentLabLoading(); requestContentLabRefresh(true); startContentLabRefreshTimer(); }
-  if (name === "socialcard") { resetSocialCardCreator(false); loadSocialCards(); }
+  if (name === "socialcard") { resetSocialCardCreator(false); loadSocialCards(); socialCardRefreshTimer = setInterval(loadSocialCards, 5000); }
   if (name === "publishing") { loadPublishing(); publishingRefreshTimer = setInterval(loadPublishing, 15000); }
   if (name === "analytics") { loadAnalytics(); analyticsRefreshTimer = setInterval(loadAnalytics, 15000); }
   if (name === "aiusage") { loadAIUsage(true); aiUsageRefreshTimer = setInterval(() => loadAIUsage(true), 15000); }
