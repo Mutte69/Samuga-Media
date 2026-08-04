@@ -150,6 +150,10 @@ function errorPage() {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
+function pendingPage() {
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="45"><title>Finalizing this story | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Almost ready</h1><p>We're still finalizing this story. This page will refresh automatically — or check back in a minute.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
+}
+
 export async function onRequest({request}) {
   const id = new URL(request.url).searchParams.get("id") || "";
   if (!id) return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8"}});
@@ -160,7 +164,8 @@ export async function onRequest({request}) {
       "cache-control": "public,max-age=30,s-maxage=60",
       "x-samuga-function": "article-build16.2.0",
     }});
-  } catch {
-    return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store"}});
+  } catch (err) {
+    const pending = err && err.message === "article body pending";
+    return new Response(pending ? pendingPage() : errorPage(), {status: pending ? 503 : 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...(pending ? {"retry-after": "45"} : {})}});
   }
 }
