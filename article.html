@@ -1,13 +1,13 @@
 <!doctype html>
 
-<html data-samuga-build="16.0.0" data-theme="dark" dir="ltr" lang="en">
+<html data-samuga-build="16.0.1" data-theme="dark" dir="ltr" lang="en">
 <head>
 <meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content" name="viewport"/>
 <title>Samuga Media</title><meta content="Samuga Media article" name="description"/>
 <link href="assets/SamugaNewsBot_Profile.png" rel="icon"/>
-<script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||((matchMedia('(prefers-color-scheme:light)').matches)?'light':'dark')})()</script>
+<script>(()=>{let saved=null;try{saved=localStorage.getItem('samuga-theme')}catch{}let prefersLight=false;try{prefersLight=matchMedia('(prefers-color-scheme: light)').matches}catch{}document.documentElement.dataset.theme=saved||((prefersLight)?'light':'dark')})()</script>
 <link href="site-build15-2.css?v=15.9.8.1" rel="stylesheet"/>
-<meta content="#29b8fe" name="theme-color"/><link href="/site-v3.css?v=16.0.0" rel="stylesheet"/></head>
+<meta content="#29b8fe" name="theme-color"/><link href="/site-v3-16-0-1.css?v=16.0.1" rel="stylesheet"/></head>
 <body class="article-page-body">
 <div class="reading-progress"><span id="readingBar"></span></div>
 <header class="article-header" dir="ltr">
@@ -23,6 +23,6 @@
 </div>
 </header>
 <main class="article-main" id="articleRoot"><div class="article-container"><div class="skeleton-card" style="height:520px"></div></div></main>
-<script src="article-build15-9-8.js?v=15.9.8.1"></script><script src="/site-transitions-build15-2.js?v=15.2"></script>
-<script src="/analytics-build12.js"></script><script src="/samuga-v3-shell.js?v=16.0.0"></script></body>
+<script src="article-build16-0-1.js?v=16.0.1"></script><script src="/site-transitions-build15-2.js?v=15.2"></script>
+<script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-0-1.js?v=16.0.1"></script></body>
 </html>

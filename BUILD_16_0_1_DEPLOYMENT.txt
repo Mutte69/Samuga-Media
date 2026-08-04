@@ -1,0 +1,22 @@
+SAMUGA MEDIA BUILD 16.0.1 — DEPLOYMENT
+
+1. Upload the COMPLETE WEBSITE ZIP contents to the root of Mutte69/Samuga-Media.
+2. Confirm these files are at repository root:
+   - index.html
+   - site-build16-0-1.js
+   - site-v3-16-0-1.css
+   - samuga-v3-shell-16-0-1.js
+   - functions/
+3. Wait for the website deployment to complete.
+4. On iPhone, close the old browser tab completely and reopen https://samugamedia.com so Safari/in-app caches load ?v=16.0.1 assets.
+
+PRODUCTION CHECK
+- Homepage cards replace skeletons.
+- EN and DV both show stories.
+- Drawer starts at the logo every time.
+- Dhivehi drawer stays on the left and all content scrolls vertically.
+- Telegram opens. Other networks require exact URLs in site-social-links.json.
+- Ask Samuga AI opens as a compact mobile sheet.
+
+NEWSLETTER
+For the included Cloudflare Pages Function, add BUTTONDOWN_API_KEY to the Cloudflare Pages production environment. Plain GitHub Pages cannot execute /functions/api/newsletter/subscribe.js.

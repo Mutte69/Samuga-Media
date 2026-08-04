@@ -48,7 +48,7 @@ export async function onRequest({request, env}) {
         "authorization": `Token ${apiKey}`,
         "content-type": "application/json",
         "accept": "application/json",
-        "user-agent": "Samuga-Media-Newsletter/16.0.0"
+        "user-agent": "Samuga-Media-Newsletter/16.0.1"
       },
       body: JSON.stringify({
         email_address: email,
