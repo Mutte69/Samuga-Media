@@ -24,3 +24,18 @@
 
 /site-build15-9-7.js
   Cache-Control: public, max-age=31536000, immutable
+
+/site-v3.css
+  Cache-Control: public, max-age=31536000, immutable
+/samuga-v3-shell.js
+  Cache-Control: public, max-age=31536000, immutable
+/site-social-links.json
+  Cache-Control: no-cache, no-store, must-revalidate
+/feed.xml
+  Cache-Control: public, max-age=60, s-maxage=120
+/api/newsletter/*
+  Cache-Control: no-store
+/assets/Samuga_Media_Logo_White.png
+  Cache-Control: public, max-age=31536000, immutable
+/assets/Samuga_Media_Mark_White.png
+  Cache-Control: public, max-age=31536000, immutable

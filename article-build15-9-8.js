@@ -192,7 +192,13 @@ function relatedMarkup(items, dv) {
 }
 
 function footerMarkup() {
-  return `<footer class="site-footer" style="margin-top:70px"><div class="wrap footer-bottom"><span>© ${new Date().getFullYear()} Samuga Media. All rights reserved.</span><span>Powered by <a href="https://www.samugacreative.com" target="_blank" rel="noopener">Samuga Creative</a></span></div></footer>`;
+  return `<footer class="site-footer v3-footer" style="margin-top:70px">
+    <div class="wrap v3-footer-main">
+      <div class="v3-footer-brand"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media" width="1200" height="453"><h2>Maldives, as it happens.</h2><p>From every island to every screen.</p><div class="v3-footer-socials" data-v3-footer-socials aria-label="Follow Samuga Media"></div></div>
+      <nav class="v3-footer-links" aria-label="Samuga Media links"><a href="/">Latest news</a><a href="/about.html">About</a><a href="/advertising.html">Advertise</a><a href="/contact.html">Contact</a><a href="/editorial-policy.html">Editorial policy</a><a href="/corrections-policy.html">Corrections</a><a href="/privacy-policy.html">Privacy</a><a href="/terms.html">Terms</a></nav>
+    </div>
+    <div class="wrap footer-bottom"><span>© ${new Date().getFullYear()} Samuga Media.</span><span>A division of <a href="https://www.samugacreative.com" target="_blank" rel="noopener">Samuga Creative Pvt Ltd</a></span></div>
+  </footer>`;
 }
 
 function formatDate(value, dv = false) {

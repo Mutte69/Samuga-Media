@@ -1,0 +1,22 @@
+SAMUGA MEDIA BUILD 16.0.0 — DEPLOYMENT
+
+Target: Cloudflare Pages repository Mutte69/Samuga-Media, branch main.
+Build command: none (static site + Pages Functions).
+Output directory: repository root.
+
+Deploy either the complete ZIP contents or the updated-files-only ZIP contents into the repository root.
+
+After deployment verify:
+1. Thin Samuga-blue header appears with hamburger before the white logo.
+2. EN/DV and theme controls remain at top right.
+3. Drawer opens from the left, traps focus, closes with Escape/tap outside, and uses one continuous powder-blue background.
+4. Existing article cards and Ask Samuga AI still work.
+5. A banner ad is inserted after each group of three visible articles.
+6. /feed.xml returns RSS XML.
+7. Newsletter endpoint shows a safe temporary-unavailable response until BUTTONDOWN_API_KEY is set.
+8. Article, policy, admin and analytics pages still load.
+
+Social links:
+- Telegram is configured.
+- Add exact official Facebook, Instagram, X, TikTok, YouTube and WhatsApp URLs to site-social-links.json.
+- Blank links remain visibly disabled instead of opening guessed or incorrect profiles.

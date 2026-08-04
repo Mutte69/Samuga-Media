@@ -1,0 +1,18 @@
+SAMUGA MEDIA BUILD 16.0.0 — CLOUDFLARE PAGES NEWSLETTER
+
+Required Cloudflare Pages environment variable:
+BUTTONDOWN_API_KEY=replace_with_your_private_buttondown_api_key
+
+Security:
+- Add this only in Cloudflare Pages > Settings > Environment variables.
+- Never place it in site-social-links.json, HTML, JavaScript, GitHub, or screenshots.
+- The browser calls /api/newsletter/subscribe. Only the server-side Pages Function contacts Buttondown.
+
+Email delivery setup:
+1. In Buttondown, create the Samuga Media newsletter and keep double opt-in enabled.
+2. Set the publication/RSS automation source to:
+   https://samugamedia.com/feed.xml
+3. Configure it to send newly published feed entries to confirmed subscribers.
+4. Send a private test subscription before enabling automatic delivery.
+
+The website can accept subscriptions only after BUTTONDOWN_API_KEY is configured.

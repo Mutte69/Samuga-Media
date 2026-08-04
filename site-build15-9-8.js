@@ -1,6 +1,6 @@
 "use strict";
 const API="https://samuga-news-bot-production.up.railway.app";
-const SAMUGA_SITE_BUILD="15.9.8.4";
+const SAMUGA_SITE_BUILD="16.0.0";
 const FALLBACK_IMG="assets/SamugaNewsBot_Profile.png";
 const SCENIC_COVERS=[
   "assets/maldives-scenic/male-city.jpg",
@@ -21,7 +21,7 @@ const CATS={BREAKING:"Breaking",LOCAL:"Local",POLITICAL:"Politics",BUSINESS:"Bus
 const CATS_DV={BREAKING:"ބްރޭކިންގ",LOCAL:"ލޯކަލް",POLITICAL:"ސިޔާސީ",BUSINESS:"އިޤްތިޞާދީ",WORLD:"ދުނިޔެ",SPORTS:"ކުޅިވަރު",LIFESTYLE:"ލައިފްސްޓައިލް"};
 const COLORS={BREAKING:"#f04444",LOCAL:"#20b8f5",POLITICAL:"#9c6ade",BUSINESS:"#23a36d",WORLD:"#22a6b3",SPORTS:"#d99216",LIFESTYLE:"#d84d90"};
 const UI={
- en:{latest:"Latest stories",top:"Top stories",search:"Search stories",empty:"No stories found",hint:"Try another category or search term.",read:"Read story",footer:"Maldives news made simple.",chat:"Maldives news assistant"},
+ en:{latest:"Latest stories",top:"Top stories",search:"Search stories",empty:"No stories found",hint:"Try another category or search term.",read:"Read story",footer:"Maldives, as it happens.",chat:"Maldives news assistant"},
  dv:{latest:"އެންމެ ފަހުގެ ޚަބަރުތައް",top:"މުހިންމު ޚަބަރުތައް",search:"ޚަބަރު ހޯދާ",empty:"ޚަބަރެއް ނުފެނުނު",hint:"އެހެން ކެޓަގަރީއެއް ނުވަތަ ހޯދުމެއް ކޮށްލާ.",read:"ޚަބަރު ކިޔާ",footer:"ދިވެހިރާއްޖޭގެ ޚަބަރު ފަސޭހަކޮށް.",chat:"ދިވެހިރާއްޖޭގެ ޚަބަރު އެސިސްޓެންޓް"}
 };
 let stories=[],activeLang=localStorage.getItem("samuga-lang")||"en",activeCat="all",dynamicSponsors=[],siteSettings={tagline_en:UI.en.footer,tagline_dv:UI.dv.footer,community_url:"https://t.me/samugacommunity",tip_url:"https://t.me/Samuga_Media",show_ai_chat:true,default_theme:"system"};
@@ -32,6 +32,7 @@ const attr=s=>esc(s).replace(/`/g,"&#096;");
 const asBool=value=>value===true||value===1||String(value??"").trim().toLowerCase()==="true";
 
 document.addEventListener("DOMContentLoaded",async()=>{
+  const requestedCat=new URLSearchParams(location.search).get("cat");if(requestedCat&&["all","BREAKING","LOCAL","POLITICAL","BUSINESS","WORLD","SPORTS","LIFESTYLE"].includes(requestedCat))activeCat=requestedCat;
   setupTheme();setupMenu();setupLanguage();setupCategories();setupSearch();setupChat();
   $("#footerYear").textContent=new Date().getFullYear();
   await Promise.all([loadStories(),loadBanner(),loadSiteSettings()]);
@@ -54,17 +55,19 @@ function applySiteSettings(){
 function setupTheme(){
   $("#themeToggle")?.addEventListener("click",()=>{const next=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=next;localStorage.setItem("samuga-theme",next)});
 }
-function setupMenu(){const b=$("#menuBtn"),n=$("#primaryNav");b?.addEventListener("click",()=>{const open=n.classList.toggle("open");b.setAttribute("aria-expanded",String(open))})}
+function setupMenu(){/* V3 drawer is bound by samuga-v3-shell.js. */}
 function setupLanguage(){
   $$(".lang-btn").forEach(b=>b.addEventListener("click",()=>{activeLang=b.dataset.lang||"en";localStorage.setItem("samuga-lang",activeLang);applyLanguage();renderAll()}));
 }
 function applyLanguage(){
   const dv=activeLang==="dv";document.documentElement.lang=dv?"dv":"en";document.documentElement.dir=dv?"rtl":"ltr";document.body.classList.toggle("lang-dv",dv);
   $$(".lang-btn").forEach(b=>{const on=b.dataset.lang===activeLang;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on))});
-  const t=UI[activeLang];$("#latestTitle").textContent=t.latest;$("#topStoriesTitle").textContent=t.top;$("#searchInput").placeholder=t.search;$("#footerText").textContent=dv?(siteSettings.tagline_dv||t.footer):(siteSettings.tagline_en||t.footer);$("#chatSubtitle").textContent=t.chat;
+  const t=UI[activeLang];if($("#latestTitle"))$("#latestTitle").textContent=t.latest;if($("#topStoriesTitle"))$("#topStoriesTitle").textContent=t.top;if($("#searchInput"))$("#searchInput").placeholder=t.search;if($("#footerText"))$("#footerText").textContent=dv?(siteSettings.tagline_dv||t.footer):(siteSettings.tagline_en||t.footer);if($("#chatSubtitle"))$("#chatSubtitle").textContent=t.chat;
+  document.dispatchEvent(new CustomEvent("samuga:languagechange",{detail:{lang:activeLang}}));
 }
 function setupCategories(){
-  $$(".nav-btn").forEach(b=>b.addEventListener("click",()=>{$$(".nav-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCat=b.dataset.cat||"all";renderCards();$("#primaryNav")?.classList.remove("open")}));
+  $$(".nav-btn").forEach(b=>b.addEventListener("click",()=>{$$(".nav-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCat=b.dataset.cat||"all";renderCards();$("#primaryNav")?.classList.remove("open");document.dispatchEvent(new CustomEvent("samuga:categorychange",{detail:{category:activeCat}}))}));
+  const initial=$(".nav-btn[data-cat=\""+activeCat+"\"]");if(initial){$$(".nav-btn").forEach(x=>x.classList.remove("active"));initial.classList.add("active")}
 }
 function setupSearch(){$("#searchInput")?.addEventListener("input",renderCards)}
 
@@ -138,7 +141,7 @@ function renderFeatured(){
 function renderPopular(){const list=$("#popularList"),pool=stories.filter(s=>s.lang===activeLang).slice(0,5);$("#storyCountInline").textContent=pool.length?`${stories.filter(s=>s.lang===activeLang).length} stories`:"";if(!pool.length){list.innerHTML=`<li class="top-item"><span>—</span><div>${esc(UI[activeLang].empty)}</div></li>`;return}list.innerHTML=pool.map((s,i)=>`<li class="top-item"><span class="top-number">${String(i+1).padStart(2,"0")}</span><div><a href="${attr(articleHref(s))}">${esc(s.title)}</a><div class="top-meta">${esc((activeLang==="dv"?CATS_DV:CATS)[s.category]||s.category)} · ${esc(relativeTime(s.time))}</div></div></li>`).join("")}
 function renderCards(){
   const grid=$("#storyGrid"),pool=visibleStories();if(!pool.length){grid.innerHTML=`<div class="empty-state"><strong>${esc(UI[activeLang].empty)}</strong><span>${esc(UI[activeLang].hint)}</span></div>`;return}
-  const ads=dynamicSponsors.length?[...dynamicSponsors,...SPONSORS]:SPONSORS;const html=[];pool.forEach((s,i)=>{html.push(cardHTML(s));if((i+1)%6===0&&ads.length)html.push(adHTML(ads[Math.floor(i/6)%ads.length]))});grid.innerHTML=html.join("")
+  const ads=dynamicSponsors.length?[...dynamicSponsors,...SPONSORS]:SPONSORS;const html=[];pool.forEach((s,i)=>{html.push(cardHTML(s));if((i+1)%3===0&&ads.length)html.push(adHTML(ads[Math.floor(i/3)%ads.length]))});grid.innerHTML=html.join("")
 }
 function cardHTML(s){
   const cat=(activeLang==="dv"?CATS_DV:CATS)[s.category]||s.category;
