@@ -1,0 +1,24 @@
+SAMUGA MEDIA BUILD 16.2.0 — DEPLOYMENT
+
+PACKAGE
+Samuga-Media-Build-16.2.0-Full-Audit-Fix-Complete-Website.zip
+
+DEPLOYMENT METHOD
+Deploy the entire extracted folder as the Cloudflare Pages project root.
+Do not upload the ZIP itself as a single public file.
+
+IMPORTANT
+- Keep _redirects exactly as included. Do not restore the old /ask-samuga-ai rewrite.
+- Keep _headers exactly as included so HTML and versioned assets use the correct cache rules.
+- Keep the functions directory at the project root so /api/chat, /api/site-settings, /article and /story continue working.
+- No new Railway environment variable is required for these frontend fixes.
+
+AFTER CLOUDFLARE REPORTS SUCCESS
+1. Open https://samugamedia.com/ask-samuga-ai in a private window.
+2. Hard refresh the homepage once.
+3. Confirm the floating AI button and drawer AI page.
+4. Send a test question.
+5. Open one published article and check its header and drawer.
+
+ROLLBACK
+Redeploy the previous Build 16.1.0 package. Do not mix individual 16.1.0 and 16.2.0 HTML/JS/CSS files.

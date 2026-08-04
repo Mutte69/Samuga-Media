@@ -1,2 +1,4 @@
-
-/ask-samuga-ai /ask-samuga-ai.html 200
+# Cloudflare Pages serves clean URLs from matching .html files automatically.
+# Do not add an /ask-samuga-ai -> /ask-samuga-ai.html rewrite here:
+# Cloudflare Pretty URLs redirects the .html form back to the clean URL,
+# and that combination creates ERR_TOO_MANY_REDIRECTS.
