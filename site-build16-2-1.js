@@ -66,8 +66,21 @@ document.addEventListener("DOMContentLoaded",async()=>{
 });
 
 
+function _samugaSiteSettingsShared(){
+  window.__samugaSiteSettingsFetch = window.__samugaSiteSettingsFetch || (function(){
+    let p = null;
+    return function(){
+      if (!p) p = (async () => {
+        try { const r = await apiFetch("/api/site-settings", {cache: "no-store"}); if (!r.ok) return null; return await r.json(); }
+        catch { return null; }
+      })();
+      return p;
+    };
+  })();
+  return window.__samugaSiteSettingsFetch();
+}
 async function loadSiteSettings(){
-  try{const r=await apiFetch("/api/site-settings",{cache:"no-store"});if(!r.ok)return;const d=await r.json();if(d?.settings)siteSettings={...siteSettings,...d.settings}}catch{}
+  try{const d=await _samugaSiteSettingsShared();if(d?.settings)siteSettings={...siteSettings,...d.settings}}catch{}
 }
 function applySiteSettings(){
   const community=siteSettings.community_url||"https://t.me/samugacommunity",tip=siteSettings.tip_url||"https://t.me/Samuga_Media";

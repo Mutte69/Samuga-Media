@@ -115,8 +115,7 @@ function page(article, id, settings = {}) {
     <meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${esc(image)}">
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}let l=false;try{l=matchMedia('(prefers-color-scheme:light)').matches}catch{}document.documentElement.dataset.theme=s||(l?'light':'dark')})()</script>
-    <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0">
-  </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
+    <link rel="stylesheet" href="/site-build16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
     <div class="reading-progress"><span id="readingBar"></span></div>
     <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
       <div class="header-brand-cluster"><button class="menu-btn v3-menu-btn" id="menuBtn" data-drawer-toggle type="button" aria-label="Open Samuga menu" aria-expanded="false" aria-controls="v3Drawer"><span></span><span></span><span></span></button><a class="brand" href="/"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media" width="1200" height="453"></a></div>
@@ -141,17 +140,29 @@ function page(article, id, settings = {}) {
       document.getElementById('themeToggle')?.addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=n;try{localStorage.setItem('samuga-theme',n)}catch{}});
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('${url}');e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
+      // An article page has no guaranteed Dhivehi/English twin of this exact
+      // story (EN and DV are separate content, not translations of each
+      // other), so the language toggle here goes to the homepage in the
+      // chosen language rather than doing nothing.
+      document.querySelectorAll('.lang-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const lang=btn.dataset.lang==='dv'?'dv':'en';
+          if(lang===(${JSON.stringify(isDv ? "dv" : "en")})) return;
+          try{localStorage.setItem('samuga-lang',lang)}catch{}
+          location.href='/';
+        });
+      });
     </script>
-    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-0.js?v=16.2.0"></script><script src="/website-settings-runtime-16-2-0.js?v=16.2.0"></script>
+    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.2.1"></script><script src="/website-settings-runtime-16-2-1.js?v=16.2.1"></script>
   </body></html>`;
 }
 
 function errorPage() {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
 function pendingPage() {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="45"><title>Finalizing this story | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Almost ready</h1><p>We're still finalizing this story. This page will refresh automatically — or check back in a minute.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="45"><title>Finalizing this story | Samuga Media</title><link rel="stylesheet" href="/site-build16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1"></head><body><main class="policy-main"><h1>Almost ready</h1><p>We're still finalizing this story. This page will refresh automatically — or check back in a minute.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
 export async function onRequest({request}) {

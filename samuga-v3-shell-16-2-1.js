@@ -224,9 +224,18 @@
       if (response.ok) Object.assign(merged, await response.json());
     } catch {}
     try {
-      const response = await apiFetch("/api/site-settings", {cache: "no-store"});
-      if (response.ok) {
-        const data = await response.json();
+      window.__samugaSiteSettingsFetch = window.__samugaSiteSettingsFetch || (function(){
+        let p = null;
+        return function(){
+          if (!p) p = (async () => {
+            try { const r = await apiFetch("/api/site-settings", {cache: "no-store"}); if (!r.ok) return null; return await r.json(); }
+            catch { return null; }
+          })();
+          return p;
+        };
+      })();
+      const data = await window.__samugaSiteSettingsFetch();
+      if (data) {
         const settings = data?.settings || {};
         const mapping = {
           facebook: settings.facebook_url,
