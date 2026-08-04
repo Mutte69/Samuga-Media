@@ -1,10 +1,10 @@
 const UPSTREAM = "https://samuga-news-bot-production.up.railway.app/api/site-settings";
-const HEADERS = {"content-type":"application/json;charset=utf-8","cache-control":"public,max-age=15,s-maxage=30","x-content-type-options":"nosniff"};
+const HEADERS = {"content-type":"application/json;charset=utf-8","cache-control":"no-store,max-age=0","x-content-type-options":"nosniff"};
 export async function onRequest({request}) {
   if (request.method !== "GET") return new Response(JSON.stringify({ok:false,error:"Method not allowed"}), {status:405,headers:HEADERS});
   const url = new URL(request.url);
   try {
-    const upstream = await fetch(`${UPSTREAM}${url.search}`, {headers:{accept:"application/json"},cf:{cacheTtl:20,cacheEverything:true}});
+    const upstream = await fetch(`${UPSTREAM}${url.search}`, {headers:{accept:"application/json"},cf:{cacheTtl:0,cacheEverything:false}});
     const text = await upstream.text();
     return new Response(text || "{}", {status:upstream.status,headers:HEADERS});
   } catch {

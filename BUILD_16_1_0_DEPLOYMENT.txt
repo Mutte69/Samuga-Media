@@ -1,0 +1,13 @@
+SAMUGA MEDIA BUILD 16.1.0 DEPLOYMENT
+
+1. Upload the complete contents of this folder to the existing Samuga Media Cloudflare Pages project or replace the repository contents with this build.
+2. Do not remove the existing Cloudflare Pages Functions directory.
+3. No new public API secret is required.
+4. Confirm the Railway endpoint /api/admin/site-settings accepts and returns website_settings_v2 and unknown additional public setting keys.
+5. After deployment, hard-refresh the website and admin dashboard once to clear older versioned assets.
+6. Test:
+   - Header remains visible while scrolling.
+   - Floating Ask Samuga AI remains above the page and footer.
+   - Sidebar Ask Samuga AI opens /ask-samuga-ai.
+   - Admin > Website Settings loads and saves.
+   - Social links update in the menu and footer.
