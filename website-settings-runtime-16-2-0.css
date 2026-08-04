@@ -1,0 +1,27 @@
+/* Build 16.2.0 — audited public shell, sticky headers and true floating Samuga AI */
+:root{--settings-header-bg:transparent;--settings-footer-bg:#062a3b}
+.site-header.settings-sticky-header,.article-header.settings-sticky-header{position:sticky!important;top:0!important;z-index:320!important;background:var(--settings-header-bg,transparent)!important;isolation:isolate;transform:none!important;filter:none!important;perspective:none!important}
+.site-header.settings-sticky-header::before,.article-header.settings-sticky-header::before{content:"";position:absolute;inset:0;z-index:-1;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line);pointer-events:none}
+body.settings-header-static .site-header,body.settings-header-static .article-header{position:relative!important;top:auto!important}
+.site-footer.v3-footer{background:var(--settings-footer-bg,#062a3b)!important}
+.settings-announcement{display:block;position:relative;z-index:310;width:100%;padding:9px 16px;text-align:center;background:var(--brand,#29b8fe);color:#001621;font-size:12px;font-weight:800;text-decoration:none}
+
+/* The AI controls are direct body children. This prevents footer/grid/transform ancestors from trapping the button. */
+body>.chat-fab[data-floating-layer="true"],body>.chat-fab{position:fixed!important;right:max(16px,env(safe-area-inset-right))!important;left:auto!important;top:auto!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;z-index:2147483000!important;margin:0!important;transform:none!important;translate:none!important;float:none!important;clear:none!important;inset-block-start:auto!important;inset-inline-start:auto!important;contain:layout style;isolation:isolate}
+body>.chat-fab[data-position="bottom-left"]{right:auto!important;left:max(16px,env(safe-area-inset-left))!important}
+body>.chat-panel[data-floating-layer="true"],body>.chat-panel{position:fixed!important;right:max(16px,env(safe-area-inset-right))!important;left:auto;top:auto;bottom:calc(76px + env(safe-area-inset-bottom))!important;z-index:2147483010!important;margin:0!important;transform:none!important;isolation:isolate}
+body>.chat-fab[hidden],body>.chat-panel[hidden]{display:none!important}
+.v3-ai-drawer-btn{display:flex;text-decoration:none}
+.settings-custom-social{font-size:10px;font-weight:900;text-decoration:none}
+body.settings-ai-mobile-hidden>.chat-fab{display:none!important}
+
+.ai-page{min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+.ai-page .ai-page-main{flex:1}
+.ai-page>.chat-fab,.ai-page>.chat-panel{display:none!important}
+
+@media(max-width:760px){
+  body>.chat-fab[data-floating-layer="true"],body>.chat-fab{right:max(12px,env(safe-area-inset-right))!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
+  body>.chat-fab[data-position="bottom-left"]{right:auto!important;left:max(12px,env(safe-area-inset-left))!important}
+  body>.chat-panel[data-floating-layer="true"],body>.chat-panel{left:8px!important;right:8px!important;top:8px!important;bottom:auto!important;width:auto!important;max-width:none!important;height:calc(100dvh - 16px)!important;max-height:none!important;border-radius:18px!important}
+  body.chat-open{overflow:hidden!important}
+}

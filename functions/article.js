@@ -104,7 +104,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.0.1"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.2.0"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -115,10 +115,10 @@ function page(article, id, settings = {}) {
     <meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${esc(image)}">
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}let l=false;try{l=matchMedia('(prefers-color-scheme:light)').matches}catch{}document.documentElement.dataset.theme=s||(l?'light':'dark')})()</script>
-    <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1">
+    <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0">
   </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
     <div class="reading-progress"><span id="readingBar"></span></div>
-    <header class="article-header" dir="ltr"><div class="article-header-row">
+    <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
       <div class="header-brand-cluster"><button class="menu-btn v3-menu-btn" id="menuBtn" data-drawer-toggle type="button" aria-label="Open Samuga menu" aria-expanded="false" aria-controls="v3Drawer"><span></span><span></span><span></span></button><a class="brand" href="/"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media" width="1200" height="453"></a></div>
       <div class="article-actions ltr-lock"><div class="segmented" aria-label="Language"><button class="lang-btn ${isDv ? "" : "active"}" data-lang="en" aria-pressed="${isDv ? "false" : "true"}" type="button">EN</button><button class="lang-btn ${isDv ? "active" : ""}" data-lang="dv" aria-pressed="${isDv ? "true" : "false"}" type="button">ދވ</button></div><button class="icon-btn theme-toggle" id="themeToggle" aria-label="Switch theme"><span class="theme-sun">☀</span><span class="theme-moon">☾</span></button></div>
     </div></header>
@@ -136,18 +136,18 @@ function page(article, id, settings = {}) {
         </div>
       </article>
     </div></main>
-    <footer class="site-footer v3-footer" style="margin-top:70px"><div class="wrap v3-footer-main"><div class="v3-footer-brand"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media" width="1200" height="453"><h2>Maldives, as it happens.</h2><p>From every island to every screen.</p><div class="v3-footer-socials" data-v3-footer-socials aria-label="Follow Samuga Media"></div></div><nav class="v3-footer-links" aria-label="Samuga Media links"><a href="/">Latest news</a><a href="/about.html">About</a><a href="/advertising.html">Advertise</a><a href="/contact.html">Contact</a><a href="/editorial-policy.html">Editorial policy</a><a href="/corrections-policy.html">Corrections</a><a href="/privacy-policy.html">Privacy</a><a href="/terms.html">Terms</a></nav></div><div class="wrap footer-bottom"><span>© ${new Date().getFullYear()} Samuga Media.</span><span>A division of <a href="https://www.samugacreative.com" target="_blank" rel="noopener">Samuga Creative Pvt Ltd</a></span></div></footer>
+    <footer class="site-footer v3-footer" style="margin-top:70px"><div class="wrap v3-footer-main"><div class="v3-footer-brand"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media" width="1200" height="453"><h2>Maldives, as it happens.</h2><p>From every island to every screen.</p><div class="v3-footer-socials" data-v3-footer-socials aria-label="Follow Samuga Media"></div></div><nav class="v3-footer-links" aria-label="Samuga Media links"><a href="/">Latest news</a><a href="/about">About</a><a href="/advertising">Advertise</a><a href="/contact">Contact</a><a href="/editorial-policy">Editorial policy</a><a href="/corrections-policy">Corrections</a><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a></nav></div><div class="wrap footer-bottom"><span>© ${new Date().getFullYear()} Samuga Media.</span><span>A division of <a href="https://www.samugacreative.com" target="_blank" rel="noopener">Samuga Creative Pvt Ltd</a></span></div></footer>
     <script>
       document.getElementById('themeToggle')?.addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=n;try{localStorage.setItem('samuga-theme',n)}catch{}});
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('${url}');e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-0-1.js?v=16.0.1"></script>
+    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-0.js?v=16.2.0"></script><script src="/website-settings-runtime-16-2-0.js?v=16.2.0"></script>
   </body></html>`;
 }
 
 function errorPage() {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
 export async function onRequest({request}) {
@@ -158,7 +158,7 @@ export async function onRequest({request}) {
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build10",
+      "x-samuga-function": "article-build16.2.0",
     }});
   } catch {
     return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store"}});
