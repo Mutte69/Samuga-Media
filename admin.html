@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="16.2.0">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="16.3.0">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build15-9.css?v=15.9"><link rel="stylesheet" href="admin-website-settings-16-2-0.css?v=16.2.0">
+  <link rel="stylesheet" href="admin-build15-9.css?v=18.3.0"><link rel="stylesheet" href="admin-website-settings-16-2-0.css?v=16.2.0">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -34,6 +34,7 @@
         <button type="button" class="side-link publish-only" data-view="publishing"><span>↗</span>Publishing</button>
         <button type="button" class="side-link publish-only" data-view="analytics"><span>⌁</span>Web analytics</button>
         <button type="button" class="side-link publish-only" data-view="aiusage"><span>◌</span>AI Usage <b class="side-badge danger" id="aiUsageAlertBadge" hidden>0</b></button>
+        <button type="button" class="side-link admin-only" data-view="sources"><span>⌁</span>Newsroom Sources</button>
         <button type="button" class="side-link admin-only" data-view="ads"><span>▣</span>Ads</button>
         <button type="button" class="side-link admin-only" data-view="site"><span>⚙</span>Website Settings</button>
         <button type="button" class="side-link" data-view="authors"><span>◉</span>Authors</button>
@@ -271,6 +272,49 @@
         </section>
       </section>
 
+      <section class="view admin-only" id="view-sources">
+        <div class="panel newsroom-source-control">
+          <div class="panel-head source-control-head">
+            <div><span class="eyebrow">Automatic intake control</span><h2>Newsroom Sources</h2><p>Choose the collection layer used for automatic news. Manual articles, Content Lab, weather status, publishing and all editorial safety gates remain unchanged.</p></div>
+            <div class="source-mode-live"><span id="sourceModeLiveDot" aria-hidden="true"></span><div><small>Current mode</small><strong id="sourceModeLiveLabel">Loading…</strong></div></div>
+          </div>
+          <div class="source-mode-grid" role="radiogroup" aria-label="Automatic newsroom source mode">
+            <label class="source-mode-card recommended">
+              <input type="radio" name="newsIngestMode" value="argus">
+              <span class="source-mode-check">✓</span><span class="source-mode-tag">Recommended</span>
+              <strong>ARGUS only</strong>
+              <p>ARGUS is the only automatic newsroom source. RSS, headline scrapers, Telegram polling and Google News discovery stay paused.</p>
+              <small>Official Viber weather remains active.</small>
+            </label>
+            <label class="source-mode-card">
+              <input type="radio" name="newsIngestMode" value="hybrid">
+              <span class="source-mode-check">✓</span>
+              <strong>Hybrid</strong>
+              <p>ARGUS and legacy collectors run together for controlled testing or emergency coverage.</p>
+              <small>May create overlapping candidates; deduplication still applies.</small>
+            </label>
+            <label class="source-mode-card danger-mode">
+              <input type="radio" name="newsIngestMode" value="legacy">
+              <span class="source-mode-check">✓</span>
+              <strong>Legacy rollback</strong>
+              <p>Old RSS, website and Telegram collectors run. Normal ARGUS news remains safely queued until ARGUS is enabled again.</p>
+              <small>Use only for rollback or diagnosis.</small>
+            </label>
+          </div>
+          <div class="source-control-summary">
+            <div><span>ARGUS intake</span><strong id="sourceArgusState">—</strong></div>
+            <div><span>Legacy collectors</span><strong id="sourceLegacyState">—</strong></div>
+            <div><span>Google News discovery</span><strong id="sourceDiscoveryState">—</strong></div>
+            <div><span>ARGUS queue</span><strong id="sourceArgusQueue">—</strong></div>
+          </div>
+          <div class="source-control-foot">
+            <p id="sourceModeDescription">Loading the current newsroom mode…</p>
+            <div><span class="save-state" id="sourceModeSaveState">Saved</span><button class="secondary" type="button" id="refreshSourceModeBtn">Refresh</button><button class="primary" type="button" id="saveSourceModeBtn">Apply mode</button></div>
+          </div>
+        </div>
+        <div class="panel source-safety-note"><h3>What this control does not change</h3><p>Scoring, Cortex, advertisement safety, duplicate detection, Night Mode, Content Lab approvals, website publishing, social queues, manual tools and the official ARGUS weather status continue exactly as configured.</p></div>
+      </section>
+
       <section class="view" id="view-ads">
         <div class="toolbar"><div><h2>Advertisements</h2><p>Keep full artwork visible and schedule campaigns when needed.</p></div><button class="primary" id="newAdBtn">Add advertisement</button></div>
         <div class="panel"><div class="article-table" id="adList"></div></div>
@@ -345,6 +389,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build15-9.js?v=15.9.8.9"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
+  <script src="admin-build15-9.js?v=18.3.0"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
 </body>
 </html>

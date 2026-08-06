@@ -3,7 +3,7 @@
 const API = "https://samuga-news-bot-production.up.railway.app";
 const TOKEN_KEY = "samuga-newsroom-token";
 const RECOVERY_KEY = "samuga-newsroom-recovery-v2";
-const SAMUGA_BUILD = "15.9.8.9";
+const SAMUGA_BUILD = "18.3.0";
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
@@ -31,11 +31,12 @@ let contentLabPendingRefresh = false;
 let contentLabLastSignature = "";
 let contentLabEditingKey = "";
 let contentLabRefreshController = null;
+let newsroomModeState = null;
 const contentLabDrafts = new Map();
 const contentLabObjectUrls = new Map();
 const contentLabEditorLocks = new Set();
 
-const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",contentlab:"Content Lab",socialcard:"Social card creation",publishing:"Publishing centre",analytics:"Web analytics",aiusage:"AI Usage & Diagnostics",ads:"Advertisements",site:"Website settings",authors:"Author profiles",users:"Newsroom users",activity:"Activity log"};
+const TITLES = {home:"Overview",articles:"Articles",editor:"Article editor",media:"Media library",contentlab:"Content Lab",socialcard:"Social card creation",publishing:"Publishing centre",analytics:"Web analytics",aiusage:"AI Usage & Diagnostics",sources:"Newsroom Sources",ads:"Advertisements",site:"Website settings",authors:"Author profiles",users:"Newsroom users",activity:"Activity log"};
 const PUBLISH_ROLES = new Set(["editor","admin","super_admin"]);
 const ADMIN_ROLES = new Set(["admin","super_admin"]);
 
@@ -574,6 +575,9 @@ function wireStaticEvents() {
   ["aiFilterProvider","aiFilterFeature","aiFilterModel","aiFilterStatus","aiFilterFrom","aiFilterTo"].forEach(id => $(`#${id}`)?.addEventListener("change", () => loadAIUsageRequests(true)));
   $("#aiClearFiltersBtn")?.addEventListener("click", clearAIUsageFilters);
   $("#aiLoadMoreBtn")?.addEventListener("click", () => loadAIUsageRequests(false));
+  $("#refreshSourceModeBtn")?.addEventListener("click", () => loadNewsIngestMode(true));
+  $("#saveSourceModeBtn")?.addEventListener("click", saveNewsIngestMode);
+  $$('input[name="newsIngestMode"]').forEach(input => input.addEventListener("change", renderNewsIngestSelection));
   $("#authorProfilePhoto")?.addEventListener("input", renderAuthorAvatarPreview);
   $("#authorProfileName")?.addEventListener("input", renderAuthorAvatarPreview);
   $("#authorPhotoUpload")?.addEventListener("change", handleAuthorPhotoUpload);
@@ -669,7 +673,7 @@ async function api(path, options = {}) {
 
 function openView(name, options = {}) {
   if (!TITLES[name]) name = "home";
-  if (["ads","site","users","activity"].includes(name) && !ADMIN_ROLES.has(user?.role)) name = "home";
+  if (["sources","ads","site","users","activity"].includes(name) && !ADMIN_ROLES.has(user?.role)) name = "home";
   if (["contentlab","socialcard","publishing","analytics","aiusage"].includes(name) && !PUBLISH_ROLES.has(user?.role)) name = "home";
   clearInterval(publishingRefreshTimer); publishingRefreshTimer = null;
   clearInterval(socialCardRefreshTimer); socialCardRefreshTimer = null;
@@ -689,11 +693,99 @@ function openView(name, options = {}) {
   if (name === "publishing") { loadPublishing(); publishingRefreshTimer = setInterval(loadPublishing, 15000); }
   if (name === "analytics") { loadAnalytics(); analyticsRefreshTimer = setInterval(loadAnalytics, 15000); }
   if (name === "aiusage") { loadAIUsage(true); aiUsageRefreshTimer = setInterval(() => loadAIUsage(true), 15000); }
+  if (name === "sources") loadNewsIngestMode(true);
   if (name === "ads") loadAds();
   if (name === "site") loadSiteSettings();
   if (name === "authors") loadAuthorProfiles();
   if (name === "users") loadUsers();
   if (name === "activity") loadAudit();
+}
+
+function sourceModeLabel(mode) {
+  return ({argus:"ARGUS only", hybrid:"Hybrid", legacy:"Legacy rollback"})[mode] || "Unknown";
+}
+
+function renderNewsIngestSelection() {
+  const selected = $('input[name="newsIngestMode"]:checked')?.value || newsroomModeState?.mode || "argus";
+  $$(".source-mode-card").forEach(card => card.classList.toggle("selected", card.querySelector("input")?.value === selected));
+  const changed = Boolean(newsroomModeState?.mode && selected !== newsroomModeState.mode);
+  const state = $("#sourceModeSaveState");
+  if (state) state.textContent = changed ? "Unsaved change" : "Saved";
+  const save = $("#saveSourceModeBtn");
+  if (save) save.disabled = !changed;
+}
+
+function renderNewsIngestMode(payload) {
+  const mode = payload?.mode || payload || {};
+  newsroomModeState = mode;
+  const selected = String(mode.mode || "argus");
+  const input = $(`input[name="newsIngestMode"][value="${CSS.escape(selected)}"]`);
+  if (input) input.checked = true;
+  $("#sourceModeLiveLabel").textContent = sourceModeLabel(selected);
+  $("#sourceModeDescription").textContent = mode.description || "Automatic newsroom intake mode.";
+  $("#sourceArgusState").textContent = mode.argus_enabled ? "Active" : "Deferred";
+  $("#sourceLegacyState").textContent = mode.legacy_collectors_enabled ? "Active" : "Paused";
+  $("#sourceDiscoveryState").textContent = mode.automatic_discovery_enabled ? "Active" : "Paused";
+  const argus = payload?.argus || {};
+  const pending = Number(argus.pending || 0);
+  const failed = Number(argus.failed || 0);
+  $("#sourceArgusQueue").textContent = `${pending} pending${failed ? ` · ${failed} failed` : ""}`;
+  const dot = $("#sourceModeLiveDot");
+  if (dot) dot.dataset.mode = selected;
+  $("#sourceModeSaveState").textContent = "Saved";
+  renderNewsIngestSelection();
+}
+
+async function loadNewsIngestMode(showErrors = false) {
+  if (!ADMIN_ROLES.has(user?.role)) return;
+  const refresh = $("#refreshSourceModeBtn");
+  if (refresh) refresh.disabled = true;
+  try {
+    const data = await api("/api/admin/news-ingest-mode");
+    renderNewsIngestMode(data);
+  } catch (error) {
+    if (showErrors) toast(error.message, true);
+    $("#sourceModeLiveLabel").textContent = "Unavailable";
+    $("#sourceModeDescription").textContent = "The backend mode status could not be loaded.";
+  } finally {
+    if (refresh) refresh.disabled = false;
+  }
+}
+
+async function saveNewsIngestMode() {
+  if (!ADMIN_ROLES.has(user?.role)) return;
+  const selected = $('input[name="newsIngestMode"]:checked')?.value;
+  if (!selected || selected === newsroomModeState?.mode) return;
+  if (selected !== "argus") {
+    const warning = selected === "hybrid"
+      ? "Hybrid mode starts ARGUS and all legacy collectors together. Continue?"
+      : "Legacy rollback pauses normal ARGUS news processing and restarts old collectors. Official ARGUS weather remains active. Continue?";
+    if (!window.confirm(warning)) {
+      const current = $(`input[name="newsIngestMode"][value="${CSS.escape(newsroomModeState?.mode || "argus")}"]`);
+      if (current) current.checked = true;
+      renderNewsIngestSelection();
+      return;
+    }
+  }
+  const button = $("#saveSourceModeBtn");
+  const state = $("#sourceModeSaveState");
+  if (button) button.disabled = true;
+  if (state) state.textContent = "Applying…";
+  try {
+    const data = await api("/api/admin/news-ingest-mode", {
+      method:"POST",
+      body:JSON.stringify({mode:selected, reason:`Changed from admin dashboard by ${user?.email || user?.name || "admin"}`})
+    });
+    renderNewsIngestMode({mode:data.mode, argus:{}});
+    toast(`Newsroom source mode changed to ${sourceModeLabel(selected)}.`);
+    await loadNewsIngestMode(false);
+  } catch (error) {
+    if (state) state.textContent = "Change failed";
+    toast(error.message, true);
+    renderNewsIngestSelection();
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
 async function loadDashboard() {
