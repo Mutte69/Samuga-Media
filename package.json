@@ -1,0 +1,10 @@
+{
+  "name": "samuga-media-static-site",
+  "version": "16.3.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "python3 run_current_tests.py",
+    "test:functions": "node build16_3_1_function_contract_tests.mjs"
+  }
+}

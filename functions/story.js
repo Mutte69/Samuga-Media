@@ -1,4 +1,4 @@
-const API = "https://samuga-news-bot-production.up.railway.app";
+import {backendBase, fetchWithTimeout, SECURITY_HEADERS} from "./_lib/runtime.js";
 const SITE = "https://samugamedia.com";
 const DEFAULT_IMG = `${SITE}/assets/SamugaNewsBot_Profile.png`;
 const DV_TEXT = /[ހ-޿]/;
@@ -20,19 +20,19 @@ const fmt = value => {
   }
 };
 
-async function getArticle(id) {
-  const response = await fetch(`${API}/api/article?id=${encodeURIComponent(id)}`, {
+async function getArticle(id, env) {
+  const response = await fetchWithTimeout(`${backendBase(env)}/api/article?id=${encodeURIComponent(id)}`, {
     headers: {Accept: "application/json"},
-  });
+  }, Number(env?.UPSTREAM_TIMEOUT_MS || 9000));
   if (!response.ok) throw new Error("Article unavailable");
   const data = await response.json();
   if (data.error) throw new Error(data.error);
   return data;
 }
 
-async function getSettings() {
+async function getSettings(env) {
   try {
-    const response = await fetch(`${API}/api/site-settings`, {headers: {Accept: "application/json"}});
+    const response = await fetchWithTimeout(`${backendBase(env)}/api/site-settings`, {headers: {Accept: "application/json"}}, Number(env?.UPSTREAM_TIMEOUT_MS || 9000));
     const data = await response.json();
     return data?.settings || {};
   } catch {
@@ -104,7 +104,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.2.0"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.1"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -115,7 +115,7 @@ function page(article, id, settings = {}) {
     <meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${esc(image)}">
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}let l=false;try{l=matchMedia('(prefers-color-scheme:light)').matches}catch{}document.documentElement.dataset.theme=s||(l?'light':'dark')})()</script>
-    <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0">
+    <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
   </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
     <div class="reading-progress"><span id="readingBar"></span></div>
     <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
@@ -142,25 +142,26 @@ function page(article, id, settings = {}) {
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('${url}');e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-0.js?v=16.2.0"></script><script src="/website-settings-runtime-16-2-0.js?v=16.2.0"></script>
+    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.2.1"></script><script src="/website-settings-runtime-16-2-1.js?v=16.2.1"></script>
   </body></html>`;
 }
 
 function errorPage() {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-0-1.css?v=16.0.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-0.css?v=16.2.0"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
-export async function onRequest({request}) {
+export async function onRequest({request, env}) {
   const id = new URL(request.url).searchParams.get("id") || "";
-  if (!id) return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8"}});
+  if (!id) return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", ...SECURITY_HEADERS}});
   try {
-    const [article, settings] = await Promise.all([getArticle(id), getSettings()]);
+    const [article, settings] = await Promise.all([getArticle(id, env), getSettings(env)]);
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build16.2.0",
+      "x-samuga-function": "article-build16.3.1",
+      ...SECURITY_HEADERS,
     }});
   } catch {
-    return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store"}});
+    return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
   }
 }

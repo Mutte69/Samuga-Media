@@ -3,7 +3,7 @@
 const API = "https://samuga-news-bot-production.up.railway.app";
 const TOKEN_KEY = "samuga-newsroom-token";
 const RECOVERY_KEY = "samuga-newsroom-recovery-v2";
-const SAMUGA_BUILD = "18.3.0";
+const SAMUGA_BUILD = "18.3.1";
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
@@ -238,12 +238,39 @@ async function loadAIUsage(resetStream = true) {
     providerDiagnostics = diagnostics;
     renderAIUsageSummary(data);
     renderProviderDiagnostics(diagnostics);
+    await loadGenerationJobs();
     if (resetStream) await loadAIUsageRequests(true);
   } catch (error) {
     toast(error.message, true);
     const alerts = $("#aiUsageAlerts");
     if (alerts) alerts.innerHTML = `<div class="empty-panel error">${esc(error.message)}</div>`;
   }
+}
+
+async function loadGenerationJobs() {
+  const container = $("#aiGenerationJobs"); if (!container || !PUBLISH_ROLES.has(user?.role)) return;
+  try {
+    const data = await api("/api/admin/ai-generation-jobs?limit=80");
+    renderGenerationJobs(data.jobs || []);
+  } catch (error) { container.innerHTML = `<div class="empty-panel error">${esc(error.message)}</div>`; }
+}
+function renderGenerationJobs(jobs) {
+  const container = $("#aiGenerationJobs"); if (!container) return;
+  const actionable = (jobs || []).filter(job => ["failed_retryable","failed_terminal","processing"].includes(job.status));
+  const rows = actionable.length ? actionable : (jobs || []).slice(0,10);
+  if (!rows.length) { container.innerHTML = `<div class="empty-panel">No generation jobs recorded yet.</div>`; return; }
+  container.innerHTML = `<div class="table-row header"><span>Article</span><span>Language / provider</span><span>Status</span><span>Updated</span><span></span></div>` + rows.map(job => `<div class="table-row"><div class="article-cell"><strong>${esc(job.article_id || job.job_key)}</strong><span>${esc(job.error || job.failure_class || "No error")}</span></div><span>${esc(String(job.language || "—").toUpperCase())} · ${esc(job.provider || "—")} · ${esc(String(job.provider_attempts || 0))} attempt(s)</span><span class="status-pill ${esc(job.status)}">${esc(job.status)}</span><span>${esc(shortDateTime(job.updated_at))}</span><div class="row-actions">${["failed_retryable","failed_terminal"].includes(job.status) ? `<button data-generation-retry="${attr(job.job_key)}">Retry generation</button><button data-generation-source="${attr(job.job_key)}">Use source copy</button>` : ""}</div></div>`).join("");
+  $$('[data-generation-retry]', container).forEach(button => button.addEventListener("click", () => generationJobAction(button.dataset.generationRetry, "retry")));
+  $$('[data-generation-source]', container).forEach(button => button.addEventListener("click", () => generationJobAction(button.dataset.generationSource, "use_source_copy")));
+}
+async function generationJobAction(jobKey, action) {
+  if (action === "retry" && !confirm("Retry this article generation now? The recovered draft will be saved for editorial review and will not publish automatically.")) return;
+  if (action === "use_source_copy" && !confirm("Keep the verified source copy and stop automatic retries for this generation job?")) return;
+  try {
+    const data = await api("/api/admin/ai-generation-jobs/action", {method:"POST",body:JSON.stringify({job_key:jobKey,action})});
+    toast(data.message || (action === "retry" ? "Recovered draft saved for review" : "Source copy selected"));
+    await loadGenerationJobs();
+  } catch (error) { toast(error.message, true); }
 }
 
 function providerStatusPill(disabled, enabledByEnv=true) {
@@ -566,6 +593,7 @@ function wireStaticEvents() {
   $("#analyticsDays")?.addEventListener("change", loadAnalytics);
   $("#refreshAnalyticsBtn")?.addEventListener("click", loadAnalytics);
   $("#refreshAIUsageBtn")?.addEventListener("click", () => loadAIUsage(true));
+  $("#refreshGenerationJobsBtn")?.addEventListener("click", loadGenerationJobs);
   $("#toggleGeminiBtn")?.addEventListener("click", toggleGeminiGuard);
   $("#toggleBufferBtn")?.addEventListener("click", toggleBufferGuard);
   $("#testBufferConnectionBtn")?.addEventListener("click", () => providerAction("buffer", "test_connection"));
@@ -727,12 +755,29 @@ function renderNewsIngestMode(payload) {
   $("#sourceLegacyState").textContent = mode.legacy_collectors_enabled ? "Active" : "Paused";
   $("#sourceDiscoveryState").textContent = mode.automatic_discovery_enabled ? "Active" : "Paused";
   const argus = payload?.argus || {};
-  const pending = Number(argus.pending || 0);
+  const queueParts = [
+    `${Number(argus.pending || 0)} pending`,
+    `${Number(argus.processing || 0)} processing`,
+    `${Number(argus.retryable || 0)} retryable`,
+  ];
+  const deferred = Number(argus.deferredByMode || argus.deferred_by_mode || 0);
   const failed = Number(argus.failed || 0);
-  $("#sourceArgusQueue").textContent = `${pending} pending${failed ? ` · ${failed} failed` : ""}`;
+  if (deferred) queueParts.push(`${deferred} deferred`);
+  if (failed) queueParts.push(`${failed} failed`);
+  const oldestAge = Number(argus.oldestActiveAgeSeconds || argus.oldest_active_age_seconds || 0);
+  if (oldestAge > 0) {
+    const minutes = Math.max(1, Math.round(oldestAge / 60));
+    queueParts.push(`oldest ${minutes}m`);
+  }
+  $("#sourceArgusQueue").textContent = queueParts.join(" · ");
   const dot = $("#sourceModeLiveDot");
   if (dot) dot.dataset.mode = selected;
-  $("#sourceModeSaveState").textContent = "Saved";
+  const revision = mode.persistence_revision || mode.updated_at || "";
+  const persistenceSource = String(mode.source || "");
+  const verified = Boolean(mode.database_verified || persistenceSource.startsWith("database"));
+  $("#sourceModeSaveState").textContent = verified
+    ? `Saved${revision ? ` · ${shortDateTime(revision)}` : ""}`
+    : `Source: ${persistenceSource || "default"}`;
   renderNewsIngestSelection();
 }
 
@@ -776,7 +821,11 @@ async function saveNewsIngestMode() {
       method:"POST",
       body:JSON.stringify({mode:selected, reason:`Changed from admin dashboard by ${user?.email || user?.name || "admin"}`})
     });
-    renderNewsIngestMode({mode:data.mode, argus:{}});
+    if (!data?.mode?.database_verified && !String(data?.mode?.source || "").startsWith("database")) {
+      throw new Error("The backend did not verify this source-mode change in PostgreSQL.");
+    }
+    newsroomModeState = data.mode;
+    if (state) state.textContent = "Saved in PostgreSQL";
     toast(`Newsroom source mode changed to ${sourceModeLabel(selected)}.`);
     await loadNewsIngestMode(false);
   } catch (error) {
@@ -997,7 +1046,7 @@ function articlePayload(forceDraft = false, recoveryOnly = false) {
     video_poster: coverType === "video" ? $("#videoPosterUrl").value.trim() : null,
     cover_caption: $("#coverCaption").value.trim(), media_items: mediaItems.filter(item => item.url),
     social_caption: $("#socialCaption").value.trim(),
-    share: {telegram: $("#shareTelegram").checked, facebook: $("#shareFacebook").checked, x: $("#shareX").checked},
+    share: {telegram: $("#shareTelegram").checked, facebook: $("#shareFacebook").checked, instagram: $("#shareInstagram").checked, x: $("#shareX").checked},
     recovery_only: recoveryOnly
   };
 }
@@ -1034,7 +1083,7 @@ async function saveArticle(forceDraft) {
 
 async function shareArticleNow() {
   const id = $("#articleId").value;
-  const platforms = ["telegram","facebook","x"].filter(name => $("#share" + (name === "x" ? "X" : name[0].toUpperCase() + name.slice(1))).checked);
+  const platforms = ["telegram","facebook","instagram","x"].filter(name => $("#share" + (name === "x" ? "X" : name[0].toUpperCase() + name.slice(1))).checked);
   if (!id || !platforms.length) { toast("Choose at least one platform.", true); return; }
   const button = $("#shareNowBtn"); button.disabled = true; button.textContent = "Sharing…";
   try {
@@ -1592,7 +1641,7 @@ async function loadPublishing() {
   } catch (error) { toast(error.message, true); }
 }
 function renderPublishingConnections(connections, checkedAt = null) {
-  ["telegram","facebook","x"].forEach(platform => {
+  ["telegram","facebook","instagram","x"].forEach(platform => {
     const card = $(`[data-platform-card="${platform}"]`); if (!card) return;
     const value = connections[platform] || {};
     const state = value.ok === true ? "connected" : value.ok === false ? "failed" : value.configured ? "configured" : "missing";

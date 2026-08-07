@@ -67,3 +67,31 @@ After Cloudflare Pages deploys:
 6. Confirm a poster appears in the Media Library and the public feed does not preload the full video.
 7. Reply to a test video in the Telegram Core Team group with `/webmedia`; verify it appears in Newsroom → Media.
 8. Restart Railway and confirm previously uploaded media is still available.
+
+## Build 16.3.1 production hardening
+
+Cloudflare Pages Functions now read the backend address from the `SAMUGA_API_BASE` environment binding. The production Railway URL remains only as the shared runtime fallback, so a backend-domain change no longer requires editing every function.
+
+Set these Cloudflare Pages environment values:
+
+```text
+SAMUGA_API_BASE=https://samuga-news-bot-production.up.railway.app
+SAMUGA_EDGE_PROXY_SECRET=<same long random secret used in Railway>
+```
+
+`SAMUGA_EDGE_PROXY_SECRET` signs a hashed edge client identifier before forwarding public requests to Railway. Set exactly the same value in both deployments.
+
+After deployment:
+
+1. Open **Admin → Newsroom Sources** and confirm the current mode and PostgreSQL save revision load correctly.
+2. Test a mode change and confirm the UI reports **Saved in PostgreSQL** before reloading.
+3. Open **AI Usage & Diagnostics → Generation recovery** and confirm failed/retryable jobs load.
+4. Test manual publishing to Instagram with a non-public test article.
+5. Send malformed JSON to `/api/chat`; it should return HTTP 400, while an upstream timeout should return a provider/timeout error instead.
+6. Confirm the browser receives HSTS, frame protection, referrer, permissions and report-only CSP headers.
+
+Current release gate:
+
+```text
+python3 run_current_tests.py
+```

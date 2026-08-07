@@ -38,7 +38,7 @@ ok('hero settings remain respected','dataset.settingsHidden' in settings and 'da
 ok('cache headers include active site CSS','/site-build16-2-1.css' in text('_headers'))
 ok('cache headers include active shell JS','/samuga-v3-shell-16-2-1.js' in text('_headers'))
 ok('redirects describe overlay','there is no standalone AI page' in text('_redirects'))
-ok('version file updated',text('VERSION.txt').strip()=='16.3.0')
+ok('version file updated',text('VERSION.txt').strip()=='16.3.1')
 # all build-numbered local references from public HTML exist
 for html in ROOT.glob('*.html'):
     if html.name=='admin.html': continue

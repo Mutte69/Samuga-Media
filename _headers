@@ -1,4 +1,16 @@
-# Build 16.2.1 — public HTML must always revalidate so Cloudflare does not
+# Build 16.3.1 — baseline browser hardening. CSP is report-only because the
+# legacy static site still contains audited inline scripts that will be migrated
+# gradually without risking a production outage.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data: https:; connect-src 'self' https://samuga-news-bot-production.up.railway.app https://api.telegram.org; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:
+
+# Build 16.3.1 — public HTML must always revalidate so Cloudflare does not
 # mix a new page with an old JavaScript/CSS bundle.
 /
   Cache-Control: no-cache, no-store, must-revalidate

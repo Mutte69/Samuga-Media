@@ -1,0 +1,33 @@
+Samuga Media Web Build 16.3.1 — Correctness & Persistence Hardening
+
+Current release test command: python3 run_current_tests.py
+
+Core changed runtime files:
+- admin.html
+- admin-build15-9.js
+- _headers
+- functions/_lib/runtime.js
+- functions/article.js
+- functions/story.js
+- functions/feed.xml.js
+- functions/api/ads.js
+- functions/api/article.js
+- functions/api/banner.js
+- functions/api/chat.js
+- functions/api/site-settings.js
+- functions/api/stories.js
+- functions/api/track.js
+- functions/api/newsletter/subscribe.js
+- VERSION.txt
+- package.json
+- package-lock.json
+
+Release tests/docs:
+- build16_3_1_hardening_tests.py
+- build16_3_1_function_contract_tests.mjs
+- build16_3_0_newsroom_source_control_tests.py
+- build16_3_0_full_regression_tests.py
+- run_current_tests.py
+- BUILD_16_3_1_NOTES.md
+- QA_REPORT_BUILD_16_3_1.md
+- DEPLOYMENT.md

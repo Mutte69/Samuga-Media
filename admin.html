@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="16.3.0">
+<html lang="en" dir="ltr" data-theme="dark" data-samuga-build="16.3.1">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -7,7 +7,7 @@
   <title>Samuga Newsroom</title>
   <link rel="icon" href="assets/SamugaNewsBot_Profile.png">
   <script>(()=>{const s=localStorage.getItem('samuga-theme');document.documentElement.dataset.theme=s||'dark'})()</script>
-  <link rel="stylesheet" href="admin-build15-9.css?v=18.3.0"><link rel="stylesheet" href="admin-website-settings-16-2-0.css?v=16.2.0">
+  <link rel="stylesheet" href="admin-build15-9.css?v=18.3.1"><link rel="stylesheet" href="admin-website-settings-16-2-0.css?v=16.2.0">
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -120,6 +120,7 @@
               <div class="panel-head compact-head"><h2>Social publishing</h2><span id="socialStatusSummary"></span></div>
               <label class="check-row"><input id="shareTelegram" type="checkbox"><span>Telegram Community</span></label>
               <label class="check-row"><input id="shareFacebook" type="checkbox"><span>Facebook</span></label>
+              <label class="check-row"><input id="shareInstagram" type="checkbox"><span>Instagram</span></label>
               <label class="check-row"><input id="shareX" type="checkbox"><span>X</span></label>
               <label>Social caption <span class="optional-text">Optional</span><textarea id="socialCaption" rows="4" placeholder="Defaults to headline + article link"></textarea></label>
               <button type="button" class="secondary wide" id="shareNowBtn" hidden>Share selected now</button>
@@ -172,10 +173,11 @@
       </section>
 
       <section class="view publish-only" id="view-publishing">
-        <div class="toolbar"><div><h2>Publishing centre</h2><p>One queue for Telegram, Facebook and X, with independent retries.</p></div><div class="button-row"><button class="secondary" id="checkConnectionsBtn" type="button">Check connections</button><button class="primary" id="retryFailedJobsBtn" type="button">Retry failed</button></div></div>
+        <div class="toolbar"><div><h2>Publishing centre</h2><p>One queue for Telegram, Facebook, Instagram and X, with independent retries.</p></div><div class="button-row"><button class="secondary" id="checkConnectionsBtn" type="button">Check connections</button><button class="primary" id="retryFailedJobsBtn" type="button">Retry failed</button></div></div>
         <div class="connection-grid" id="connectionGrid">
           <article class="connection-card" data-platform-card="telegram"><span class="connection-icon">✈</span><div><strong>Telegram</strong><span>Not checked</span></div><i></i></article>
           <article class="connection-card" data-platform-card="facebook"><span class="connection-icon">f</span><div><strong>Facebook</strong><span>Not checked</span></div><i></i></article>
+          <article class="connection-card" data-platform-card="instagram"><span class="connection-icon">◎</span><div><strong>Instagram</strong><span>Not checked</span></div><i></i></article>
           <article class="connection-card" data-platform-card="x"><span class="connection-icon">𝕏</span><div><strong>X</strong><span>Not checked</span></div><i></i></article>
         </div>
         <div class="publishing-stat-grid"><article><span>Waiting</span><strong id="publishStatWaiting">—</strong></article><article><span>Processing</span><strong id="publishStatProcessing">—</strong></article><article><span>Failed</span><strong id="publishStatFailed">—</strong></article><article><span>Sent in 24h</span><strong id="publishStatSent">—</strong></article></div>
@@ -245,6 +247,11 @@
         <section class="panel ai-alert-panel">
           <div class="panel-head"><div><h2>Usage alerts</h2><p>Loops, repeated article processing, retry storms, token spikes and provider failures.</p></div><span class="status-pill draft" id="aiAlertCount">0 open</span></div>
           <div class="ai-alert-list" id="aiUsageAlerts"><div class="empty-panel">No open AI usage alerts.</div></div>
+        </section>
+
+        <section class="panel ai-generation-panel">
+          <div class="panel-head"><div><h2>ARGUS article generation recovery</h2><p>Retry failed full-article jobs without publishing. Recovered drafts are saved for editorial review.</p></div><button class="text-button" id="refreshGenerationJobsBtn" type="button">Refresh</button></div>
+          <div class="article-table" id="aiGenerationJobs"><div class="empty-panel">No failed or active generation jobs.</div></div>
         </section>
 
         <div class="ai-usage-grid">
@@ -389,6 +396,6 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build15-9.js?v=18.3.0"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
+  <script src="admin-build15-9.js?v=18.3.1"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
 </body>
 </html>
