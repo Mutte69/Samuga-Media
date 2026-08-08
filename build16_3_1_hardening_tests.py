@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build 16.3.1 web correctness, proxy, security, and admin recovery tests."""
+"""Build 16.3.2 web correctness, proxy, security, and admin recovery tests."""
 from pathlib import Path
 import re
 import subprocess
@@ -17,8 +17,8 @@ def main():
     html = (ROOT / "admin.html").read_text()
     js = (ROOT / "admin-build15-9.js").read_text()
     headers = (ROOT / "_headers").read_text()
-    require(version == "16.3.1", "website version was not advanced")
-    require('data-samuga-build="16.3.1"' in html, "admin build marker is stale")
+    require(version == "16.3.2", "website version was not advanced")
+    require('data-samuga-build="16.3.2"' in html, "admin build marker is stale")
 
     article_fn = (ROOT / "functions" / "article.js").read_text()
     story_fn = (ROOT / "functions" / "story.js").read_text()
@@ -62,8 +62,8 @@ def main():
     require('"instagram"' in js and "BUFFER_IG_ID" not in js, "Instagram admin target is not provider-neutral")
     for token in ("processing", "retryable", "deferred", "oldest", "database_verified", "Saved in PostgreSQL"):
         require(token in js, f"source-mode operational status is missing: {token}")
-    require("The backend did not verify this source-mode change in PostgreSQL." in js,
-            "dashboard does not fail closed when source-mode persistence is unverified")
+    require("PostgreSQL verification failed." in js and "Save read-back mismatch" in js,
+            "dashboard does not fail closed when source-mode persistence/read-back is unverified")
 
     # The only Samuga backend default may live in the shared runtime helper.
     hardcoded = []
@@ -76,7 +76,7 @@ def main():
     js_files = [ROOT / "admin-build15-9.js", *sorted((ROOT / "functions").rglob("*.js"))]
     for path in js_files:
         subprocess.run(["node", "--check", str(path)], check=True, stdout=subprocess.DEVNULL)
-    print(f"PASS Build 16.3.1 hardening ({len(js_files)} JavaScript files syntax-checked)")
+    print(f"PASS Build 16.3.2 hardening ({len(js_files)} JavaScript files syntax-checked)")
 
 
 if __name__ == "__main__":

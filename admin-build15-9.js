@@ -3,7 +3,7 @@
 const API = "https://samuga-news-bot-production.up.railway.app";
 const TOKEN_KEY = "samuga-newsroom-token";
 const RECOVERY_KEY = "samuga-newsroom-recovery-v2";
-const SAMUGA_BUILD = "18.3.1";
+const SAMUGA_BUILD = "18.3.2.6";
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
@@ -32,6 +32,7 @@ let contentLabLastSignature = "";
 let contentLabEditingKey = "";
 let contentLabRefreshController = null;
 let newsroomModeState = null;
+let pendingSourceModeConfirmation = "";
 const contentLabDrafts = new Map();
 const contentLabObjectUrls = new Map();
 const contentLabEditorLocks = new Set();
@@ -605,7 +606,7 @@ function wireStaticEvents() {
   $("#aiLoadMoreBtn")?.addEventListener("click", () => loadAIUsageRequests(false));
   $("#refreshSourceModeBtn")?.addEventListener("click", () => loadNewsIngestMode(true));
   $("#saveSourceModeBtn")?.addEventListener("click", saveNewsIngestMode);
-  $$('input[name="newsIngestMode"]').forEach(input => input.addEventListener("change", renderNewsIngestSelection));
+  $$('input[name="newsIngestMode"]').forEach(input => input.addEventListener("change", () => { pendingSourceModeConfirmation = ""; renderNewsIngestSelection(); }));
   $("#authorProfilePhoto")?.addEventListener("input", renderAuthorAvatarPreview);
   $("#authorProfileName")?.addEventListener("input", renderAuthorAvatarPreview);
   $("#authorPhotoUpload")?.addEventListener("change", handleAuthorPhotoUpload);
@@ -685,18 +686,32 @@ function configureRoleControls() {
 async function api(path, options = {}) {
   const headers = new Headers(options.headers || {});
   const auth = options.auth !== false;
+  const timeoutMs = Math.max(1000, Number(options.timeoutMs || 30000));
+  const externalSignal = options.signal || null;
+  const controller = externalSignal ? null : new AbortController();
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
   if (auth && token) headers.set("Authorization", `Bearer ${token}`);
   if (options.body && !(options.body instanceof FormData) && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-  const response = await fetch(API + path, {...options, headers, cache:"no-store"});
-  let data = {};
-  try { data = await response.json(); } catch { data = {}; }
-  if (response.status === 401 && auth) { logout(false); throw new Error("Your session expired. Sign in again."); }
-  if (!response.ok || data.ok === false) {
-    const error = new Error(data.detail ? `${data.error || "Request failed"} ${data.detail}` : (data.error || `Request failed (${response.status})`));
-    error.status = response.status;
+  const requestOptions = {...options, headers, cache:"no-store", signal:externalSignal || controller.signal};
+  delete requestOptions.timeoutMs;
+  try {
+    const response = await fetch(API + path, requestOptions);
+    let data = {};
+    try { data = await response.json(); } catch { data = {}; }
+    if (response.status === 401 && auth) { logout(false); throw new Error("Your session expired. Sign in again."); }
+    if (!response.ok || data.ok === false) {
+      const error = new Error(data.detail ? `${data.error || "Request failed"}: ${data.detail}` : (data.error || `Request failed (${response.status})`));
+      error.status = response.status;
+      error.code = data.code || "";
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    if (error?.name === "AbortError") throw new Error("The backend did not respond within 30 seconds. Refresh and try again.");
     throw error;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
-  return data;
 }
 
 function openView(name, options = {}) {
@@ -737,15 +752,20 @@ function renderNewsIngestSelection() {
   const selected = $('input[name="newsIngestMode"]:checked')?.value || newsroomModeState?.mode || "argus";
   $$(".source-mode-card").forEach(card => card.classList.toggle("selected", card.querySelector("input")?.value === selected));
   const changed = Boolean(newsroomModeState?.mode && selected !== newsroomModeState.mode);
+  const confirming = changed && pendingSourceModeConfirmation === selected && selected !== "argus";
   const state = $("#sourceModeSaveState");
-  if (state) state.textContent = changed ? "Unsaved change" : "Saved";
+  if (state) state.textContent = confirming ? `Confirm change to ${sourceModeLabel(selected)}` : (changed ? "Unsaved change" : "Saved");
   const save = $("#saveSourceModeBtn");
-  if (save) save.disabled = !changed;
+  if (save) {
+    save.disabled = !changed;
+    save.textContent = confirming ? `Confirm ${sourceModeLabel(selected)}` : "Apply mode";
+  }
 }
 
 function renderNewsIngestMode(payload) {
   const mode = payload?.mode || payload || {};
   newsroomModeState = mode;
+  pendingSourceModeConfirmation = "";
   const selected = String(mode.mode || "argus");
   const input = $(`input[name="newsIngestMode"][value="${CSS.escape(selected)}"]`);
   if (input) input.checked = true;
@@ -775,10 +795,11 @@ function renderNewsIngestMode(payload) {
   const revision = mode.persistence_revision || mode.updated_at || "";
   const persistenceSource = String(mode.source || "");
   const verified = Boolean(mode.database_verified || persistenceSource.startsWith("database"));
-  $("#sourceModeSaveState").textContent = verified
+  renderNewsIngestSelection();
+  const state = $("#sourceModeSaveState");
+  if (state) state.textContent = verified
     ? `Saved${revision ? ` · ${shortDateTime(revision)}` : ""}`
     : `Source: ${persistenceSource || "default"}`;
-  renderNewsIngestSelection();
 }
 
 async function loadNewsIngestMode(showErrors = false) {
@@ -801,39 +822,54 @@ async function saveNewsIngestMode() {
   if (!ADMIN_ROLES.has(user?.role)) return;
   const selected = $('input[name="newsIngestMode"]:checked')?.value;
   if (!selected || selected === newsroomModeState?.mode) return;
-  if (selected !== "argus") {
-    const warning = selected === "hybrid"
-      ? "Hybrid mode starts ARGUS and all legacy collectors together. Continue?"
-      : "Legacy rollback pauses normal ARGUS news processing and restarts old collectors. Official ARGUS weather remains active. Continue?";
-    if (!window.confirm(warning)) {
-      const current = $(`input[name="newsIngestMode"][value="${CSS.escape(newsroomModeState?.mode || "argus")}"]`);
-      if (current) current.checked = true;
-      renderNewsIngestSelection();
-      return;
-    }
+
+  // Avoid browser-native confirm dialogs. Atlas and some hardened browsers can
+  // suppress them, which previously made Apply mode appear broken without ever
+  // sending the POST. Riskier modes now use an explicit second button press.
+  if (selected !== "argus" && pendingSourceModeConfirmation !== selected) {
+    pendingSourceModeConfirmation = selected;
+    renderNewsIngestSelection();
+    toast(selected === "hybrid"
+      ? "Hybrid runs ARGUS and legacy collectors together. Press Confirm Hybrid to apply."
+      : "Legacy rollback pauses normal ARGUS news processing. Press Confirm Legacy rollback to apply.");
+    return;
   }
+
   const button = $("#saveSourceModeBtn");
   const state = $("#sourceModeSaveState");
-  if (button) button.disabled = true;
-  if (state) state.textContent = "Applying…";
+  if (button) { button.disabled = true; button.textContent = "Applying…"; }
+  if (state) state.textContent = "Saving to PostgreSQL…";
   try {
     const data = await api("/api/admin/news-ingest-mode", {
       method:"POST",
+      timeoutMs:30000,
       body:JSON.stringify({mode:selected, reason:`Changed from admin dashboard by ${user?.email || user?.name || "admin"}`})
     });
-    if (!data?.mode?.database_verified && !String(data?.mode?.source || "").startsWith("database")) {
-      throw new Error("The backend did not verify this source-mode change in PostgreSQL.");
+    const persisted = data?.mode || {};
+    const verified = Boolean(persisted.database_verified || String(persisted.source || "").startsWith("database"));
+    if (!verified || persisted.mode !== selected) {
+      throw new Error(`PostgreSQL verification failed. Requested ${sourceModeLabel(selected)}, backend returned ${sourceModeLabel(persisted.mode)}.`);
     }
-    newsroomModeState = data.mode;
-    if (state) state.textContent = "Saved in PostgreSQL";
+
+    // Read the value again through the normal GET path. This catches any stale
+    // replica/cache problem before the dashboard tells the editor it was saved.
+    const readback = await api("/api/admin/news-ingest-mode", {timeoutMs:15000});
+    const authoritative = readback?.mode || {};
+    if (authoritative.mode !== selected) {
+      throw new Error(`Save read-back mismatch. PostgreSQL returned ${sourceModeLabel(authoritative.mode)} instead of ${sourceModeLabel(selected)}.`);
+    }
+
+    pendingSourceModeConfirmation = "";
+    renderNewsIngestMode(readback);
+    if (state) state.textContent = `Saved in PostgreSQL${authoritative.persistence_revision ? ` · ${shortDateTime(authoritative.persistence_revision)}` : ""}`;
     toast(`Newsroom source mode changed to ${sourceModeLabel(selected)}.`);
-    await loadNewsIngestMode(false);
   } catch (error) {
-    if (state) state.textContent = "Change failed";
+    pendingSourceModeConfirmation = "";
+    if (state) state.textContent = `Change failed: ${error.message}`;
     toast(error.message, true);
-    renderNewsIngestSelection();
   } finally {
-    if (button) button.disabled = false;
+    if (button) { button.disabled = false; button.textContent = "Apply mode"; }
+    renderNewsIngestSelection();
   }
 }
 

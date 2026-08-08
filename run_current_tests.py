@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Run the authoritative Build 16.3.1 website regression suite."""
+"""Run the authoritative Build 16.3.2 website regression suite."""
 from pathlib import Path
 import subprocess, sys, os
 
 ROOT = Path(__file__).resolve().parent
 PY_TESTS = [
+    "build16_3_2_source_mode_save_tests.py",
     "build16_3_1_hardening_tests.py",
     "build16_3_0_newsroom_source_control_tests.py",
     "build16_3_0_full_regression_tests.py",
