@@ -78,7 +78,7 @@ function page(article, id, settings = {}) {
   const isDv = String(article.lang || "").toLowerCase() === "dv" || DV_TEXT.test(`${article.title || ""} ${article.body || ""}`);
   const url = SITE + articlePath(article);
   const community = abs(settings.community_url) || "https://t.me/samugacommunity";
-  const initialTheme = ["light", "dark"].includes(settings.default_theme) ? settings.default_theme : "dark";
+  const initialTheme = "light";
   const title = article.seo?.title || article.title || "Samuga Media";
   const description = article.seo?.description || article.excerpt || article.summary || "Maldives, as it happens.";
   const image = abs(article.cover_image) || DEFAULT_IMG;
@@ -105,7 +105,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.3"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.4"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -116,8 +116,9 @@ function page(article, id, settings = {}) {
     <meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${esc(image)}">
     <meta name="samuga-article-id" content="${esc(article.id || id)}">
     <script type="application/ld+json">${jsonLd}</script>
-    <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}let l=false;try{l=matchMedia('(prefers-color-scheme:light)').matches}catch{}document.documentElement.dataset.theme=s||(l?'light':'dark')})()</script>
+    <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}document.documentElement.dataset.theme=s==='dark'?'dark':'light'})()</script>
     <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
+    <link rel="stylesheet" href="/samuga-reader-16-3-4.css?v=16.3.4">
   </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
     <div class="reading-progress"><span id="readingBar"></span></div>
     <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
@@ -144,7 +145,7 @@ function page(article, id, settings = {}) {
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText(${JSON.stringify(url).replace(/</g, "\\u003c")});e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build12.js?v=16.3.3"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.2.1"></script><script src="/website-settings-runtime-16-2-1.js?v=16.2.1"></script>
+    <script src="/analytics-build12.js?v=16.3.3"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.3.4"></script><script src="/website-settings-runtime-16-2-1.js?v=16.3.4"></script>
   </body></html>`;
 }
 
@@ -170,7 +171,7 @@ export async function onRequest({request, env, params = {}}) {
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build16.3.3",
+      "x-samuga-function": "article-build16.3.4",
       ...SECURITY_HEADERS,
     }});
   } catch (error) {

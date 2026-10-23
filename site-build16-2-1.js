@@ -85,7 +85,7 @@ async function loadSiteSettings(){
 function applySiteSettings(){
   const community=siteSettings.community_url||"https://t.me/samugacommunity",tip=siteSettings.tip_url||"https://t.me/Samuga_Media";
   $("#headerCommunity")?.setAttribute("href",community);$("#footerCommunity")?.setAttribute("href",community);$("#footerTip")?.setAttribute("href",tip);
-  if(!safeStorage.get("samuga-theme")&&["light","dark"].includes(siteSettings.default_theme)){document.documentElement.dataset.theme=siteSettings.default_theme}
+  document.documentElement.dataset.theme=safeStorage.get("samuga-theme")==="dark"?"dark":"light";
 }
 
 function setupTheme(){
@@ -102,12 +102,14 @@ function setupLanguage(){
 function applyLanguage(){
   const dv=activeLang==="dv";document.documentElement.lang=dv?"dv":"en";document.documentElement.dir="ltr";document.body.classList.toggle("lang-dv",dv);document.body.classList.toggle("lang-en",!dv);
   $$(".lang-btn").forEach(b=>{const on=b.dataset.lang===activeLang;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on))});
+  $$(".reader-categories .nav-btn").forEach(b=>{b.textContent=b.dataset.cat==="all"?(dv?"އެންމެ ފަސް":"Latest"):((dv?CATS_DV:CATS)[b.dataset.cat]||b.dataset.cat)});
   const t=UI[activeLang];if($("#latestTitle"))$("#latestTitle").textContent=t.latest;if($("#topStoriesTitle"))$("#topStoriesTitle").textContent=t.top;if($("#searchInput"))$("#searchInput").placeholder=t.search;if($("#footerText"))$("#footerText").textContent=dv?(siteSettings.tagline_dv||t.footer):(siteSettings.tagline_en||t.footer);if($("#chatSubtitle"))$("#chatSubtitle").textContent=t.chat;
   document.dispatchEvent(new CustomEvent("samuga:languagechange",{detail:{lang:activeLang}}));
 }
 function setupCategories(){
-  $$(".nav-btn").forEach(b=>b.addEventListener("click",()=>{$$(".nav-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCat=b.dataset.cat||"all";renderCards();$("#primaryNav")?.classList.remove("open");document.dispatchEvent(new CustomEvent("samuga:categorychange",{detail:{category:activeCat}}))}));
-  const initial=$(".nav-btn[data-cat=\""+activeCat+"\"]");if(initial){$$(".nav-btn").forEach(x=>x.classList.remove("active"));initial.classList.add("active")}
+  const select=()=>{$$(".nav-btn").forEach(x=>{const on=x.dataset.cat===activeCat;x.classList.toggle("active",on);x.setAttribute("aria-pressed",String(on))})};
+  $$(".nav-btn").forEach(b=>b.addEventListener("click",()=>{activeCat=b.dataset.cat||"all";select();renderCards();$("#primaryNav")?.classList.remove("open");document.dispatchEvent(new CustomEvent("samuga:categorychange",{detail:{category:activeCat}}))}));
+  select();
 }
 function setupSearch(){$("#searchInput")?.addEventListener("input",renderCards)}
 
@@ -181,6 +183,7 @@ function renderFeatured(){
 }
 function renderPopular(){const list=$("#popularList"),pool=stories.filter(s=>s.lang===activeLang).slice(0,5);$("#storyCountInline").textContent=pool.length?`${stories.filter(s=>s.lang===activeLang).length} stories`:"";if(!pool.length){list.innerHTML=`<li class="top-item"><span>—</span><div>${esc(UI[activeLang].empty)}</div></li>`;return}list.innerHTML=pool.map((s,i)=>`<li class="top-item"><span class="top-number">${String(i+1).padStart(2,"0")}</span><div><a href="${attr(articleHref(s))}">${esc(s.title)}</a><div class="top-meta">${esc((activeLang==="dv"?CATS_DV:CATS)[s.category]||s.category)} · ${esc(relativeTime(s.time))}</div></div></li>`).join("")}
 function renderCards(){
+  $(".lead-section")?.classList.toggle("reader-filtered",activeCat!=="all"||Boolean($("#searchInput")?.value.trim()));
   const grid=$("#storyGrid"),pool=visibleStories();if(!pool.length){grid.innerHTML=`<div class="empty-state"><strong>${esc(UI[activeLang].empty)}</strong><span>${esc(UI[activeLang].hint)}</span></div>`;return}
   const ads=dynamicSponsors.length?[...dynamicSponsors,...SPONSORS]:SPONSORS;const html=[];pool.forEach((s,i)=>{html.push(cardHTML(s));if((i+1)%3===0&&ads.length)html.push(adHTML(ads[Math.floor(i/3)%ads.length]))});grid.innerHTML=html.join("")
 }
