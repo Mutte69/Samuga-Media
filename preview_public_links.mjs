@@ -16,6 +16,10 @@ const stories=["WORLD","POLITICAL","LOCAL","SPORTS"].map((category,i)=>{
     public_path:`/news/samuga-${category.toLowerCase()}-link-preview-${key}`,category,lang:"en",
     cover_image:"/assets/maldives-scenic/island-harbour.jpg",published_at:"2026-10-23T14:00:00Z",related:[]};
 });
+const dvId="argus:offline-thaana-reader-fixture";
+stories.push({id:dvId,title:"ރަށްރަށުގެ ހަބަރު ސަމުގާއިން",summary:"މިއީ ޓެސްޓު ކުރުމަށް ހެދި ނަމޫނާއެކެވެ.",
+  body:"މިއީ ޓެސްޓު ކުރުމަށް ހެދި ނަމޫނާއެކެވެ.\n\nމިއީ ނަމޫނާއެކެވެ.",lang:"dv",category:"LOCAL",
+  public_path:`/news/story-${createHash("md5").update(dvId).digest("hex")}`,cover_image:"/assets/maldives-scenic/island-harbour.jpg",related:[]});
 globalThis.fetch=async address=>{
   const url=new URL(String(address));
   if(url.pathname==="/api/site-settings") return Response.json({settings:{}});

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build 16.3.3 web correctness, proxy, security, and admin recovery tests."""
+"""Build 16.3.4 web correctness, proxy, security, and admin recovery tests."""
 from pathlib import Path
 import re
 import subprocess
@@ -17,8 +17,8 @@ def main():
     html = (ROOT / "admin.html").read_text()
     js = (ROOT / "admin-build15-9.js").read_text()
     headers = (ROOT / "_headers").read_text()
-    require(version == "16.3.3", "website version was not advanced")
-    require('data-samuga-build="16.3.3"' in html, "admin build marker is stale")
+    require(version == "16.3.4", "website version was not advanced")
+    require('data-samuga-build="16.3.4"' in html, "admin build marker is stale")
 
     article_fn = (ROOT / "functions" / "article.js").read_text()
     story_fn = (ROOT / "functions" / "story.js").read_text()
@@ -78,7 +78,7 @@ def main():
     js_files = [ROOT / "admin-build15-9.js", *sorted((ROOT / "functions").rglob("*.js"))]
     for path in js_files:
         subprocess.run(["node", "--check", str(path)], check=True, stdout=subprocess.DEVNULL)
-    print(f"PASS Build 16.3.3 hardening ({len(js_files)} JavaScript files syntax-checked)")
+    print(f"PASS Build 16.3.4 hardening ({len(js_files)} JavaScript files syntax-checked)")
 
 
 if __name__ == "__main__":

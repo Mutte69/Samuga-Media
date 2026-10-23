@@ -202,7 +202,8 @@
     applyBranding(s); applyHeader(s); applyFooter(s); applyAI(s); applyHomepage(s); applyContact(s); applySEO(s);
     applySocials(s); setTimeout(()=>applySocials(s),700); setTimeout(()=>applySocials(s),1700);
     let savedTheme = null; try { savedTheme = localStorage.getItem("samuga-theme"); } catch {}
-    if (!savedTheme && ["light","dark"].includes(s.default_theme)) document.documentElement.dataset.theme=s.default_theme;
+    // Reader choice wins; system/CMS settings cannot silently opt into dark.
+    document.documentElement.dataset.theme=savedTheme === "dark" ? "dark" : "light";
     moveFloatingChat(); restoreChatHistory();
     document.dispatchEvent(new CustomEvent("samuga:settingsloaded",{detail:{settings:s}}));
   }

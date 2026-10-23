@@ -32,6 +32,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     document.querySelectorAll("[data-contact-email]").forEach(node=>{
       if(settings.contact_email){node.href=`mailto:${settings.contact_email}`;node.textContent=settings.contact_email;node.closest("[data-contact-email-block]")?.removeAttribute("hidden")}
     });
-    if(!samugaStorage.get("samuga-theme")&&["light","dark"].includes(settings.default_theme))document.documentElement.dataset.theme=settings.default_theme;
+    document.documentElement.dataset.theme=samugaStorage.get("samuga-theme")==="dark"?"dark":"light";
   }catch{}
 });
