@@ -10,6 +10,8 @@
   };
   globalThis.SamugaArticleLinks = Object.freeze({
     pathFor(article = {}) {
+      const number=String(article.public_path||'').match(/^\/n\/([1-9][0-9]{0,18})$/);
+      if(number && BigInt(number[1])<=9223372036854775807n)return article.public_path;
       const key=keyFromPath(article.public_path);
       if(key)return shortPath(key);
       return `/article?id=${encodeURIComponent(String(article.id || ""))}`;

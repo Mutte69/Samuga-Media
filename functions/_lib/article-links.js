@@ -1,4 +1,8 @@
-export const PUBLIC_PATH = /^(?:\/n\/[A-Za-z0-9_-]{22}|\/news\/[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{32})$/;
+export const PUBLIC_PATH = /^(?:\/n\/(?:[1-9][0-9]{0,18}|[A-Za-z0-9_-]{22})|\/news\/[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{32})$/;
+export function numberFromPath(value) {
+  const match=String(value||'').match(/^\/n\/([1-9][0-9]{0,18})$/);
+  return match && BigInt(match[1])<=9223372036854775807n ? match[1] : '';
+}
 const legacy = /^\/news\/[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{32}$/;
 export function shortPath(key) {
   if (!/^[0-9a-f]{32}$/.test(key)) throw new Error("Invalid routing key");
@@ -14,6 +18,7 @@ export function keyFromPath(value) {
   } catch { return ""; }
 }
 export function articlePath(article={}) {
+  if (numberFromPath(article.public_path)) return article.public_path;
   const key=keyFromPath(article.public_path);
   return key ? shortPath(key) : `/article?id=${encodeURIComponent(String(article.id||""))}`;
 }

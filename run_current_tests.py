@@ -20,7 +20,7 @@ PY_TESTS = [
 ]
 for test in PY_TESTS:
     run(test, [sys.executable, str(ROOT / test)])
-for test in ("build16_3_1_function_contract_tests.mjs", "build16_3_3_public_links_tests.mjs", "build16_3_4_reader_tests.mjs", "build16_3_5_short_links_tests.mjs"):
+for test in ("build16_3_1_function_contract_tests.mjs", "build16_3_3_public_links_tests.mjs", "build16_3_4_reader_tests.mjs", "build16_3_5_short_links_tests.mjs", "build16_3_6_number_links_tests.mjs"):
     run(test, ["node", str(ROOT / test)])
 for path in sorted((ROOT / "functions").rglob("*.js")):
     run(f"syntax {path.relative_to(ROOT)}", ["node", "--check", str(path)])

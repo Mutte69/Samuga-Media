@@ -1,5 +1,5 @@
 import {backendBase, fetchWithTimeout, SECURITY_HEADERS} from "./_lib/runtime.js";
-import {articlePath, PUBLIC_PATH, keyFromPath} from "./_lib/article-links.js";
+import {articlePath, PUBLIC_PATH, keyFromPath, numberFromPath} from "./_lib/article-links.js";
 const SITE = "https://samugamedia.com";
 const DEFAULT_IMG = `${SITE}/assets/SamugaNewsBot_Profile.png`;
 const DV_TEXT = /[ހ-޿]/;
@@ -105,7 +105,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.5"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.6"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -159,10 +159,11 @@ export async function onRequest({request, env, params = {}}) {
   const slug = incoming.searchParams.get("slug") || "";
   const path = params.code ? `/n/${params.code}` : params.slug ? `/news/${params.slug}` : "";
   const key = path ? keyFromPath(path) : "";
-  if ((path && !key) || (!path && !id && !slug)) {
+  const number = path ? numberFromPath(path) : "";
+  if ((path && !key && !number) || (!path && !id && !slug)) {
     return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
   }
-  const query = path ? `public_key=${key}` : id ? `id=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(slug)}`;
+  const query = number ? `number=${number}` : path ? `public_key=${key}` : id ? `id=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(slug)}`;
   try {
     const [article, settings] = await Promise.all([getArticle(query, env), getSettings(env)]);
     const canonical = articlePath(article);
@@ -172,7 +173,7 @@ export async function onRequest({request, env, params = {}}) {
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build16.3.5",
+      "x-samuga-function": "article-build16.3.6",
       ...SECURITY_HEADERS,
     }});
   } catch (error) {
