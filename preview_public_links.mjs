@@ -9,17 +9,20 @@ import {onRequest as articleRoute} from "./functions/article.js";
 
 const root=fileURLToPath(new URL(".",import.meta.url)), port=4187;
 const origin=`http://127.0.0.1:${port}`;
+// Optional local renderer output; never fetch or overwrite production covers.
+const coverDir=process.env.SAMUGA_PREVIEW_COVER_DIR;
+const coverPath=category=>coverDir?`${origin}/preview-covers/${category.toLowerCase()}.png`:"/assets/maldives-scenic/island-harbour.jpg";
 const stories=["WORLD","POLITICAL","LOCAL","SPORTS"].map((category,i)=>{
   const id=`argus:offline-design-fixture-${i}`, key=createHash("md5").update(id).digest("hex");
   return {id,title:`Samuga ${category.toLowerCase()} link preview`,summary:"Synthetic local engineering fixture. This is not a published news story.",
     body:"This synthetic story verifies the new public URL and article rendering.\n\nThe source-provider identity remains separate from the public link.",
     public_path:`/news/samuga-${category.toLowerCase()}-link-preview-${key}`,category,lang:"en",
-    cover_image:"/assets/maldives-scenic/island-harbour.jpg",published_at:"2026-10-23T14:00:00Z",related:[]};
+    cover_image:coverPath(category),published_at:"2026-10-23T14:00:00Z",related:[]};
 });
 const dvId="argus:offline-thaana-reader-fixture";
 stories.push({id:dvId,title:"ރަށްރަށުގެ ހަބަރު ސަމުގާއިން",summary:"މިއީ ޓެސްޓު ކުރުމަށް ހެދި ނަމޫނާއެކެވެ.",
   body:"މިއީ ޓެސްޓު ކުރުމަށް ހެދި ނަމޫނާއެކެވެ.\n\nމިއީ ނަމޫނާއެކެވެ.",lang:"dv",category:"LOCAL",
-  public_path:`/news/story-${createHash("md5").update(dvId).digest("hex")}`,cover_image:"/assets/maldives-scenic/island-harbour.jpg",related:[]});
+  public_path:`/news/story-${createHash("md5").update(dvId).digest("hex")}`,cover_image:coverPath("LOCAL"),related:[]});
 globalThis.fetch=async address=>{
   const url=new URL(String(address));
   if(url.pathname==="/api/site-settings") return Response.json({settings:{}});
@@ -34,6 +37,10 @@ http.createServer(async(req,res)=>{
   const url=new URL(req.url,origin);
   try{
     console.log(req.method,url.pathname);
+    if(coverDir && /^\/preview-covers\/(world|political|local|sports|breaking)\.png$/.test(url.pathname)){
+      const data=await readFile(path.join(coverDir,path.basename(url.pathname)));
+      res.writeHead(200,{"content-type":"image/png"});res.end(data);return;
+    }
     if(url.pathname.startsWith("/n/") || url.pathname.startsWith("/news/") || ["/article","/story"].includes(url.pathname)){
       const params=url.pathname.startsWith("/n/")?{code:url.pathname.slice(3)}:url.pathname.startsWith("/news/")?{slug:url.pathname.slice(6)}:{};
       const response=await articleRoute({request:new Request(url),env:{},params});
