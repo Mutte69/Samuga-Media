@@ -11,7 +11,7 @@ active=['site-build16-2-1.css','site-v3-16-2-1.css','site-build16-2-1.js','samug
 for f in active: ok(f'{f} exists',(ROOT/f).is_file())
 index=text('index.html'); shell=text('samuga-v3-shell-16-2-1.js'); site=text('site-build16-2-1.js'); base=text('site-build16-2-1.css'); v3=text('site-v3-16-2-1.css'); runtime=text('website-settings-runtime-16-2-1.css'); settings=text('website-settings-runtime-16-2-1.js')
 ok('index build marker','data-samuga-build="16.2.1"' in index)
-ok('index uses new site JS','site-build16-2-1.js?v=16.2.1' in index)
+ok('index uses new site JS','site-build16-2-1.js?v=16.3.3' in index)
 ok('index uses new shell','samuga-v3-shell-16-2-1.js?v=16.2.1' in index)
 ok('index uses new settings runtime','website-settings-runtime-16-2-1.js?v=16.2.1' in index)
 ok('standalone AI page removed',not (ROOT/'ask-samuga-ai.html').exists())
@@ -38,7 +38,7 @@ ok('hero settings remain respected','dataset.settingsHidden' in settings and 'da
 ok('cache headers include active site CSS','/site-build16-2-1.css' in text('_headers'))
 ok('cache headers include active shell JS','/samuga-v3-shell-16-2-1.js' in text('_headers'))
 ok('redirects describe overlay','there is no standalone AI page' in text('_redirects'))
-ok('version file updated',text('VERSION.txt').strip()=='16.3.2')
+ok('version file updated',text('VERSION.txt').strip()=='16.3.3')
 # all build-numbered local references from public HTML exist
 for html in ROOT.glob('*.html'):
     if html.name=='admin.html': continue

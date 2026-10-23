@@ -98,7 +98,7 @@ function render(article) {
   document.body.classList.toggle("lang-en", !dv);
   document.title = `${article.title} | Samuga Media`;
 
-  const shareUrl = `${location.origin}/article?id=${encodeURIComponent(article.id)}`;
+  const shareUrl = location.origin + SamugaArticleLinks.pathFor(article);
   const root = document.querySelector("#articleRoot");
   root.innerHTML = articleMarkup(article, shareUrl, dv);
   root.dataset.articleLanguage = dv ? "dv" : "en";
@@ -197,7 +197,7 @@ function relatedMarkup(items, dv) {
   const sameLanguage = items.filter(item => dv ? DV_TEXT.test(item.title || "") : !DV_TEXT.test(item.title || ""));
   if (!sameLanguage.length) return "";
   return `<section class="related"><h2>${dv ? "ސަމުގާއިން އިތުރަށް" : "More from Samuga"}</h2><div class="related-grid">${sameLanguage.slice(0, 4).map(item => `
-    <a class="related-card" href="/article?id=${encodeURIComponent(item.id)}" dir="${dv ? "rtl" : "ltr"}">
+    <a class="related-card" href="${attr(SamugaArticleLinks.pathFor(item))}" dir="${dv ? "rtl" : "ltr"}">
       <small>${esc(item.category || "Latest")}</small><h3>${esc(item.title)}</h3>
     </a>`).join("")}</div></section>`;
 }

@@ -4,9 +4,9 @@ export async function onRequest({request, env}) {
   if (request.method !== "GET") return new Response(JSON.stringify({ok:false,error:"Method not allowed"}), {status:405,headers:HEADERS});
   const url = new URL(request.url);
   try {
-    const upstream = await fetchWithTimeout(`${backendBase(env)}/api/article${url.search}`, {headers:{accept:"application/json"},cf:{cacheTtl:20,cacheEverything:true}}, Number(env?.UPSTREAM_TIMEOUT_MS || 9000));
+    const upstream = await fetchWithTimeout(`${backendBase(env)}/api/article${url.search}`, {headers:{accept:"application/json"}}, Number(env?.UPSTREAM_TIMEOUT_MS || 9000));
     const text = await upstream.text();
-    return new Response(text || "{}", {status:upstream.status,headers:HEADERS});
+    return new Response(text || "{}", {status:upstream.status,headers:upstream.ok?HEADERS:{...HEADERS,"cache-control":"no-store"}});
   } catch {
     return new Response(JSON.stringify({ok:false,error:"Samuga service temporarily unavailable"}), {status:503,headers:{...HEADERS,"cache-control":"no-store"}});
   }

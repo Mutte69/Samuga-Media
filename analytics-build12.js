@@ -14,7 +14,7 @@
     event:"pageview",
     event_id:eventId,
     path:location.pathname+location.search,
-    article_id:params.get("id")||null,
+    article_id:params.get("id")||document.querySelector('meta[name="samuga-article-id"]')?.content||null,
     session_id:sessionId,
     referrer:document.referrer||"",
     language:document.documentElement.lang||navigator.language||""
