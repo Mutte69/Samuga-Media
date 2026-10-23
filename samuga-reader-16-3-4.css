@@ -65,6 +65,6 @@ body.lang-dv .lead-copy h1 { line-height:1.6;letter-spacing:0; }
   .card-title { font-size:22px; }
   .article-container { width:calc(100% - 40px);margin-top:28px; }
   .article-headline { font-size:34px;line-height:1.25; }
-  .chat-fab .chat-fab-label { display:none!important; }
+  #chatFab .chat-fab-label { display:none!important; }
   .chat-fab { padding:8px!important;right:16px!important;bottom:16px!important; }
 }

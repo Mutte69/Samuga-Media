@@ -118,7 +118,7 @@ function page(article, id, settings = {}) {
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}document.documentElement.dataset.theme=s==='dark'?'dark':'light'})()</script>
     <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
-    <link rel="stylesheet" href="/samuga-reader-16-3-4.css?v=16.3.4">
+    <link rel="stylesheet" href="/samuga-reader-16-3-4.css?v=16.3.4.1">
   </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
     <div class="reading-progress"><span id="readingBar"></span></div>
     <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
