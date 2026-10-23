@@ -36,7 +36,7 @@ async function testArticleHandler(handler, path) {
   const response = await handler({request: new Request(`https://samugamedia.com/${path}?id=test-article`)});
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /data-samuga-build="16\.3\.1"/);
+  assert.match(html, /data-samuga-build="16\.3\.3"/);
   assert.match(html, /settings-sticky-header/);
   assert.match(html, /samuga-v3-shell-16-2-1\.js/);
   assert.match(html, /website-settings-runtime-16-2-1\.js/);
@@ -44,7 +44,7 @@ async function testArticleHandler(handler, path) {
   assert.match(html, /href="\/about"/);
   assert.doesNotMatch(html, /href="\/about\.html"/);
   assert.doesNotMatch(html, /samuga-v3-shell-16-0-1\.js/);
-  assert.equal(response.headers.get("x-samuga-function"), "article-build16.3.1");
+  assert.equal(response.headers.get("x-samuga-function"), "article-build16.3.3");
 }
 
 await test("dynamic /article route renders the current public shell", async () => testArticleHandler(articleRoute, "article"));

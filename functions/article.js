@@ -1,4 +1,5 @@
 import {backendBase, fetchWithTimeout, SECURITY_HEADERS} from "./_lib/runtime.js";
+import {articlePath, PUBLIC_PATH} from "./_lib/article-links.js";
 const SITE = "https://samugamedia.com";
 const DEFAULT_IMG = `${SITE}/assets/SamugaNewsBot_Profile.png`;
 const DV_TEXT = /[ހ-޿]/;
@@ -20,13 +21,13 @@ const fmt = value => {
   }
 };
 
-async function getArticle(id, env) {
-  const response = await fetchWithTimeout(`${backendBase(env)}/api/article?id=${encodeURIComponent(id)}`, {
+async function getArticle(query, env) {
+  const response = await fetchWithTimeout(`${backendBase(env)}/api/article?${query}`, {
     headers: {Accept: "application/json"},
   }, Number(env?.UPSTREAM_TIMEOUT_MS || 9000));
-  if (!response.ok) throw new Error("Article unavailable");
+  if (!response.ok) throw Object.assign(new Error("Article unavailable"), {status: response.status === 404 ? 404 : 503});
   const data = await response.json();
-  if (data.error) throw new Error(data.error);
+  if (data.error) throw Object.assign(new Error("Article unavailable"), {status: 503});
   return data;
 }
 
@@ -68,14 +69,14 @@ function relatedMarkup(items = [], isDv = false) {
   const sameLanguage = items.filter(item => isDv ? DV_TEXT.test(item.title || "") : !DV_TEXT.test(item.title || ""));
   if (!sameLanguage.length) return "";
   return `<section class="related"><h2>${isDv ? "ސަމުގާއިން އިތުރަށް" : "More from Samuga"}</h2><div class="related-grid">${sameLanguage.slice(0, 4).map(item => `
-    <a class="related-card" href="/article?id=${encodeURIComponent(item.id)}" dir="${isDv ? "rtl" : "ltr"}">
+    <a class="related-card" href="${esc(articlePath(item))}" dir="${isDv ? "rtl" : "ltr"}">
       <small>${esc(item.category || "Latest")}</small><h3>${esc(item.title)}</h3>
     </a>`).join("")}</div></section>`;
 }
 
 function page(article, id, settings = {}) {
   const isDv = String(article.lang || "").toLowerCase() === "dv" || DV_TEXT.test(`${article.title || ""} ${article.body || ""}`);
-  const url = `${SITE}/article?id=${encodeURIComponent(id)}`;
+  const url = SITE + articlePath(article);
   const community = abs(settings.community_url) || "https://t.me/samugacommunity";
   const initialTheme = ["light", "dark"].includes(settings.default_theme) ? settings.default_theme : "dark";
   const title = article.seo?.title || article.title || "Samuga Media";
@@ -104,7 +105,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.1"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.3"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -113,6 +114,7 @@ function page(article, id, settings = {}) {
     <meta property="og:image" content="${esc(image)}"><meta property="og:url" content="${url}">
     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}">
     <meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${esc(image)}">
+    <meta name="samuga-article-id" content="${esc(article.id || id)}">
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}let l=false;try{l=matchMedia('(prefers-color-scheme:light)').matches}catch{}document.documentElement.dataset.theme=s||(l?'light':'dark')})()</script>
     <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
@@ -140,9 +142,9 @@ function page(article, id, settings = {}) {
     <script>
       document.getElementById('themeToggle')?.addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=n;try{localStorage.setItem('samuga-theme',n)}catch{}});
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
-      document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('${url}');e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
+      document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText(${JSON.stringify(url).replace(/</g, "\\u003c")});e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build12.js"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.2.1"></script><script src="/website-settings-runtime-16-2-1.js?v=16.2.1"></script>
+    <script src="/analytics-build12.js?v=16.3.3"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.2.1"></script><script src="/website-settings-runtime-16-2-1.js?v=16.2.1"></script>
   </body></html>`;
 }
 
@@ -150,18 +152,28 @@ function errorPage() {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article unavailable | Samuga Media</title><link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1"></head><body><main class="policy-main"><h1>Article unavailable</h1><p>We could not load this story.</p><p><a href="/">Return to latest stories →</a></p></main></body></html>`;
 }
 
-export async function onRequest({request, env}) {
-  const id = new URL(request.url).searchParams.get("id") || "";
-  if (!id) return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", ...SECURITY_HEADERS}});
+export async function onRequest({request, env, params = {}}) {
+  const incoming = new URL(request.url);
+  const id = incoming.searchParams.get("id") || "";
+  const slug = incoming.searchParams.get("slug") || "";
+  const path = params.slug ? `/news/${params.slug}` : "";
+  if ((path && !PUBLIC_PATH.test(path)) || (!path && !id && !slug)) {
+    return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
+  }
+  const query = path ? `public_key=${path.slice(-32)}` : id ? `id=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(slug)}`;
   try {
-    const [article, settings] = await Promise.all([getArticle(id, env), getSettings(env)]);
+    const [article, settings] = await Promise.all([getArticle(query, env), getSettings(env)]);
+    const canonical = articlePath(article);
+    if (PUBLIC_PATH.test(canonical) && incoming.pathname !== canonical) {
+      return new Response(null, {status: 308, headers: {location: SITE + canonical, "cache-control": "public,max-age=300", ...SECURITY_HEADERS}});
+    }
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build16.3.1",
+      "x-samuga-function": "article-build16.3.3",
       ...SECURITY_HEADERS,
     }});
-  } catch {
-    return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
+  } catch (error) {
+    return new Response(errorPage(), {status: error.status === 404 ? 404 : 503, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
   }
 }

@@ -19,7 +19,7 @@ const SPONSORS=[
 ];
 const CATS={BREAKING:"Breaking",LOCAL:"Local",POLITICAL:"Politics",BUSINESS:"Business",WORLD:"World",SPORTS:"Sports",LIFESTYLE:"Lifestyle"};
 const CATS_DV={BREAKING:"ބްރޭކިންގ",LOCAL:"ލޯކަލް",POLITICAL:"ސިޔާސީ",BUSINESS:"އިޤްތިޞާދީ",WORLD:"ދުނިޔެ",SPORTS:"ކުޅިވަރު",LIFESTYLE:"ލައިފްސްޓައިލް"};
-const COLORS={BREAKING:"#f04444",LOCAL:"#20b8f5",POLITICAL:"#9c6ade",BUSINESS:"#23a36d",WORLD:"#22a6b3",SPORTS:"#d99216",LIFESTYLE:"#d84d90"};
+const COLORS={BREAKING:"#f04444",LOCAL:"#1b70c2",POLITICAL:"#bc5b10",BUSINESS:"#23a36d",WORLD:"#7043b4",SPORTS:"#22b450",LIFESTYLE:"#d84d90"};
 const UI={
  en:{latest:"Latest stories",top:"Top stories",search:"Search stories",empty:"No stories found",hint:"Try another category or search term.",read:"Read story",footer:"Maldives, as it happens.",chat:"Maldives news assistant"},
  dv:{latest:"އެންމެ ފަހުގެ ޚަބަރުތައް",top:"މުހިންމު ޚަބަރުތައް",search:"ޚަބަރު ހޯދާ",empty:"ޚަބަރެއް ނުފެނުނު",hint:"އެހެން ކެޓަގަރީއެއް ނުވަތަ ހޯދުމެއް ކޮށްލާ.",read:"ޚަބަރު ކިޔާ",footer:"ދިވެހިރާއްޖޭގެ ޚަބަރު ފަސޭހަކޮށް.",chat:"ދިވެހިރާއްޖޭގެ ޚަބަރު އެސިސްޓެންޓް"}
@@ -127,11 +127,11 @@ async function refreshStories(){
 function normalizeStory(s){
   if(!s?.title)return null;const text=`${s.title||""} ${s.summary||""}`;const lang=(s.lang==="dv"||/[ހ-޿]/.test(text))?"dv":"en";
   const storyId=String(s.id||"");const fallback=brandedCover(storyId);const outageFallback=scenicCover(`${storyId}|${s.title||""}`);
-  return{id:storyId,title:String(s.title||"").trim(),summary:String(s.summary||"").trim(),category:normalizeCat(s.category,text),source:"Samuga Media",time:s.published_at||s.time||"",lang,cover_image:s.cover_image||fallback,fallback_cover:fallback,outage_fallback:outageFallback,cover_video:s.cover_video||null,video_poster:s.video_poster||s.cover_image||fallback,author:s.author||null,reading_time:s.reading_time||null,featured:asBool(s.featured),breaking:asBool(s.breaking)||normalizeCat(s.category,text)==="BREAKING",slug:s.slug||""};
+  return{id:storyId,title:String(s.title||"").trim(),summary:String(s.summary||"").trim(),category:normalizeCat(s.category,text),source:"Samuga Media",time:s.published_at||s.time||"",lang,cover_image:s.cover_image||fallback,fallback_cover:fallback,outage_fallback:outageFallback,cover_video:s.cover_video||null,video_poster:s.video_poster||s.cover_image||fallback,author:s.author||null,reading_time:s.reading_time||null,featured:asBool(s.featured),breaking:asBool(s.breaking)||normalizeCat(s.category,text)==="BREAKING",slug:s.slug||"",public_path:s.public_path||""};
 }
 function normalizeCat(cat,text=""){const raw=String(cat||"LOCAL").toUpperCase();if(["BREAKING","LOCAL","POLITICAL","BUSINESS","WORLD","SPORTS","LIFESTYLE"].includes(raw))return raw;if(raw==="POLITICS")return"POLITICAL";if(/breaking|killed|dead|fire|crash|missing|emergency/i.test(text))return"BREAKING";return"LOCAL"}
 function visibleStories(){const q=$("#searchInput")?.value.toLowerCase().trim()||"";return stories.filter(s=>s.lang===activeLang&&(activeCat==="all"||s.category===activeCat)&&(!q||`${s.title} ${s.summary}`.toLowerCase().includes(q)))}
-function articleHref(s){return s.id?`/article?id=${encodeURIComponent(s.id)}`:"#"}
+function articleHref(s){return s.id?SamugaArticleLinks.pathFor(s):"#"}
 function renderAll(){renderStrip();renderFeatured();renderPopular();renderCards()}
 function storyAgeMs(story){
   const raw=story?.time||"";const stamp=new Date(raw).getTime();
