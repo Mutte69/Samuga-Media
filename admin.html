@@ -181,6 +181,12 @@
           <article class="connection-card" data-platform-card="x"><span class="connection-icon">𝕏</span><div><strong>X</strong><span>Not checked</span></div><i></i></article>
         </div>
         <div class="publishing-stat-grid"><article><span>Waiting</span><strong id="publishStatWaiting">—</strong></article><article><span>Processing</span><strong id="publishStatProcessing">—</strong></article><article><span>Failed</span><strong id="publishStatFailed">—</strong></article><article><span>Sent in 24h</span><strong id="publishStatSent">—</strong></article></div>
+        <section class="panel admin-only" id="deliveryAttentionPanel" hidden>
+          <div class="panel-head"><div><h2>Telegram delivery attention</h2><p>Uncertain sends stay held. Recording a resolution never sends or deletes a public post.</p></div><button class="text-button" id="refreshDeliveryAttention" type="button">Refresh</button></div>
+          <p id="deliveryAttentionState" role="status">Open Publishing centre to check deliveries.</p>
+          <p style="margin:16px;color:var(--muted)">Scope: news-card Telegram sends. Weather/text messages and Buffer deliveries are separate.</p>
+          <div id="deliveryAttentionList" class="delivery-attention-list"></div>
+        </section>
         <div class="panel"><div class="panel-head"><div><h2>Publish queue</h2><p>Failed platforms do not block successful ones.</p></div><button class="text-button" id="refreshPublishingBtn" type="button">Refresh</button></div><div class="article-table publishing-table" id="publishQueue"></div></div>
         <div class="panel"><div class="panel-head"><div><h2>Recent social activity</h2><p>Latest completed and failed delivery attempts.</p></div></div><div class="article-table" id="publishingActivity"></div></div>
       </section>
@@ -396,6 +402,18 @@
   <dialog id="userDialog"><form method="dialog" id="userForm"><h2 id="userDialogTitle">Add user</h2><input id="userId" type="hidden"><label>Name<input id="userName" required></label><label>Email<input id="userEmail" type="email" required></label><label>Role<select id="userRole"><option value="contributor">Contributor</option><option value="journalist">Journalist</option><option value="editor">Editor</option><option value="admin">Administrator</option><option value="super_admin">Super Admin</option></select></label><label>Linked author profile<select id="userAuthor"><option value="">Auto-match by exact name</option></select><span class="optional-text">Choose the existing Telegram author to prevent a duplicate profile.</span></label><label>Telegram user ID <span class="optional-text">Optional</span><input id="userTelegramId" inputmode="numeric" placeholder="Numeric Telegram user ID"></label><label>Password <span class="optional-text">Leave blank to keep current</span><input id="userPassword" type="password"></label><label class="check-row"><input id="userActive" type="checkbox" checked><span>Active</span></label><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary" id="saveUserBtn">Save</button></div><div class="form-error" id="userError"></div></form></dialog>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="admin-build15-9.js?v=18.3.2.6"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
+  <dialog id="deliveryResolutionDialog" aria-labelledby="deliveryResolutionTitle">
+    <form id="deliveryResolutionForm">
+      <h2 id="deliveryResolutionTitle">Resolve Telegram delivery</h2>
+      <p id="deliveryResolutionExplanation"></p>
+      <label id="deliveryMessageField">Verified Telegram message ID<input id="deliveryMessageId" inputmode="numeric" pattern="[1-9][0-9]*" autocomplete="off"></label>
+      <label class="check-row" id="deliveryVerifiedField"><input id="deliveryVerified" type="checkbox"><span>I checked the actual post in the correct Telegram channel.</span></label>
+      <label>Resolution note<textarea id="deliveryResolutionNote" required minlength="10" maxlength="1000" rows="3" placeholder="Explain what you verified or why attempts should stop."></textarea></label>
+      <p class="form-error" id="deliveryResolutionError" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="secondary" id="closeDeliveryResolution">Back</button><button type="submit" class="primary" id="saveDeliveryResolution">Record resolution</button></div>
+    </form>
+  </dialog>
+  <link rel="stylesheet" href="delivery-attention.css?v=16.3.7">
+  <script src="admin-build15-9.js?v=18.6.9.1"></script><script src="delivery-attention.js?v=16.3.7"></script><script src="admin-website-settings-16-2-0.js?v=16.2.0"></script>
 </body>
 </html>
