@@ -1,5 +1,5 @@
 import {backendBase, fetchWithTimeout, SECURITY_HEADERS} from "./_lib/runtime.js";
-import {articlePath, PUBLIC_PATH} from "./_lib/article-links.js";
+import {articlePath, PUBLIC_PATH, keyFromPath} from "./_lib/article-links.js";
 const SITE = "https://samugamedia.com";
 const DEFAULT_IMG = `${SITE}/assets/SamugaNewsBot_Profile.png`;
 const DV_TEXT = /[ހ-޿]/;
@@ -105,7 +105,7 @@ function page(article, id, settings = {}) {
     mainEntityOfPage: url,
   }).replace(/</g, "\\u003c");
 
-  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.4"><head>
+  return `<!doctype html><html lang="${isDv ? "dv" : "en"}" dir="ltr" data-theme="${initialTheme}" data-samuga-build="16.3.5"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29b8fe">
     <title>${esc(title)} | Samuga Media</title><meta name="description" content="${esc(description)}">
     <link rel="canonical" href="${url}"><link rel="icon" href="/assets/SamugaNewsBot_Profile.png">
@@ -118,7 +118,7 @@ function page(article, id, settings = {}) {
     <script type="application/ld+json">${jsonLd}</script>
     <script>(()=>{let s=null;try{s=localStorage.getItem('samuga-theme')}catch{}document.documentElement.dataset.theme=s==='dark'?'dark':'light'})()</script>
     <link rel="stylesheet" href="/site-build15-2.css?v=15.9.8.5"><link rel="stylesheet" href="/site-v3-16-2-1.css?v=16.2.1"><link rel="stylesheet" href="/website-settings-runtime-16-2-1.css?v=16.2.1">
-    <link rel="stylesheet" href="/samuga-reader-16-3-4.css?v=16.3.4.2">
+    <link rel="stylesheet" href="/samuga-reader-16-3-4.css?v=16.3.5">
   </head><body class="article-page-body ${isDv ? "lang-dv" : "lang-en"}">
     <div class="reading-progress"><span id="readingBar"></span></div>
     <header class="article-header settings-sticky-header" dir="ltr"><div class="article-header-row">
@@ -145,7 +145,7 @@ function page(article, id, settings = {}) {
       addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingBar').style.width=(t>0?Math.min(100,scrollY/t*100):0)+'%'},{passive:true});
       document.getElementById('copyBtn')?.addEventListener('click',async e=>{await navigator.clipboard.writeText(${JSON.stringify(url).replace(/</g, "\\u003c")});e.currentTarget.textContent='${isDv ? "ކޮޕީކުރެވިއްޖެ" : "Copied"}'})
     </script>
-    <script src="/analytics-build12.js?v=16.3.3"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.3.4"></script><script src="/website-settings-runtime-16-2-1.js?v=16.3.4"></script>
+    <script src="/analytics-build12.js?v=16.3.3"></script><script src="/samuga-v3-shell-16-2-1.js?v=16.3.5"></script><script src="/website-settings-runtime-16-2-1.js?v=16.3.4"></script>
   </body></html>`;
 }
 
@@ -157,11 +157,12 @@ export async function onRequest({request, env, params = {}}) {
   const incoming = new URL(request.url);
   const id = incoming.searchParams.get("id") || "";
   const slug = incoming.searchParams.get("slug") || "";
-  const path = params.slug ? `/news/${params.slug}` : "";
-  if ((path && !PUBLIC_PATH.test(path)) || (!path && !id && !slug)) {
+  const path = params.code ? `/n/${params.code}` : params.slug ? `/news/${params.slug}` : "";
+  const key = path ? keyFromPath(path) : "";
+  if ((path && !key) || (!path && !id && !slug)) {
     return new Response(errorPage(), {status: 404, headers: {"content-type": "text/html;charset=utf-8", "cache-control": "no-store", ...SECURITY_HEADERS}});
   }
-  const query = path ? `public_key=${path.slice(-32)}` : id ? `id=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(slug)}`;
+  const query = path ? `public_key=${key}` : id ? `id=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(slug)}`;
   try {
     const [article, settings] = await Promise.all([getArticle(query, env), getSettings(env)]);
     const canonical = articlePath(article);
@@ -171,7 +172,7 @@ export async function onRequest({request, env, params = {}}) {
     return new Response(page(article, id, settings), {headers: {
       "content-type": "text/html;charset=utf-8",
       "cache-control": "public,max-age=30,s-maxage=60",
-      "x-samuga-function": "article-build16.3.4",
+      "x-samuga-function": "article-build16.3.5",
       ...SECURITY_HEADERS,
     }});
   } catch (error) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build 16.3.4 admin newsroom source-control contract tests."""
+"""Build 16.3.5 admin newsroom source-control contract tests."""
 from pathlib import Path
 import subprocess
 
@@ -17,8 +17,8 @@ def main():
     css = (ROOT / "admin-build15-9.css").read_text(encoding="utf-8")
     version = (ROOT / "VERSION.txt").read_text(encoding="utf-8").strip()
 
-    require(version == "16.3.4", "website version was not advanced")
-    require('data-samuga-build="16.3.4"' in html, "admin build marker missing")
+    require(version == "16.3.5", "website version was not advanced")
+    require('data-samuga-build="16.3.5"' in html, "admin build marker missing")
     require('data-view="sources"' in html and 'id="view-sources"' in html,
             "Newsroom Sources navigation/view missing")
     for mode in ("argus", "hybrid", "legacy"):
@@ -39,7 +39,7 @@ def main():
             "cache-busting assets were not updated")
 
     subprocess.run(["node", "--check", str(ROOT / "admin-build15-9.js")], check=True)
-    print("PASS Build 16.3.4 newsroom source-control admin UI")
+    print("PASS Build 16.3.5 newsroom source-control admin UI")
 
 
 if __name__ == "__main__":

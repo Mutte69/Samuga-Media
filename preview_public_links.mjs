@@ -34,8 +34,9 @@ http.createServer(async(req,res)=>{
   const url=new URL(req.url,origin);
   try{
     console.log(req.method,url.pathname);
-    if(url.pathname.startsWith("/news/") || ["/article","/story"].includes(url.pathname)){
-      const response=await articleRoute({request:new Request(url),env:{},params:url.pathname.startsWith("/news/")?{slug:url.pathname.slice(6)}:{}});
+    if(url.pathname.startsWith("/n/") || url.pathname.startsWith("/news/") || ["/article","/story"].includes(url.pathname)){
+      const params=url.pathname.startsWith("/n/")?{code:url.pathname.slice(3)}:url.pathname.startsWith("/news/")?{slug:url.pathname.slice(6)}:{};
+      const response=await articleRoute({request:new Request(url),env:{},params});
       const headers=Object.fromEntries(response.headers);
       if(headers.location)headers.location=headers.location.replace("https://samugamedia.com",origin);
       res.writeHead(response.status,headers);res.end(Buffer.from(await response.arrayBuffer()));return;
