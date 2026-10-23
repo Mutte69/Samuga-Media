@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
 import {onRequest} from "./functions/article.js";
+import {shortPath} from "./functions/_lib/article-links.js";
 const read=name=>readFileSync(new URL(name,import.meta.url),"utf8");
 const pages=["index.html","article.html","about.html","advertising.html","contact.html","corrections-policy.html","editorial-policy.html","privacy-policy.html","terms.html","ask-samuga-ai.html"];
 function checkTheme(html){
@@ -19,10 +20,10 @@ function checkTheme(html){
   assert.equal(document.documentElement.dataset.theme,"light");
 }
 pages.forEach(file=>checkTheme(read(file)));
-const path="/news/test-"+"a".repeat(32);
+const path=shortPath("a".repeat(32));
 for(const lang of ["en","dv"]){
   globalThis.fetch=async url=>String(url).includes("site-settings")?Response.json({settings:{default_theme:"dark"}}):Response.json({id:"fixture",public_path:path,title:lang==="en"?"Test story":"ހަބަރު",body:"First paragraph.\n\nSecond paragraph.",lang});
-  const response=await onRequest({request:new Request("https://samugamedia.com"+path),params:{slug:path.slice(6)}});
+  const response=await onRequest({request:new Request("https://samugamedia.com"+path),params:{code:path.slice(3)}});
   assert.equal(response.status,200); checkTheme(await response.text());
 }
 // Runtime settings cannot silently re-enable dark mode for a new reader.

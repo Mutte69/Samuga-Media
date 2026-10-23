@@ -76,20 +76,20 @@
       <div class="v3-drawer-overlay" id="v3DrawerOverlay" aria-hidden="true"></div>
       <aside class="v3-drawer" id="v3Drawer" role="dialog" aria-modal="true" aria-label="Samuga Media menu" aria-hidden="true" tabindex="-1">
         <div class="v3-drawer-top">
-          <a class="v3-drawer-logo" href="/" aria-label="Samuga Media home"><img src="/assets/Samuga_Media_Logo_White.png" alt="Samuga Media"></a>
+          <a class="v3-drawer-logo" href="/" aria-label="Samuga Media home"><img src="/assets/Samuga_Media_Logo_Transparent.png" alt="Samuga Media"></a>
           <button class="v3-drawer-close" id="v3DrawerClose" type="button" aria-label="Close menu">×</button>
         </div>
-        <button class="v3-ai-drawer-btn" id="v3AskAi" type="button" aria-controls="chatPanel"><span aria-hidden="true">✦</span><span data-v3-ai-label>Ask Samuga AI</span></button>
+        <nav class="v3-drawer-section" aria-labelledby="v3CategoriesHeading">
+          <h2 class="v3-drawer-heading" id="v3CategoriesHeading">News</h2>
+          <div class="v3-category-list">${categories.map(cat => `<button class="v3-category-btn" type="button" data-v3-category="${cat}">${labels[cat]}</button>`).join("")}</div>
+        </nav>
+        <button class="v3-ai-drawer-btn" id="v3AskAi" type="button" aria-controls="chatPanel"><span data-v3-ai-label>Ask Samuga AI</span></button>
         <section class="v3-drawer-section" aria-labelledby="v3FollowHeading">
           <h2 class="v3-drawer-heading" id="v3FollowHeading">Follow Samuga</h2>
           <div class="v3-social-row" data-v3-socials>${SOCIAL_KEYS.map(key => socialLinkMarkup(key)).join("")}</div><p class="v3-social-status" role="status" aria-live="polite"></p>
         </section>
-        <nav class="v3-drawer-section" aria-labelledby="v3CategoriesHeading">
-          <h2 class="v3-drawer-heading" id="v3CategoriesHeading">Categories</h2>
-          <div class="v3-category-list">${categories.map(cat => `<button class="v3-category-btn" type="button" data-v3-category="${cat}">${labels[cat]}</button>`).join("")}</div>
-        </nav>
-        <section class="v3-drawer-section" aria-labelledby="v3NewsletterHeading">
-          <h2 class="v3-drawer-heading" id="v3NewsletterHeading">Stay updated</h2>
+        <details class="v3-drawer-section v3-drawer-newsletter">
+          <summary id="v3NewsletterHeading">Email updates</summary>
           <p class="v3-newsletter-copy">Get every new Samuga story in your inbox. Free, with one-click unsubscribe.</p>
           <form class="v3-newsletter-form" data-newsletter-form novalidate>
             <label class="sr-only" for="v3NewsletterEmail">Email address</label>
@@ -99,7 +99,7 @@
             <button class="v3-newsletter-submit" type="submit">Subscribe free</button>
             <p class="v3-newsletter-status" role="status" aria-live="polite"></p>
           </form>
-        </section>
+        </details>
         <nav class="v3-drawer-section v3-drawer-links" aria-label="Samuga information">
           <a href="/about.html">About Samuga</a><a href="/advertising.html">Advertise with us</a>
           <a href="/contact.html">Contact</a><a href="/editorial-policy.html">Editorial policy</a>
@@ -125,7 +125,7 @@
   }
 
   function backgroundChildren() {
-    return qa("body > *").filter(node => !node.matches("#v3Drawer,#v3DrawerOverlay,.chat-panel,.chat-fab"));
+    return qa("body > *").filter(node => !node.matches("#v3Drawer,#v3DrawerOverlay"));
   }
 
   function openDrawer(trigger) {
