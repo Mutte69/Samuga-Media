@@ -1665,6 +1665,7 @@ function relativeAdminTime(value) {
 
 async function loadPublishing() {
   if (!PUBLISH_ROLES.has(user?.role)) return;
+  window.SamugaDeliveryAttention?.load();
   try {
     const data = await api("/api/admin/publishing");
     renderPublishingConnections(data.connections || {}, data.connections_checked_at);
